@@ -561,13 +561,12 @@
 
         function saveState() {
             localStorage.setItem('jbs_cart', JSON.stringify(state.cart));
-            localStorage.setItem('jbs_favorites', JSON.stringify(state.favorites));
         }
 
         function getFilteredProducts() {
             // If searching, search EVERYTHING (ignore current category filter)
             if (state.searchQuery) {
-                return products.filter(p => p.name.toLowerCase().includes(state.searchQuery.toLowerCase()));
+                return products.filter(p => p.name && p.name.toLowerCase().includes(state.searchQuery.toLowerCase()));
             }
             // Otherwise, filter by category
             return state.selectedCategory === 'all' ? products : products.filter(p => p.category === state.selectedCategory);
