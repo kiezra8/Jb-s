@@ -290,22 +290,31 @@
     <div id="app"></div>
 
     <script>
+        const ADMIN_EMAIL = 'israelezrakisakye@gmail.com';
+
         const state = {
             activeTab: 'home',
             cart: JSON.parse(localStorage.getItem('jbs_cart') || '[]'),
             showCart: false,
             showMenu: false,
-            favorites: JSON.parse(localStorage.getItem('jbs_favorites') || '[]'),
             selectedCategory: 'all',
             selectedProduct: null,
             selectedSize: '',
             searchQuery: '',
             showOrderOptions: false,
             orderProduct: null,
-            viewingCategoryPage: false
+            viewingCategoryPage: false,
+            // Auth & Messaging
+            currentUser: null,
+            isAdmin: false,
+            showAuthModal: false,
+            authMode: 'login', // 'login' or 'signup'
+            orders: [],
+            messages: [],
+            selectedOrder: null,
+            selectedConversation: null,
+            unreadCount: 0
         };
-
-        const PHONE = '+256702370441';
 
         const categories = [
             { id: 'all', name: 'All', image: 'https://loremflickr.com/800/800/fashion?lock=200' },
@@ -339,11 +348,91 @@
         try {
             firebase.initializeApp(firebaseConfig);
             console.log("Firebase initialized");
+
+            // Auth state listener
+            firebase.auth().onAuthStateChanged(async (user) => {
+                if (user) {
+                    state.currentUser = user;
+                    state.isAdmin = user.email === ADMIN_EMAIL;
+                    console.log(`Logged in as: ${user.email}`, state.isAdmin ? '(ADMIN)' : '(Customer)');
+                    await loadUserData();
+                } else {
+                    state.currentUser = null;
+                    state.isAdmin = false;
+                }
+                render();
+            });
         } catch (e) {
             console.warn("Firebase config missing or invalid", e);
         }
 
         let products = [];
+
+        // Auth Functions
+        async function login(email, password) {
+            try {
+                await firebase.auth().signInWithEmailAndPassword(email, password);
+                state.showAuthModal = false;
+                showToast('Welcome back!');
+            } catch (error) {
+                alert('Login failed: ' + error.message);
+            }
+        }
+
+        async function signup(email, password, name) {
+            try {
+                const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+                await userCredential.user.updateProfile({ displayName: name });
+
+                // Create user document
+                const db = firebase.firestore();
+                await db.collection('users').doc(userCredential.user.uid).set({
+                    email,
+                    name,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                state.showAuthModal = false;
+                showToast('Account created successfully!');
+            } catch (error) {
+                alert('Signup failed: ' + error.message);
+            }
+        }
+
+        async function logout() {
+            try {
+                await firebase.auth().signOut();
+                state.cart = [];
+                state.orders = [];
+                state.messages = [];
+                showToast('Logged out successfully');
+            } catch (error) {
+                alert('Logout failed: ' + error.message);
+            }
+        }
+
+        async function loadUserData() {
+            if (!state.currentUser) return;
+
+            const db = firebase.firestore();
+
+            // Load user's orders
+            if (state.isAdmin) {
+                // Admin sees all orders
+                const ordersSnapshot = await db.collection('orders').orderBy('createdAt', 'desc').get();
+                state.orders = ordersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            } else {
+                // Customer sees only their orders
+                const ordersSnapshot = await db.collection('orders')
+                    .where('userId', '==', state.currentUser.uid)
+                    .orderBy('createdAt', 'desc')
+                    .get();
+                state.orders = ordersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            }
+
+            // Count unread messages
+            state.unreadCount = state.orders.filter(o => o.unreadByCustomer && !state.isAdmin).length;
+        }
 
         async function initializeApp() {
             // 1. Try to get products from Firestore
@@ -479,27 +568,49 @@
             render();
         }
 
-        function showOrderOptions(product, context = 'buy') {
-            state.orderProduct = { ...product, context };
-            state.showOrderOptions = true;
-            render();
-        }
 
-        function orderViaWhatsApp() {
+        async function placeOrder() {
+            if (!state.currentUser) {
+                state.showAuthModal = true;
+                state.showOrderOptions = false;
+                showToast('Please login to place an order');
+                return;
+            }
+
             const product = state.orderProduct;
-            const message = product.context === 'support'
-                ? `Hi, I need support regarding your products.`
-                : `Hi, I would like to order: ${product.name} - ${formatMoney(product.price)}`;
-            const url = `https://wa.me/${PHONE.replace('+', '')}?text=${encodeURIComponent(message)}`;
-            window.open(url, '_blank');
-            state.showOrderOptions = false;
-            render();
-        }
+            const db = firebase.firestore();
 
-        function orderViaCall() {
-            window.location.href = `tel:${PHONE}`;
-            state.showOrderOptions = false;
-            render();
+            try {
+                const orderData = {
+                    userId: state.currentUser.uid,
+                    userEmail: state.currentUser.email,
+                    userName: state.currentUser.displayName || 'Customer',
+                    product: {
+                        id: product.id,
+                        name: product.name,
+                        price: product.price,
+                        image: product.image
+                    },
+                    items: product.context === 'order' ? state.cart : [product],
+                    total: product.context === 'order' ? product.price : product.price,
+                    status: 'pending',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    messages: [],
+                    unreadByAdmin: true,
+                    unreadByCustomer: false
+                };
+
+                const orderRef = await db.collection('orders').add(orderData);
+
+                state.showOrderOptions = false;
+                state.activeTab = 'messages';
+                state.selectedOrder = orderRef.id;
+                await loadUserData();
+                showToast('Order placed! Chat with admin below.');
+                render();
+            } catch (error) {
+                alert('Order failed: ' + error.message);
+            }
         }
 
         function addToCart(product, size) {
@@ -735,19 +846,57 @@
                 `;
         }
 
-        function renderFavorites() {
-            const favoriteProducts = products.filter(p => state.favorites.includes(p.id));
+        function renderMessages() {
+            if (!state.currentUser) {
+                return `
+                    <div class="flex-1 overflow-y-auto bg-gray-50 p-4 pb-20 animate-fade-in flex items-center justify-center">
+                        <div class="text-center">
+                            <i data-lucide="message-circle" class="w-16 h-16 text-gray-300 mx-auto mb-4"></i>
+                            <p class="text-gray-500 mb-4">Please login to view messages</p>
+                            <button onclick="state.showAuthModal = true; render();" class="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 py-3 rounded-lg font-bold">
+                                Login / Sign Up
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
             return `
                 <div class="flex-1 overflow-y-auto bg-gray-50 p-4 pb-20 animate-fade-in">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4 animate-fade-in-up">❤️ My Favorites</h2>
-                    ${favoriteProducts.length === 0 ? `
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 animate-fade-in-up">
+                        ${state.isAdmin ? '📦 All Orders' : '💬 My Orders & Messages'}
+                    </h2>
+                    ${state.orders.length === 0 ? `
                         <div class="text-center py-16 animate-fade-in-up">
-                            <i data-lucide="heart" class="w-16 h-16 text-gray-300 mx-auto mb-4"></i>
-                            <p class="text-gray-500">No favorites yet</p>
+                            <i data-lucide="inbox" class="w-16 h-16 text-gray-300 mx-auto mb-4"></i>
+                            <p class="text-gray-500">No orders yet</p>
                         </div>
                     ` : `
-                        <div class="grid grid-cols-2 gap-4">
-                            ${favoriteProducts.map((p, i) => renderProductCard(p, i)).join('')}
+                        <div class="space-y-3">
+                            ${state.orders.map((order, i) => `
+                                <div onclick="selectOrder('${order.id}')" class="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all cursor-pointer animate-fade-in-up" style="animation-delay: ${i * 50}ms">
+                                    <div class="flex items-start gap-3">
+                                        <img src="${order.product?.image || order.items?.[0]?.image}" class="w-16 h-16 rounded-lg object-cover">
+                                        <div class="flex-1">
+                                            <div class="flex items-start justify-between mb-1">
+                                                <h3 class="font-semibold text-sm">${order.product?.name || 'Order'}</h3>
+                                                <span class="text-xs px-2 py-1 rounded-full ${order.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                    order.status === 'confirmed' ? 'bg-green-100 text-green-700' :
+                        order.status === 'cancelled' ? 'bg-red-100 text-red-700' :
+                            'bg-blue-100 text-blue-700'
+                }">${order.status}</span>
+                                            </div>
+                                            <p class="text-xs text-gray-500 mb-2">${state.isAdmin ? order.userName : formatMoney(order.total)}</p>
+                                            <div class="flex items-center justify-between">
+                                                <span class="text-xs text-gray-400">${order.createdAt ? new Date(order.createdAt.seconds * 1000).toLocaleDateString() : 'Just now'}</span>
+                                                ${(state.isAdmin && order.unreadByAdmin) || (!state.isAdmin && order.unreadByCustomer) ?
+                    '<span class="w-2 h-2 bg-pink-500 rounded-full"></span>' : ''
+                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
                         </div>
                     `}
                 </div>
@@ -761,40 +910,47 @@
                         <div class="w-24 h-24 bg-white rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg border-4 border-white/20 relative z-10 animate-fade-in-up">
                             <i data-lucide="user" class="w-12 h-12 text-pink-500"></i>
                         </div>
-                        <h2 class="text-2xl font-bold mb-1 relative z-10 animate-fade-in-up delay-100">Welcome!</h2>
-                        <p class="text-sm opacity-90 relative z-10 animate-fade-in-up delay-200">Manage your account</p>
+                        <h2 class="text-2xl font-bold mb-1 relative z-10 animate-fade-in-up delay-100">
+                            ${state.currentUser ? (state.currentUser.displayName || 'Welcome!') : 'Welcome!'}
+                        </h2>
+                        <p class="text-sm opacity-90 relative z-10 animate-fade-in-up delay-200">
+                            ${state.currentUser ? state.currentUser.email : 'Please login to continue'}
+                        </p>
+                        ${state.isAdmin ? '<span class="inline-block bg-yellow-400 text-gray-900 px-3 py-1 rounded-full text-xs font-bold mt-2">ADMIN</span>' : ''}
                         <div class="absolute inset-0 bg-white/10 blur-xl"></div>
                     </div>
                     <div class="p-6 space-y-4 -mt-4 relative z-10">
-                        <button class="action-bar w-full p-4 flex items-center justify-between animate-list-item delay-100">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                                    <i data-lucide="package" class="w-5 h-5 text-white"></i>
+                        ${state.currentUser ? `
+                            <button onclick="switchTab('messages')" class="action-bar w-full p-4 flex items-center justify-between animate-list-item delay-100">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                                        <i data-lucide="package" class="w-5 h-5 text-white"></i>
+                                    </div>
+                                    <span class="font-bold text-lg">My Orders</span>
                                 </div>
-                                <span class="font-bold text-lg">My Orders</span>
-                            </div>
-                            <i data-lucide="arrow-right" class="w-5 h-5 text-white/80"></i>
-                        </button>
-                        
-                        <button class="action-bar w-full p-4 flex items-center justify-between animate-list-item delay-200">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                                    <i data-lucide="map-pin" class="w-5 h-5 text-white"></i>
+                                <i data-lucide="arrow-right" class="w-5 h-5 text-white/80"></i>
+                            </button>
+                            
+                            <button class="action-bar w-full p-4 flex items-center justify-between animate-list-item delay-200">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                                        <i data-lucide="settings" class="w-5 h-5 text-white"></i>
+                                    </div>
+                                    <span class="font-bold text-lg">Settings</span>
                                 </div>
-                                <span class="font-bold text-lg">Addresses</span>
-                            </div>
-                            <i data-lucide="arrow-right" class="w-5 h-5 text-white/80"></i>
-                        </button>
+                                <i data-lucide="arrow-right" class="w-5 h-5 text-white/80"></i>
+                            </button>
 
-                        <button class="action-bar w-full p-4 flex items-center justify-between animate-list-item delay-300">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                                    <i data-lucide="settings" class="w-5 h-5 text-white"></i>
-                                </div>
-                                <span class="font-bold text-lg">Settings</span>
-                            </div>
-                            <i data-lucide="arrow-right" class="w-5 h-5 text-white/80"></i>
-                        </button>
+                            <button onclick="logout()" class="w-full bg-red-500 hover:bg-red-600 text-white p-4 rounded-lg font-bold flex items-center justify-center gap-3 transition-all active:scale-95 animate-list-item delay-300">
+                                <i data-lucide="log-out" class="w-5 h-5"></i>
+                                Logout
+                            </button>
+                        ` : `
+                            <button onclick="state.showAuthModal = true; render();" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white p-4 rounded-lg font-bold flex items-center justify-center gap-3 transition-all active:scale-95 animate-list-item delay-100">
+                                <i data-lucide="log-in" class="w-5 h-5"></i>
+                                Login / Sign Up
+                            </button>
+                        `}
                     </div>
                 </div>
                 `;
@@ -824,7 +980,7 @@
 
                     ${state.activeTab === 'home' ? renderHome() : ''}
                     ${state.activeTab === 'categories' ? renderCategories() : ''}
-                    ${state.activeTab === 'favorites' ? renderFavorites() : ''}
+                    ${state.activeTab === 'messages' ? renderMessages() : ''}
                     ${state.activeTab === 'profile' ? renderProfile() : ''}
 
                     <!--Bottom Nav-->
@@ -837,9 +993,10 @@
                             <i data-lucide="layout-grid" class="w-6 h-6"></i>
                             <span class="text-xs font-medium">Categories</span>
                         </button>
-                        <button onclick="switchTab('favorites')" class="flex flex-col items-center gap-1 p-2 transition-all duration-300 active:scale-90 ${state.activeTab === 'favorites' ? 'text-pink-600 scale-110' : 'text-gray-400'}">
-                            <i data-lucide="heart" class="w-6 h-6"></i>
-                            <span class="text-xs font-medium">Favorites</span>
+                        <button onclick="switchTab('messages')" class="flex flex-col items-center gap-1 p-2 transition-all duration-300 active:scale-90 ${state.activeTab === 'messages' ? 'text-pink-600 scale-110' : 'text-gray-400'} relative">
+                            <i data-lucide="message-circle" class="w-6 h-6"></i>
+                            ${state.unreadCount > 0 ? `<span class="absolute top-0 right-0 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">${state.unreadCount}</span>` : ''}
+                            <span class="text-xs font-medium">Messages</span>
                         </button>
                         <button onclick="switchTab('profile')" class="flex flex-col items-center gap-1 p-2 transition-all duration-300 active:scale-90 ${state.activeTab === 'profile' ? 'text-pink-600 scale-110' : 'text-gray-400'}">
                             <i data-lucide="user" class="w-6 h-6"></i>
@@ -1003,36 +1160,240 @@
                     ` : ''
                 }
 
-                    <!--Order Options Modal-->
+                    <!--Order Confirmation Modal-->
                 ${state.showOrderOptions ? `
                         <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-fade-in" onclick="state.showOrderOptions = false; render();">
                             <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl transform scale-100 transition-all animate-fade-in-up" onclick="event.stopPropagation()">
-                                <h3 class="text-xl font-bold mb-6 text-center">Choose Contact Method</h3>
+                                <h3 class="text-xl font-bold mb-4 text-center">Confirm Order</h3>
+                                <p class="text-gray-600 text-center mb-6">Place this order and chat with admin?</p>
                                 <div class="space-y-3">
-                                    <button onclick="orderViaWhatsApp()" class="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition-all transform hover:scale-105 active:scale-95 shadow-md">
-                                        <i data-lucide="message-circle" class="w-6 h-6"></i>
-                                        WhatsApp
+                                    <button onclick="placeOrder()" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition-all transform hover:scale-105 active:scale-95 shadow-md">
+                                        <i data-lucide="check-circle" class="w-6 h-6"></i>
+                                        Confirm Order
                                     </button>
-                                    <button onclick="orderViaCall()" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition-all transform hover:scale-105 active:scale-95 shadow-md">
-                                        <i data-lucide="phone" class="w-6 h-6"></i>
-                                        Call (+256)
+                                    <button onclick="state.showOrderOptions = false; render();" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-medium transition-all active:scale-95">
+                                        Cancel
                                     </button>
-                                    <div class="pt-2">
-                                        <button onclick="state.showOrderOptions = false; render();" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-medium transition-all active:scale-95">
-                                            Cancel
-                                        </button>
-                                    </div>
                                 </div>
                             </div>
                         </div>
                     ` : ''
                 }
+
+                    <!--Auth Modal-->
+                ${state.showAuthModal ? `
+                        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-fade-in" onclick="state.showAuthModal = false; render();">
+                            <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl transform scale-100 transition-all animate-fade-in-up" onclick="event.stopPropagation()">
+                                <h3 class="text-2xl font-bold mb-6 text-center">${state.authMode === 'login' ? 'Welcome Back!' : 'Create Account'}</h3>
+                                
+                                <form onsubmit="event.preventDefault(); ${state.authMode === 'login' ? 'handleLogin' : 'handleSignup'}(event);" class="space-y-4">
+                                    ${state.authMode === 'signup' ? `
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                                            <input type="text" name="name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent" placeholder="Your name">
+                                        </div>
+                                    ` : ''}
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                        <input type="email" name="email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent" placeholder="your@email.com">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                                        <input type="password" name="password" required minlength="6" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent" placeholder="••••••••">
+                                    </div>
+                                    
+                                    <button type="submit" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-3 rounded-lg font-bold hover:shadow-lg active:scale-95 transition-all">
+                                        ${state.authMode === 'login' ? 'Login' : 'Sign Up'}
+                                    </button>
+                                </form>
+                                
+                                <div class="mt-4 text-center">
+                                    <button onclick="state.authMode = state.authMode === 'login' ? 'signup' : 'login'; render();" class="text-pink-600 font-medium hover:underline">
+                                        ${state.authMode === 'login' ? "Don't have an account? Sign up" : 'Already have an account? Login'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''
+                }
+
+                    <!--Chat Modal-->
+                ${state.selectedOrder ? (() => {
+                    const order = state.orders.find(o => o.id === state.selectedOrder);
+                    if (!order) return '';
+
+                    return `
+                        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-end sm:items-center sm:justify-center p-0 sm:p-4 animate-fade-in" onclick="closeChat(event)">
+                            <div class="bg-white rounded-t-3xl sm:rounded-3xl w-full sm:max-w-lg h-[90vh] flex flex-col animate-slide-in-up" onclick="event.stopPropagation()">
+                                <!-- Header -->
+                                <div class="bg-gradient-to-r from-pink-500 to-purple-600 text-white p-4 rounded-t-3xl sm:rounded-t-3xl flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <img src="${order.product?.image || order.items?.[0]?.image}" class="w-12 h-12 rounded-lg object-cover">
+                                        <div>
+                                            <h3 class="font-bold">${order.product?.name || 'Order Chat'}</h3>
+                                            <p class="text-xs opacity-90">Status: ${order.status}</p>
+                                        </div>
+                                    </div>
+                                    <button onclick="closeChat()" class="p-2 hover:bg-white/20 rounded-full transition-colors">
+                                        <i data-lucide="x" class="w-6 h-6"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Messages -->
+                                <div class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50" id="chatMessages">
+                                    ${!order.messages || order.messages.length === 0 ? `
+                                        <div class="text-center py-8 text-gray-500">
+                                            <i data-lucide="message-circle" class="w-12 h-12 mx-auto mb-2 text-gray-300"></i>
+                                            <p>No messages yet. Start the conversation!</p>
+                                        </div>
+                                    ` : order.messages.map((msg, i) => `
+                                        <div class="flex ${msg.isAdmin ? 'justify-start' : 'justify-end'} animate-fade-in-up" style="animation-delay: ${i * 50}ms">
+                                            <div class="max-w-[75%] ${msg.isAdmin ? 'bg-white' : 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'} rounded-2xl p-3 shadow-sm">
+                                                <p class="text-sm font-medium mb-1 ${msg.isAdmin ? 'text-pink-600' : 'text-white/90'}">${msg.senderName}</p>
+                                                <p class="text-sm">${msg.text}</p>
+                                                <p class="text-xs mt-1 ${msg.isAdmin ? 'text-gray-400' : 'text-white/70'}">${msg.timestamp ? new Date(msg.timestamp.seconds * 1000).toLocaleTimeString() : 'Just now'}</p>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+
+                                <!-- Admin Controls -->
+                                ${state.isAdmin ? `
+                                    <div class="border-t p-3 bg-gray-50">
+                                        <div class="flex gap-2">
+                                            <button onclick="updateOrderStatus('${order.id}', 'confirmed')" class="flex-1 bg-green-500 text-white py-2 px-3 rounded-lg text-sm font-bold hover:bg-green-600 active:scale-95 transition-all">
+                                                ✓ Confirm
+                                            </button>
+                                            <button onclick="updateOrderStatus('${order.id}', 'cancelled')" class="flex-1 bg-red-500 text-white py-2 px-3 rounded-lg text-sm font-bold hover:bg-red-600 active:scale-95 transition-all">
+                                                ✗ Cancel
+                                            </button>
+                                            <button onclick="updateOrderStatus('${order.id}', 'completed')" class="flex-1 bg-blue-500 text-white py-2 px-3 rounded-lg text-sm font-bold hover:bg-blue-600 active:scale-95 transition-all">
+                                                ✓ Complete
+                                            </button>
+                                        </div>
+                                    </div>
+                                ` : ''}
+
+                                <!-- Message Input -->
+                                <div class="border-t p-4 bg-white rounded-b-3xl sm:rounded-b-3xl">
+                                    <form onsubmit="event.preventDefault(); sendMessage('${order.id}', event);" class="flex gap-2">
+                                        <input type="text" name="message" required placeholder="Type a message..." class="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-pink-500 focus:border-transparent">
+                                        <button type="submit" class="bg-gradient-to-r from-pink-500 to-purple-600 text-white p-3 rounded-full hover:shadow-lg active:scale-95 transition-all">
+                                            <i data-lucide="send" class="w-5 h-5"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                })() : ''}
                 </div>
             `;
             if (window.lucide) lucide.createIcons();
+
+            // Scroll chat to bottom
+            setTimeout(() => {
+                const chatEl = document.getElementById('chatMessages');
+                if (chatEl) chatEl.scrollTop = chatEl.scrollHeight;
+            }, 100);
         }
 
-        // ... (Functions same as before, no changes to logic) ...
+        // Auth Form Handlers
+        function handleLogin(event) {
+            const form = event.target;
+            const email = form.email.value;
+            const password = form.password.value;
+            login(email, password);
+        }
+
+        function handleSignup(event) {
+            const form = event.target;
+            const name = form.name.value;
+            const email = form.email.value;
+            const password = form.password.value;
+            signup(email, password, name);
+        }
+
+        // Helper Functions
+        function showOrderOptions(product, context = 'buy') {
+            state.orderProduct = { ...product, context };
+            state.showOrderOptions = true;
+            render();
+        }
+
+        function selectOrder(orderId) {
+            state.selectedOrder = orderId;
+
+            // Mark messages as read
+            if (state.currentUser) {
+                const db = firebase.firestore();
+                const updateField = state.isAdmin ? 'unreadByAdmin' : 'unreadByCustomer';
+                db.collection('orders').doc(orderId).update({
+                    [updateField]: false
+                }).then(() => loadUserData());
+            }
+
+            render();
+        }
+
+        function closeChat(event) {
+            if (event) event.stopPropagation();
+            state.selectedOrder = null;
+            render();
+        }
+
+        async function sendMessage(orderId, event) {
+            const form = event.target;
+            const messageText = form.message.value.trim();
+
+            if (!messageText || !state.currentUser) return;
+
+            const db = firebase.firestore();
+            const orderRef = db.collection('orders').doc(orderId);
+
+            const newMessage = {
+                senderId: state.currentUser.uid,
+                senderName: state.currentUser.displayName || state.currentUser.email,
+                text: messageText,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                isAdmin: state.isAdmin
+            };
+
+            try {
+                await orderRef.update({
+                    messages: firebase.firestore.FieldValue.arrayUnion(newMessage),
+                    unreadByAdmin: !state.isAdmin,
+                    unreadByCustomer: state.isAdmin
+                });
+
+                form.reset();
+                await loadUserData();
+                render();
+            } catch (error) {
+                alert('Failed to send message: ' + error.message);
+            }
+        }
+
+        async function updateOrderStatus(orderId, newStatus) {
+            if (!state.isAdmin) return;
+
+            const db = firebase.firestore();
+
+            try {
+                await db.collection('orders').doc(orderId).update({
+                    status: newStatus
+                });
+
+                showToast(`Order ${newStatus}!`);
+                await loadUserData();
+                render();
+            } catch (error) {
+                alert('Failed to update status: ' + error.message);
+            }
+        }
+
         function switchTab(tab) { state.activeTab = tab; state.viewingCategoryPage = false; render(); }
         function selectCategory(categoryId) {
             if (categoryId === 'all') { state.selectedCategory = 'all'; state.viewingCategoryPage = false; }
