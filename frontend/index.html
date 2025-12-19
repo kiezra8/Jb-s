@@ -326,21 +326,21 @@
 
         // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "your-project.firebaseapp.com",
-            projectId: "your-project-id",
-            storageBucket: "your-project.appspot.com",
-            messagingSenderId: "SENDER_ID",
-            appId: "APP_ID"
+            apiKey: "AIzaSyD3KkDY9wJiGG_P5JaFuJcNfwn_gQmKbME",
+            authDomain: "jb-s-72a95.firebaseapp.com",
+            projectId: "jb-s-72a95",
+            storageBucket: "jb-s-72a95.firebasestorage.app",
+            messagingSenderId: "1029813117482",
+            appId: "1:1029813117482:web:73f840608b7e5702ef5953",
+            measurementId: "G-C0BMZ4HSKZ"
         };
 
         // Initialize Firebase
         try {
             firebase.initializeApp(firebaseConfig);
-            const db = firebase.firestore();
             console.log("Firebase initialized");
         } catch (e) {
-            console.warn("Firebase config missing or invalid");
+            console.warn("Firebase config missing or invalid", e);
         }
 
         let products = [];
@@ -428,8 +428,7 @@
                 const config = categoryConfig[cat.id] || { base: ['Item'], priceRange: [50000, 100000], sizes: ['M'] };
                 const keywords = imageKeywords[cat.id] || 'fashion';
 
-                // REDUCED COUNT FOR SEEDING EFFICIENCY (10 per category)
-                for (let i = 0; i < 12; i++) {
+                for (let i = 0; i < 50; i++) {
                     const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
                     const base = config.base[Math.floor(Math.random() * config.base.length)];
                     const price = Math.floor(Math.random() * (config.priceRange[1] - config.priceRange[0]) + config.priceRange[0]);
@@ -439,6 +438,7 @@
                         id: idCounter++,
                         name: `${adj} ${base}`,
                         price: finalPrice,
+                        // High Quality HD image (800x800)
                         image: `https://loremflickr.com/800/800/${keywords}?lock=${idCounter}`,
                         category: cat.id,
                         rating: (3.5 + Math.random() * 1.5).toFixed(1),
