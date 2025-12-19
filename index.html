@@ -346,6 +346,7 @@
 
 
         let products = [];
+        let productsLoaded = false;
 
         // Initialize Firebase
         try {
@@ -363,7 +364,11 @@
                     state.currentUser = null;
                     state.isAdmin = false;
                 }
-                render();
+
+                // Only render if products are loaded
+                if (productsLoaded) {
+                    render();
+                }
             });
 
             // Load products
@@ -443,6 +448,7 @@
 
             // ALWAYS generate products first (so they show immediately)
             generateProducts();
+            productsLoaded = true;
             console.log('📦 Generated products locally:', products.length);
 
             // Alert to verify this runs
