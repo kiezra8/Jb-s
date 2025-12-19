@@ -362,6 +362,9 @@
                 }
                 render();
             });
+
+            // Load products
+            initializeApp();
         } catch (e) {
             console.warn("Firebase config missing or invalid", e);
         }
