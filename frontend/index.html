@@ -358,7 +358,6 @@
                         render();
                     } else {
                         console.log('Database empty. Seeding...');
-                        showToast('First run: Seeding Database...');
                         generateProducts(); // Generate local
                         await seedDatabase(db); // Upload to firestore
                     }
