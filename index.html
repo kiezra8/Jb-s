@@ -438,29 +438,35 @@
         }
 
         async function initializeApp() {
+            console.log('🚀 initializeApp() called');
             // 1. Try to get products from Firestore
             if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
                 try {
                     const db = firebase.firestore();
+                    console.log('📡 Fetching products from Firestore...');
                     const snapshot = await db.collection('products').get();
 
                     if (!snapshot.empty) {
-                        console.log('Loaded products from Firestore');
+                        console.log('✅ Loaded products from Firestore:', snapshot.docs.length);
                         products = snapshot.docs.map(doc => doc.data());
+                        console.log('📦 Products array:', products.length);
                         render();
                     } else {
-                        console.log('Database empty. Seeding...');
+                        console.log('⚠️ Database empty. Seeding...');
                         generateProducts(); // Generate local
+                        console.log('📦 Generated products:', products.length);
                         await seedDatabase(db); // Upload to firestore
                     }
                 } catch (e) {
-                    console.warn('Firestore Error (Check Config):', e);
-                    console.log('Falling back to local mode');
+                    console.error('❌ Firestore Error:', e);
+                    console.log('🔄 Falling back to local mode');
                     generateProducts();
+                    console.log('📦 Generated products locally:', products.length);
                 }
             } else {
-                console.log('Firebase not initialized. Using local mode.');
+                console.log('⚠️ Firebase not initialized. Using local mode.');
                 generateProducts();
+                console.log('📦 Generated products locally:', products.length);
             }
             render();
         }
