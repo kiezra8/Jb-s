@@ -344,6 +344,9 @@
             measurementId: "G-C0BMZ4HSKZ"
         };
 
+
+        let products = [];
+
         // Initialize Firebase
         try {
             firebase.initializeApp(firebaseConfig);
@@ -368,8 +371,6 @@
         } catch (e) {
             console.warn("Firebase config missing or invalid", e);
         }
-
-        let products = [];
 
         // Auth Functions
         async function login(email, password) {
