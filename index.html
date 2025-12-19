@@ -440,36 +440,38 @@
 
         async function initializeApp() {
             console.log('🚀 initializeApp() called');
-            // 1. Try to get products from Firestore
+
+            // ALWAYS generate products first (so they show immediately)
+            generateProducts();
+            console.log('📦 Generated products locally:', products.length);
+
+            // Alert to verify this runs
+            alert(`Products generated: ${products.length}`);
+
+            // Force render immediately
+            render();
+
+            // Then try to sync with Firebase in background
             if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
                 try {
                     const db = firebase.firestore();
-                    console.log('📡 Fetching products from Firestore...');
+                    console.log('📡 Checking Firestore for products...');
                     const snapshot = await db.collection('products').get();
 
                     if (!snapshot.empty) {
-                        console.log('✅ Loaded products from Firestore:', snapshot.docs.length);
+                        console.log('✅ Found products in Firestore:', snapshot.docs.length);
                         products = snapshot.docs.map(doc => doc.data());
-                        console.log('📦 Products array:', products.length);
+                        console.log('📦 Updated products from Firestore:', products.length);
                         render();
                     } else {
-                        console.log('⚠️ Database empty. Seeding...');
-                        generateProducts(); // Generate local
-                        console.log('📦 Generated products:', products.length);
-                        await seedDatabase(db); // Upload to firestore
+                        console.log('⚠️ Firestore empty. Uploading generated products...');
+                        await seedDatabase(db);
                     }
                 } catch (e) {
                     console.error('❌ Firestore Error:', e);
-                    console.log('🔄 Falling back to local mode');
-                    generateProducts();
-                    console.log('📦 Generated products locally:', products.length);
+                    console.log('✅ Using locally generated products');
                 }
-            } else {
-                console.log('⚠️ Firebase not initialized. Using local mode.');
-                generateProducts();
-                console.log('📦 Generated products locally:', products.length);
             }
-            render();
         }
 
         async function seedDatabase(db) {
