@@ -974,8 +974,13 @@
         }
 
         function render() {
-            const app = document.getElementById('app');
-            app.innerHTML = `
+            try {
+                const app = document.getElementById('app');
+                if (!app) {
+                    console.error('❌ App element not found!');
+                    return;
+                }
+                app.innerHTML = `
                 <div class="flex flex-col h-screen bg-gray-50">
                     <!--Header -->
                 <div class="bg-gradient-to-r from-pink-500 to-purple-600 text-white p-4 shadow-lg sticky top-0 z-30 transition-all duration-300">
@@ -1072,12 +1077,12 @@
                             </div>
                         </div>
                     ` : ''
-                }
+                    }
 
                     <!--Product Modal-->
                 ${state.selectedProduct ? (() => {
-                    const product = products.find(p => p.id === state.selectedProduct);
-                    return `
+                        const product = products.find(p => p.id === state.selectedProduct);
+                        return `
                             <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center sm:justify-center p-0 sm:p-4 animate-fade-in" onclick="closeProductModal(event)">
                                 <div class="bg-white rounded-t-3xl sm:rounded-3xl w-full sm:max-w-xlg sm:w-[500px] max-h-[90vh] overflow-y-auto animate-slide-in-up" onclick="event.stopPropagation()">
                                     <div class="sticky top-0 bg-white/90 backdrop-blur-sm border-b p-4 flex items-center justify-between z-10 transition-colors">
@@ -1117,8 +1122,8 @@
                                 </div>
                             </div>
                         `;
-                })() : ''
-                }
+                    })() : ''
+                    }
 
                     <!--Cart Modal-->
                 ${state.showCart ? `
@@ -1175,7 +1180,7 @@
                             </div>
                         </div>
                     ` : ''
-                }
+                    }
 
                     <!--Order Confirmation Modal-->
                 ${state.showOrderOptions ? `
@@ -1195,7 +1200,7 @@
                             </div>
                         </div>
                     ` : ''
-                }
+                    }
 
                     <!--Auth Modal-->
                 ${state.showAuthModal ? `
@@ -1234,14 +1239,14 @@
                             </div>
                         </div>
                     ` : ''
-                }
+                    }
 
                     <!--Chat Modal-->
                 ${state.selectedOrder ? (() => {
-                    const order = state.orders.find(o => o.id === state.selectedOrder);
-                    if (!order) return '';
+                        const order = state.orders.find(o => o.id === state.selectedOrder);
+                        if (!order) return '';
 
-                    return `
+                        return `
                         <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-end sm:items-center sm:justify-center p-0 sm:p-4 animate-fade-in" onclick="closeChat(event)">
                             <div class="bg-white rounded-t-3xl sm:rounded-3xl w-full sm:max-w-lg h-[90vh] flex flex-col animate-slide-in-up" onclick="event.stopPropagation()">
                                 <!-- Header -->
@@ -1305,16 +1310,21 @@
                             </div>
                         </div>
                     `;
-                })() : ''}
+                    })() : ''}
                 </div>
             `;
-            if (window.lucide) lucide.createIcons();
+                if (window.lucide) lucide.createIcons();
 
-            // Scroll chat to bottom
-            setTimeout(() => {
-                const chatEl = document.getElementById('chatMessages');
-                if (chatEl) chatEl.scrollTop = chatEl.scrollHeight;
-            }, 100);
+                // Scroll chat to bottom
+                setTimeout(() => {
+                    const chatEl = document.getElementById('chatMessages');
+                    if (chatEl) chatEl.scrollTop = chatEl.scrollHeight;
+                }, 100);
+            } catch (error) {
+                console.error('❌ Render error:', error);
+                alert('Render error: ' + error.message);
+                document.getElementById('app').innerHTML = `<div style="padding: 20px; color: red;">Error: ${error.message}</div>`;
+            }
         }
 
         // Auth Form Handlers
