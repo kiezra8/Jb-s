@@ -820,9 +820,10 @@
                     <div class="p-4">
                         <div class="mb-4">
                             <h2 class="text-lg font-bold text-gray-800">✨ Recommended For You</h2>
+                            <p class="text-xs text-gray-500">Products loaded: ${products.length} | Filtered: ${getFilteredProducts().length}</p>
                         </div>
                         <div class="grid grid-cols-2 gap-4">
-                            ${getFilteredProducts().map((p, i) => renderProductCard(p, i)).join('')}
+                            ${getFilteredProducts().length > 0 ? getFilteredProducts().map((p, i) => renderProductCard(p, i)).join('') : '<p class="col-span-2 text-center text-red-500">No products found! Check console for errors.</p>'}
                         </div>
                     </div>
                 </div>
