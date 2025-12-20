@@ -444,38 +444,31 @@
         }
 
         async function initializeApp() {
-            console.log('🚀 initializeApp() called');
+            console.log('🚀 Initializing app...');
 
-            // ALWAYS generate products first (so they show immediately)
+            // Generate products
             generateProducts();
             productsLoaded = true;
-            console.log('📦 Generated products locally:', products.length);
+            console.log('✅ Products ready:', products.length);
 
-            // Alert to verify this runs
-            alert(`Products generated: ${products.length}`);
-
-            // Force render immediately
+            // Render
             render();
 
-            // Then try to sync with Firebase in background
+            // Sync with Firebase in background
             if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
                 try {
                     const db = firebase.firestore();
-                    console.log('📡 Checking Firestore for products...');
                     const snapshot = await db.collection('products').get();
 
                     if (!snapshot.empty) {
-                        console.log('✅ Found products in Firestore:', snapshot.docs.length);
                         products = snapshot.docs.map(doc => doc.data());
-                        console.log('📦 Updated products from Firestore:', products.length);
+                        console.log('✅ Synced with Firebase:', products.length);
                         render();
                     } else {
-                        console.log('⚠️ Firestore empty. Uploading generated products...');
                         await seedDatabase(db);
                     }
                 } catch (e) {
-                    console.error('❌ Firestore Error:', e);
-                    console.log('✅ Using locally generated products');
+                    console.log('Using local products');
                 }
             }
         }
@@ -571,18 +564,6 @@
             // Otherwise, filter by category
             return state.selectedCategory === 'all' ? products : products.filter(p => p.category === state.selectedCategory);
         }
-
-        function toggleFavorite(productId) {
-            const index = state.favorites.indexOf(productId);
-            if (index > -1) {
-                state.favorites.splice(index, 1);
-            } else {
-                state.favorites.push(productId);
-            }
-            saveState();
-            render();
-        }
-
 
         async function placeOrder() {
             if (!state.currentUser) {
@@ -685,9 +666,6 @@
                     <div onclick="selectProduct(${product.id})" class="cursor-pointer">
                         <div class="relative h-48 bg-gray-100 group overflow-hidden">
                             <img src="${product.image}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                            <button onclick="event.stopPropagation(); toggleFavorite(${product.id})" class="absolute top-2 right-2 bg-white rounded-full p-2 shadow-md hover:scale-110 active:scale-95 transition-transform">
-                                <i data-lucide="heart" class="w-5 h-5 ${state.favorites.includes(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'}"></i>
-                            </button>
                             <button onclick="event.stopPropagation(); selectProduct(${product.id})" class="absolute bottom-2 right-2 bg-white rounded-full p-2 shadow-md hover:scale-110 active:scale-95 transition-transform text-pink-600">
                                 <i data-lucide="plus" class="w-5 h-5"></i>
                             </button>
