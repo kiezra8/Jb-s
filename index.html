@@ -434,9 +434,11 @@
                 // Customer sees only their orders
                 const ordersSnapshot = await db.collection('orders')
                     .where('userId', '==', state.currentUser.uid)
-                    .orderBy('createdAt', 'desc')
                     .get();
-                state.orders = ordersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                // Sort client-side to avoid Firebase Index error
+                state.orders = ordersSnapshot.docs
+                    .map(doc => ({ id: doc.id, ...doc.data() }))
+                    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
             }
 
             // Count unread messages
