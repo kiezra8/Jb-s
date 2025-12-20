@@ -1371,7 +1371,7 @@
                 senderId: state.currentUser.uid,
                 senderName: state.currentUser.displayName || state.currentUser.email,
                 text: messageText,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                timestamp: firebase.firestore.Timestamp.now(),
                 isAdmin: state.isAdmin
             };
 
