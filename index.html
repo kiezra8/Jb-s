@@ -1477,6 +1477,72 @@
         function toggleMenu() { state.showMenu = !state.showMenu; render(); }
         function handleSearch(event) { state.searchQuery = event.target.value; render(); }
 
+        // --- Real-time Chat & Notifications ---
+        let activeChatListener = null;
+
+        function startChatListener(orderId) {
+            // Unsubscribe previous listener if exists
+            if (activeChatListener) activeChatListener();
+
+            const db = firebase.firestore();
+            activeChatListener = db.collection('orders').doc(orderId).onSnapshot(doc => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    const orderIndex = state.orders.findIndex(o => o.id === orderId);
+
+                    // Check for new messages to play sound
+                    if (orderIndex !== -1) {
+                        const oldMsgs = state.orders[orderIndex].messages || [];
+                        const newMsgs = data.messages || [];
+                        if (newMsgs.length > oldMsgs.length) {
+                            const lastMsg = newMsgs[newMsgs.length - 1];
+                            // Play sound if message is NOT from me (incoming)
+                            // Helper logic: Admin checks for non-admin msg, User checks for admin msg
+                            const isMe = (state.isAdmin && lastMsg.isAdmin) || (!state.isAdmin && !lastMsg.isAdmin);
+                            if (!isMe && !lastMsg.isSystem) {
+                                playNotificationSound();
+                            }
+                        }
+                    }
+
+                    // Update local state
+                    if (orderIndex !== -1) {
+                        state.orders[orderIndex] = { id: doc.id, ...data };
+                    } else {
+                        state.orders.push({ id: doc.id, ...data });
+                    }
+                    render();
+                }
+            });
+        }
+
+        function playNotificationSound() {
+            // Simple beep sound for notifications
+            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+            audio.volume = 0.5;
+            audio.play().catch(e => console.log('Audio play prevent by browser', e));
+        }
+
+        function selectOrder(orderId) {
+            state.selectedOrder = orderId;
+            startChatListener(orderId);
+            state.viewingCategoryPage = false;
+            render();
+        }
+
+        function closeChat(event) {
+            if (event) event.stopPropagation();
+            state.selectedOrder = null;
+            // Stop listening when chat closes
+            if (activeChatListener) {
+                activeChatListener();
+                activeChatListener = null;
+            }
+            // Reload all data to ensure sync
+            loadUserData();
+            render();
+        }
+
         render();
     </script>
 </body>
