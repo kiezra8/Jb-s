@@ -591,7 +591,14 @@
                     total: product.context === 'order' ? product.price : product.price,
                     status: 'pending',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    messages: [],
+                    messages: [{
+                        senderId: 'system',
+                        senderName: 'System',
+                        text: `Order Placed for ${product.name} (${formatMoney(product.price)}). Waiting for admin confirmation.`,
+                        timestamp: firebase.firestore.Timestamp.now(),
+                        isAdmin: false,
+                        isSystem: true
+                    }],
                     unreadByAdmin: true,
                     unreadByCustomer: false
                 };
@@ -1247,15 +1254,18 @@
                                             <i data-lucide="message-circle" class="w-12 h-12 mx-auto mb-2 text-gray-300"></i>
                                             <p>No messages yet. Start the conversation!</p>
                                         </div>
-                                    ` : order.messages.map((msg, i) => `
-                                        <div class="flex ${msg.isAdmin ? 'justify-start' : 'justify-end'} animate-fade-in-up" style="animation-delay: ${i * 50}ms">
-                                            <div class="max-w-[75%] ${msg.isAdmin ? 'bg-white' : 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'} rounded-2xl p-3 shadow-sm">
-                                                <p class="text-sm font-medium mb-1 ${msg.isAdmin ? 'text-pink-600' : 'text-white/90'}">${msg.senderName}</p>
+                                    ` : order.messages.map((msg, i) => {
+                            const isMe = (state.isAdmin && msg.isAdmin) || (!state.isAdmin && !msg.isAdmin && !msg.isSystem);
+                            return `
+                                        <div class="flex ${msg.isSystem ? 'justify-center' : (isMe ? 'justify-end' : 'justify-start')} animate-fade-in-up" style="animation-delay: ${i * 50}ms">
+                                            <div class="max-w-[75%] ${msg.isSystem ? 'bg-gray-200 text-gray-600 text-center text-xs py-2' : (isMe ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white' : 'bg-white')} rounded-2xl p-3 shadow-sm">
+                                                ${!msg.isSystem ? `<p class="text-sm font-medium mb-1 ${isMe ? 'text-white/90' : 'text-pink-600'}">${msg.senderName}</p>` : ''}
                                                 <p class="text-sm">${msg.text}</p>
-                                                <p class="text-xs mt-1 ${msg.isAdmin ? 'text-gray-400' : 'text-white/70'}">${msg.timestamp ? new Date(msg.timestamp.seconds * 1000).toLocaleTimeString() : 'Just now'}</p>
+                                                <p class="text-xs mt-1 ${isMe ? 'text-white/70' : 'text-gray-400'}">${msg.timestamp ? new Date(msg.timestamp.seconds * 1000).toLocaleTimeString() : 'Just now'}</p>
                                             </div>
                                         </div>
-                                    `).join('')}
+                                        `;
+                        }).join('')}
                                 </div>
 
                                 <!-- Admin Controls -->
