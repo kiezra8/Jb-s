@@ -637,15 +637,22 @@
                 state.showAuthModal = true;
                 return;
             }
-            // Check if there is already an open support chat
-            const existingChat = state.orders.find(o => o.product.name === 'General Support' && o.status !== 'completed');
-            if (existingChat) {
-                selectOrder(existingChat.id);
+
+            // ONE INBOX RULE: Find ANY existing support chat to reuse
+            // Filter for context='support' OR name='General Support'
+            const existingChats = state.orders
+                .filter(o => (o.product.context === 'support' || o.product.name === 'General Support') && o.status !== 'completed')
+                .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+
+            if (existingChats.length > 0) {
+                // Open the most recent existing chat
+                selectOrder(existingChats[0].id);
                 state.activeTab = 'messages';
                 render();
                 return;
             }
 
+            // Create new ONLY if no active chat exists
             state.orderProduct = {
                 name: 'General Support',
                 price: 0,
@@ -1031,6 +1038,13 @@
                     ${state.activeTab === 'categories' ? renderCategories() : ''}
                     ${state.activeTab === 'messages' ? renderMessages() : ''}
                     ${state.activeTab === 'profile' ? renderProfile() : ''}
+                    
+                    <!-- Persistent Support Button -->
+                    ${!state.selectedOrder && state.activeTab !== 'messages' ? `
+                        <button onclick="startSupportChat()" class="fixed bottom-20 right-4 bg-green-500 text-white p-4 rounded-full shadow-lg z-40 hover:scale-110 active:scale-90 transition-all animate-bounce">
+                            <i data-lucide="message-circle" class="w-6 h-6"></i>
+                        </button>
+                    ` : ''}
 
                     <!--Bottom Nav-->
                     <div class="bg-white/90 backdrop-blur-lg border-t p-2 flex justify-around sticky bottom-0 z-30 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] transition-transform duration-300">
