@@ -4,40 +4,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JB'S COLLECTION - Luxury Fashion</title>
+    <title>JB'S TAILORED - Bespoke Fashion</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Outfit:wght@300;400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@100;200;300;400;500;600&display=swap');
 
         body {
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 300;
         }
 
         /* Advanced Animations */
         @keyframes slide {
 
             0%,
-            25% {
+            30% {
                 transform: translateX(0);
             }
 
-            30%,
-            55% {
-                transform: translateX(-100%);
+            33%,
+            63% {
+                transform: translateX(-33.333%);
             }
 
-            60%,
-            85% {
-                transform: translateX(-200%);
+            66%,
+            96% {
+                transform: translateX(-66.666%);
             }
 
-            90%,
             100% {
-                transform: translateX(-300%);
+                transform: translateX(0);
             }
         }
 
@@ -120,24 +120,10 @@
         }
 
         .brand-text {
-            font-family: 'Playfair Display', serif;
-            letter-spacing: 2px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        /* First Pharmacy / Luxury Animations */
-        @keyframes subtle-drift {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
+            font-family: 'Cormorant Garamond', serif;
+            letter-spacing: 4px;
+            font-weight: 300;
+            text-shadow: none;
         }
 
         @keyframes float-up {
@@ -157,66 +143,7 @@
         }
 
         .bg-luxury {
-            background: linear-gradient(-45deg, #fdfbfb, #ebedee, #f3e7e9, #e3eeff);
-            background-size: 400% 400%;
-            animation: subtle-drift 15s ease infinite;
-        }
-
-        @keyframes pop-in {
-            0% {
-                opacity: 0;
-                transform: scale(0.9) translateY(10px);
-            }
-
-            100% {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-
-        @keyframes slide-up-elastic {
-            0% {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            60% {
-                transform: translateY(-5px);
-            }
-
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .animate-pop-card {
-            animation: pop-in 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        .animate-list-item {
-            opacity: 0;
-            /* Star hidden */
-            animation: slide-up-elastic 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        /* Pharmacy Style Solid Bars */
-        .action-bar {
-            background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
-            color: white;
-            border-radius: 1rem;
-            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
-            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .action-bar:active {
-            transform: scale(0.97);
-        }
-
-        /* Rounded Banner Style */
-        .feature-banner {
-            border-radius: 1.5rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            background: #fafaf8;
         }
 
         .glass-card {
@@ -234,11 +161,6 @@
             border-color: rgba(255, 255, 255, 0.9);
         }
 
-        .animate-slide-up-stagger {
-            opacity: 0;
-            animation: float-up 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-        }
-
         /* Override standard scrollbar for a cleaner look */
         ::-webkit-scrollbar {
             width: 6px;
@@ -252,41 +174,10 @@
             background: #cbd5e1;
             border-radius: 10px;
         }
-
-        @keyframes hero-slide {
-
-            0%,
-            20% {
-                transform: translateX(0%);
-            }
-
-            25%,
-            45% {
-                transform: translateX(-25%);
-            }
-
-            50%,
-            70% {
-                transform: translateX(-50%);
-            }
-
-            75%,
-            95% {
-                transform: translateX(-75%);
-            }
-
-            100% {
-                transform: translateX(0%);
-            }
-        }
-
-        .animate-hero-slide {
-            animation: hero-slide 16s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-        }
     </style>
 </head>
 
-<body class="bg-luxury text-gray-800 antialiased selection:bg-pink-100 selection:text-pink-900">
+<body class="bg-luxury text-gray-800 antialiased selection:bg-amber-50 selection:text-amber-900">
     <div id="app"></div>
 
     <script>
@@ -304,6 +195,7 @@
             showOrderOptions: false,
             orderProduct: null,
             viewingCategoryPage: false,
+            showContactOptions: false,
             // Auth & Messaging
             currentUser: null,
             isAdmin: false,
@@ -317,19 +209,25 @@
         };
 
         const categories = [
-            { id: 'all', name: 'All', image: 'https://loremflickr.com/800/800/fashion?lock=200' },
-            { id: 'women', name: 'Women', image: 'https://i.pinimg.com/736x/95/44/a5/9544a5e02df35bab2288c2500cd222b5.jpg' },
-            { id: 'men', name: 'Men', image: 'https://i.pinimg.com/236x/10/f4/34/10f4347df4f17731d246e1c6f4e05da5.jpg' },
-            { id: 'children', name: 'Children', image: 'https://i.pinimg.com/736x/84/17/59/841759f114df190b086c4eb2552f946a.jpg' },
-            { id: 'babies', name: 'Babies', image: 'https://i.pinimg.com/236x/80/6d/69/806d69a7d33066c1d873928d5ad97a4e.jpg' },
-            { id: 'bridal', name: 'Bridal', image: 'data:image/jpeg;base64,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' },
-            { id: 'cultural', name: 'Cultural', image: 'https://www.ugabox.com/images/business/directory/bridal-fashion/her-collection/traditional-wear-02.jpg' },
-            { id: 'underwear', name: 'Underwear', image: 'https://img4.dhresource.com/webp/m/0x0/f3/albu/jc/n/23/4b8fb85d-c715-4e5c-9ff6-6778b4ff3623.jpg' },
-            { id: 'nightwear', name: 'Nightwear', image: 'https://pictures-nigeria.jijistatic.net/188185150_NjIwLTExMDItZjE1NThkY2UyYw.webp' },
-            { id: 'sportswear', name: 'Sportswear', image: 'https://s.alicdn.com/@sc04/kf/H18617761cf8d40bda36a15afda1b89d8Q/Thai-Quality-100-Polyester-Soccer-Tracksuit-Training-Suit-Player-Football-Team-Tracksuits-Football-Jacket-for-Men.jpg_300x300.jpg' },
-            { id: 'shoes', name: 'Shoes', image: 'https://inc5shop.com/cdn/shop/files/INC-800627_Black_1_91d145d6-6656-4178-9ea6-4fc00f285455.jpg?v=1755493876' },
-            { id: 'accessories', name: 'Accessories', image: 'https://loremflickr.com/800/800/luxury,watch?lock=211' },
-            { id: 'muslim', name: 'Muslim Wears', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5YNYht5Ur8Ta_L_itT0Z9AEmxdk2vjTql1g&s' }
+            { id: 'all', name: 'All', image: 'https://loremflickr.com/800/800/suit,menswear?lock=200' },
+            { id: 'mensuits', name: 'Men Suits', image: 'https://loremflickr.com/800/800/suit,business?lock=201' },
+            { id: 'officewear', name: 'Office Wear', image: 'https://loremflickr.com/800/800/office,formal?lock=202' },
+            { id: 'casualwear', name: 'Casual Wear', image: 'https://loremflickr.com/800/800/casual,menswear?lock=203' },
+            { id: 'groomsuits', name: 'Groom Suits', image: 'https://loremflickr.com/800/800/groom,wedding?lock=204' },
+            { id: 'groomsmensuits', name: 'Groomsmen Suits', image: 'https://loremflickr.com/800/800/groomsmen,wedding?lock=205' },
+            { id: 'pageboys', name: 'Page Boys', image: 'https://loremflickr.com/800/800/pageboy,kids?lock=206' },
+            { id: 'changingwear', name: 'Changing Wear', image: 'https://loremflickr.com/800/800/casual,party?lock=207' },
+            { id: 'kaftans', name: 'Kaftans/African', image: 'https://loremflickr.com/800/800/kaftan,african?lock=208' },
+            { id: 'shoes', name: 'Shoes', image: 'https://loremflickr.com/800/800/shoes,leather?lock=209' },
+            { id: 'glasses', name: 'Glasses', image: 'https://loremflickr.com/800/800/glasses,sunglasses?lock=210' },
+            { id: 'suspenders', name: 'Suspenders', image: 'https://loremflickr.com/800/800/suspenders,accessories?lock=211' },
+            { id: 'walkingsticks', name: 'Walking Sticks', image: 'https://loremflickr.com/800/800/cane,walking?lock=212' },
+            { id: 'neckties', name: 'Neck Ties', image: 'https://loremflickr.com/800/800/tie,necktie?lock=213' },
+            { id: 'shirts', name: 'Shirts', image: 'https://loremflickr.com/800/800/shirt,dress?lock=214' },
+            { id: 'watches', name: 'Watches', image: 'https://loremflickr.com/800/800/watch,luxury?lock=215' },
+            { id: 'kanzus', name: 'Kanzus', image: 'https://loremflickr.com/800/800/kanzu,traditional?lock=216' },
+            { id: 'kwanjula', name: 'Kwanjula', image: 'https://loremflickr.com/800/800/traditional,ceremony?lock=217' },
+            { id: 'kukyala', name: 'Kukyala', image: 'https://loremflickr.com/800/800/traditional,cultural?lock=218' }
         ];
 
 
@@ -492,62 +390,337 @@
 
         function generateProducts() {
             let idCounter = 1;
-            const adjectives = ['Elegant', 'Modern', 'Classic', 'Luxury', 'Casual', 'Stylish', 'Premium', 'Urban', 'Summer', 'Cozy', 'Chic', 'Vintage', 'Designer', 'Essential', 'Sleek'];
+
+            const productDescriptions = {
+                'mensuits': [
+                    'Impeccably tailored suit crafted from premium wool blend',
+                    'Sophisticated three-piece ensemble with modern silhouette',
+                    'Classic pinstripe design with contemporary fit',
+                    'Luxurious Italian-inspired suit with peak lapels',
+                    'Timeless charcoal suit perfect for any occasion',
+                    'Slim-fit navy suit with refined detailing',
+                    'Double-breasted suit exuding executive elegance',
+                    'Lightweight summer suit in breathable fabric',
+                    'Textured wool suit with subtle pattern',
+                    'Contemporary fit suit with notch lapels'
+                ],
+                'officewear': [
+                    'Crisp cotton shirt with French cuffs',
+                    'Professional dress trousers with perfect drape',
+                    'Elegant blazer for the modern professional',
+                    'Refined office ensemble in neutral tones',
+                    'Tailored separates for versatile styling',
+                    'Classic white shirt in premium cotton',
+                    'Structured jacket with clean lines',
+                    'Sophisticated workwear with attention to detail',
+                    'Business casual pieces with refined finish',
+                    'Executive wardrobe essentials'
+                ],
+                'casualwear': [
+                    'Relaxed-fit chinos in soft cotton',
+                    'Weekend-ready polo in vibrant hues',
+                    'Comfortable denim with modern wash',
+                    'Casual blazer for effortless style',
+                    'Versatile separates for everyday wear',
+                    'Smart-casual shirt in breathable fabric',
+                    'Laid-back ensemble with refined touch',
+                    'Contemporary casual pieces',
+                    'Weekend wardrobe staples',
+                    'Effortlessly stylish everyday wear'
+                ],
+                'groomsuits': [
+                    'Exquisite wedding suit in luxurious fabric',
+                    'Bespoke groom ensemble with custom details',
+                    'Elegant tuxedo for your special day',
+                    'Sophisticated wedding attire with perfect fit',
+                    'Classic groom suit with modern touches',
+                    'Premium wedding ensemble in refined style',
+                    'Tailored perfection for the groom',
+                    'Luxurious wedding suit with impeccable finish',
+                    'Distinguished groom attire',
+                    'Memorable wedding day ensemble'
+                ],
+                'groomsmensuits': [
+                    'Coordinated groomsmen suit in elegant style',
+                    'Matching ensemble for the wedding party',
+                    'Sophisticated groomsmen attire',
+                    'Refined suits for the groom\'s party',
+                    'Coordinated wedding party ensemble',
+                    'Elegant groomsmen collection',
+                    'Harmonious wedding party suits',
+                    'Distinguished groomsmen attire',
+                    'Perfectly matched wedding suits',
+                    'Cohesive groomsmen styling'
+                ],
+                'pageboys': [
+                    'Adorable miniature suit for young gentlemen',
+                    'Charming page boy ensemble',
+                    'Perfectly tailored children\'s formal wear',
+                    'Elegant outfit for young wedding attendants',
+                    'Sophisticated children\'s suit',
+                    'Delightful formal wear for little ones',
+                    'Classic page boy attire',
+                    'Refined children\'s wedding ensemble',
+                    'Precious formal outfit for boys',
+                    'Charming young gentleman\'s suit'
+                ],
+                'changingwear': [
+                    'Stylish reception outfit for celebrations',
+                    'Comfortable yet elegant after-party attire',
+                    'Versatile ensemble for evening festivities',
+                    'Relaxed formal wear for receptions',
+                    'Sophisticated changing outfit',
+                    'Elegant transition wear',
+                    'Refined reception ensemble',
+                    'Comfortable celebration attire',
+                    'Stylish evening wear',
+                    'Perfect outfit for festivities'
+                ],
+                'kaftans': [
+                    'Flowing kaftan in vibrant African print',
+                    'Traditional design with contemporary flair',
+                    'Elegant cultural attire in rich colors',
+                    'Handcrafted kaftan with intricate details',
+                    'Luxurious traditional ensemble',
+                    'Authentic African-inspired design',
+                    'Regal kaftan in premium fabric',
+                    'Cultural elegance meets modern style',
+                    'Traditional wear with refined finish',
+                    'Majestic African attire'
+                ],
+                'shoes': [
+                    'Handcrafted leather shoes with timeless appeal',
+                    'Premium footwear in classic design',
+                    'Sophisticated shoes for the discerning gentleman',
+                    'Elegant leather shoes with superior comfort',
+                    'Refined footwear for any occasion',
+                    'Classic shoes with modern comfort',
+                    'Luxurious leather footwear',
+                    'Timeless shoe design in premium leather',
+                    'Distinguished footwear collection',
+                    'Elegant shoes with impeccable craftsmanship'
+                ],
+                'glasses': [
+                    'Sophisticated eyewear with refined frames',
+                    'Classic sunglasses with UV protection',
+                    'Designer frames for distinguished style',
+                    'Elegant eyewear collection',
+                    'Premium glasses with timeless design',
+                    'Refined optical frames',
+                    'Stylish sunglasses for every occasion',
+                    'Contemporary eyewear with classic appeal',
+                    'Luxurious frames in premium materials',
+                    'Distinguished eyewear selection'
+                ],
+                'suspenders': [
+                    'Classic suspenders in premium leather',
+                    'Elegant braces for formal occasions',
+                    'Vintage-inspired suspenders',
+                    'Sophisticated accessories for suits',
+                    'Refined suspenders in timeless style',
+                    'Premium braces with adjustable fit',
+                    'Distinguished suspender collection',
+                    'Classic accessories with modern touch',
+                    'Elegant braces for the gentleman',
+                    'Timeless suspender designs'
+                ],
+                'walkingsticks': [
+                    'Elegant walking cane with refined finish',
+                    'Distinguished walking stick in premium wood',
+                    'Classic cane with sophisticated design',
+                    'Handcrafted walking stick',
+                    'Refined gentleman\'s cane',
+                    'Elegant walking accessory',
+                    'Premium walking stick collection',
+                    'Distinguished cane with brass accents',
+                    'Classic walking stick design',
+                    'Sophisticated gentleman\'s cane'
+                ],
+                'neckties': [
+                    'Silk necktie in classic pattern',
+                    'Refined tie for formal occasions',
+                    'Elegant neckwear in premium silk',
+                    'Sophisticated tie collection',
+                    'Timeless necktie designs',
+                    'Premium silk tie with perfect drape',
+                    'Distinguished neckwear selection',
+                    'Classic tie in refined patterns',
+                    'Elegant silk neckties',
+                    'Sophisticated tie accessories'
+                ],
+                'shirts': [
+                    'Crisp cotton shirt with impeccable fit',
+                    'Premium dress shirt in classic white',
+                    'Refined shirt with French cuffs',
+                    'Elegant formal shirt collection',
+                    'Sophisticated shirt in premium fabric',
+                    'Classic dress shirt with modern cut',
+                    'Timeless shirt designs',
+                    'Premium cotton shirts',
+                    'Distinguished shirt collection',
+                    'Refined formal shirts'
+                ],
+                'watches': [
+                    'Elegant timepiece with classic design',
+                    'Sophisticated watch for the gentleman',
+                    'Premium wristwatch with refined details',
+                    'Distinguished timepiece collection',
+                    'Classic watch with modern mechanics',
+                    'Luxurious watch in timeless style',
+                    'Refined timepiece for every occasion',
+                    'Elegant wristwatch collection',
+                    'Sophisticated chronograph design',
+                    'Premium watch with impeccable craftsmanship'
+                ],
+                'kanzus': [
+                    'Traditional kanzu in pristine white',
+                    'Elegant Islamic attire with refined embroidery',
+                    'Classic kanzu for special occasions',
+                    'Premium traditional wear',
+                    'Sophisticated kanzu design',
+                    'Refined Islamic formal wear',
+                    'Elegant traditional ensemble',
+                    'Classic kanzu with modern fit',
+                    'Distinguished traditional attire',
+                    'Premium kanzu collection'
+                ],
+                'kwanjula': [
+                    'Traditional kwanjula attire in vibrant colors',
+                    'Cultural ensemble for special ceremonies',
+                    'Elegant traditional wear with intricate details',
+                    'Refined kwanjula outfit',
+                    'Sophisticated cultural attire',
+                    'Premium traditional ensemble',
+                    'Distinguished kwanjula collection',
+                    'Classic ceremonial wear',
+                    'Elegant traditional outfit',
+                    'Cultural attire with refined finish'
+                ],
+                'kukyala': [
+                    'Traditional kukyala ensemble',
+                    'Cultural attire for introduction ceremonies',
+                    'Elegant traditional wear',
+                    'Refined kukyala outfit',
+                    'Sophisticated ceremonial attire',
+                    'Premium traditional ensemble',
+                    'Distinguished cultural wear',
+                    'Classic kukyala collection',
+                    'Elegant ceremonial outfit',
+                    'Traditional attire with modern touch'
+                ]
+            };
 
             const categoryConfig = {
-                'women': { base: ['Dress', 'Blouse', 'Skirt', 'Jeans', 'Jacket', 'Coat', 'Top', 'Suit'], priceRange: [50000, 300000], sizes: ['XS', 'S', 'M', 'L', 'XL'] },
-                'men': { base: ['Shirt', 'Trousers', 'Suit', 'Jeans', 'Jacket', 'Blazer', 'Polo', 'Chinos'], priceRange: [60000, 500000], sizes: ['S', 'M', 'L', 'XL', 'XXL'] },
-                'children': { base: ['T-Shirt', 'Dress', 'Shorts', 'Pants', 'Set', 'Jacket', 'Uniform', 'Sweater'], priceRange: [30000, 150000], sizes: ['4-5Y', '6-7Y', '8-9Y', '10-11Y'] },
-                'babies': { base: ['Onesie', 'Sleepsuit', 'Romper', 'Set', 'Bib', 'Blanket', 'Bodysuit'], priceRange: [25000, 100000], sizes: ['0-3M', '3-6M', '6-9M', '9-12M'] },
-                'bridal': { base: ['Wedding Gown', 'Bridesmaid Dress', 'Veil', 'Tiara', 'Robe', 'Clutch'], priceRange: [500000, 5000000], sizes: ['S', 'M', 'L', 'XL'] },
-                'cultural': { base: ['Kanzu', 'Gomesi', 'Kitenge', 'Kaftan', 'Dashiki', 'Headwrap'], priceRange: [150000, 800000], sizes: ['Free Size', 'S', 'M', 'L', 'XL'] },
-                'underwear': { base: ['Briefs', 'Boxers', 'Panties', 'Bra', 'Lingerie Set', 'Vest'], priceRange: [20000, 150000], sizes: ['S', 'M', 'L', 'XL'] },
-                'nightwear': { base: ['Pajamas', 'Nightgown', 'Robe', 'Sleep Shorts', 'Silk Set'], priceRange: [50000, 250000], sizes: ['S', 'M', 'L', 'XL'] },
-                'sportswear': { base: ['Jersey', 'Tracksuit', 'Leggings', 'Sports Bra', 'Shorts', 'Running Jacket'], priceRange: [70000, 350000], sizes: ['S', 'M', 'L', 'XL'] },
-                'shoes': { base: ['Sneakers', 'Boots', 'Heels', 'Sandals', 'Loafers', 'Oxfords', 'Flats'], priceRange: [100000, 600000], sizes: ['38', '39', '40', '41', '42', '43'] },
-                'accessories': { base: ['Watch', 'Belt', 'Tie', 'Handbag', 'Sunglasses', 'Scarf', 'Hat', 'Jewelry Set'], priceRange: [50000, 1000000], sizes: ['One Size'] },
-                'muslim': { base: ['Abaya', 'Hijab', 'Thobe', 'Kaftan', 'Jilbab', 'Tunic', 'Scarf', 'Prayer Dress'], priceRange: [40000, 300000], sizes: ['S', 'M', 'L', 'XL', 'XXL'] }
+                'mensuits': { priceRange: [250000, 800000], sizes: ['S', 'M', 'L', 'XL', 'XXL'] },
+                'officewear': { priceRange: [80000, 350000], sizes: ['S', 'M', 'L', 'XL', 'XXL'] },
+                'casualwear': { priceRange: [60000, 250000], sizes: ['S', 'M', 'L', 'XL', 'XXL'] },
+                'groomsuits': { priceRange: [500000, 1500000], sizes: ['S', 'M', 'L', 'XL', 'XXL'] },
+                'groomsmensuits': { priceRange: [300000, 900000], sizes: ['S', 'M', 'L', 'XL', 'XXL'] },
+                'pageboys': { priceRange: [150000, 400000], sizes: ['4-5Y', '6-7Y', '8-9Y', '10-11Y', '12-13Y'] },
+                'changingwear': { priceRange: [180000, 500000], sizes: ['S', 'M', 'L', 'XL', 'XXL'] },
+                'kaftans': { priceRange: [150000, 600000], sizes: ['Free Size', 'M', 'L', 'XL', 'XXL'] },
+                'shoes': { priceRange: [150000, 600000], sizes: ['40', '41', '42', '43', '44', '45'] },
+                'glasses': { priceRange: [80000, 350000], sizes: ['One Size'] },
+                'suspenders': { priceRange: [40000, 120000], sizes: ['Adjustable'] },
+                'walkingsticks': { priceRange: [100000, 400000], sizes: ['Standard'] },
+                'neckties': { priceRange: [35000, 150000], sizes: ['Standard'] },
+                'shirts': { priceRange: [70000, 250000], sizes: ['S', 'M', 'L', 'XL', 'XXL'] },
+                'watches': { priceRange: [200000, 2000000], sizes: ['Adjustable'] },
+                'kanzus': { priceRange: [120000, 400000], sizes: ['M', 'L', 'XL', 'XXL'] },
+                'kwanjula': { priceRange: [200000, 800000], sizes: ['Free Size', 'M', 'L', 'XL'] },
+                'kukyala': { priceRange: [200000, 800000], sizes: ['Free Size', 'M', 'L', 'XL'] }
             };
 
             const imageKeywords = {
-                'women': 'woman,dress',
-                'men': 'man,fashion',
-                'children': 'child,fashion',
-                'babies': 'baby,cute',
-                'bridal': 'wedding,dress',
-                'cultural': 'traditional,clothing',
-                'underwear': 'lingerie,underwear',
-                'nightwear': 'pajamas,sleepwear',
-                'sportswear': 'sportswear,fitness',
-                'shoes': 'shoes,footwear',
-                'accessories': 'watch,handbag',
-                'muslim': 'muslim,fashion'
+                'mensuits': 'suit,business,formal',
+                'officewear': 'office,professional,business',
+                'casualwear': 'casual,menswear,style',
+                'groomsuits': 'groom,wedding,tuxedo',
+                'groomsmensuits': 'groomsmen,wedding,suit',
+                'pageboys': 'pageboy,kids,formal',
+                'changingwear': 'party,evening,casual',
+                'kaftans': 'kaftan,african,traditional',
+                'shoes': 'shoes,leather,formal',
+                'glasses': 'glasses,sunglasses,eyewear',
+                'suspenders': 'suspenders,accessories,formal',
+                'walkingsticks': 'cane,walking,elegant',
+                'neckties': 'tie,necktie,formal',
+                'shirts': 'shirt,dress,formal',
+                'watches': 'watch,luxury,timepiece',
+                'kanzus': 'kanzu,traditional,white',
+                'kwanjula': 'traditional,ceremony,cultural',
+                'kukyala': 'traditional,ceremony,cultural'
             };
 
             categories.forEach(cat => {
                 if (cat.id === 'all') return;
-                const config = categoryConfig[cat.id] || { base: ['Item'], priceRange: [50000, 100000], sizes: ['M'] };
+                const config = categoryConfig[cat.id] || { priceRange: [50000, 100000], sizes: ['M'] };
                 const keywords = imageKeywords[cat.id] || 'fashion';
+                const descriptions = productDescriptions[cat.id] || ['Elegant piece crafted with care'];
 
-                for (let i = 0; i < 50; i++) {
-                    const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
-                    const base = config.base[Math.floor(Math.random() * config.base.length)];
+                for (let i = 0; i < 30; i++) {
+                    const descIndex = i % descriptions.length;
                     const price = Math.floor(Math.random() * (config.priceRange[1] - config.priceRange[0]) + config.priceRange[0]);
                     const finalPrice = Math.round(price / 1000) * 1000;
 
                     products.push({
                         id: idCounter++,
-                        name: `${adj} ${base}`,
+                        name: descriptions[descIndex],
+                        description: descriptions[descIndex],
                         price: finalPrice,
-                        // High Quality HD image (800x800)
-                        image: `https://loremflickr.com/800/800/${keywords}?lock=${idCounter}`,
+                        image: `https://loremflickr.com/800/800/${keywords}?lock=${idCounter + i * 100}`,
                         category: cat.id,
-                        rating: (3.5 + Math.random() * 1.5).toFixed(1),
-                        reviews: Math.floor(Math.random() * 500) + 10,
+                        rating: (4.0 + Math.random() * 1.0).toFixed(1),
+                        reviews: Math.floor(Math.random() * 300) + 20,
                         sizes: config.sizes
                     });
                 }
             });
+        }
+
+        async function initializeApp() {
+            console.log('🚀 Initializing app...');
+
+            // Generate products
+            generateProducts();
+            productsLoaded = true;
+            console.log('✅ Products ready:', products.length);
+
+            // Render
+            render();
+
+            // Sync with Firebase in background
+            if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+                try {
+                    const db = firebase.firestore();
+                    const snapshot = await db.collection('products').get();
+
+                    if (!snapshot.empty) {
+                        products = snapshot.docs.map(doc => doc.data());
+                        console.log('✅ Synced with Firebase:', products.length);
+                        render();
+                    } else {
+                        await seedDatabase(db);
+                    }
+                } catch (e) {
+                    console.log('Using local products');
+                }
+            }
+        }
+
+        async function seedDatabase(db) {
+            const batch = db.batch();
+            products.forEach(product => {
+                const ref = db.collection('products').doc(product.id.toString());
+                batch.set(ref, product);
+            });
+            try {
+                await batch.commit();
+                showToast('Database Seeded Successfully!');
+            } catch (err) {
+                console.error('Error seeding:', err);
+                showToast('Error seeding database');
+            }
         }
 
         function formatMoney(amount) {
@@ -567,7 +740,7 @@
             return state.selectedCategory === 'all' ? products : products.filter(p => p.category === state.selectedCategory);
         }
 
-        async function placeOrder() {
+        async function placeOrderViaWhatsApp() {
             if (!state.currentUser) {
                 state.showAuthModal = true;
                 state.showOrderOptions = false;
@@ -576,90 +749,78 @@
             }
 
             const product = state.orderProduct;
-            const db = firebase.firestore();
 
-            try {
-                const orderData = {
-                    userId: state.currentUser.uid,
-                    userEmail: state.currentUser.email,
-                    userName: state.currentUser.displayName || 'Customer',
-                    product: {
-                        id: product.id || `cart_${Date.now()}`,
-                        name: product.name,
-                        price: product.price || 0,
-                        image: product.image || 'https://ui-avatars.com/api/?name=Support&background=0D8ABC&color=fff'
-                    },
-                    items: product.context === 'order' ? state.cart : (product.context === 'support' ? [] : [product]),
-                    total: product.price || 0,
-                    status: product.context === 'support' ? 'open' : 'pending',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    messages: product.context === 'support' ? [{
-                        senderId: 'system',
-                        senderName: 'System',
-                        text: 'Support chat started. How can we help you?',
-                        timestamp: firebase.firestore.Timestamp.now(),
-                        isAdmin: false,
-                        isSystem: true
-                    }] : [{
-                        senderId: 'system',
-                        senderName: 'System',
-                        text: `Order Placed for ${product.name} (${formatMoney(product.price)}). Waiting for admin confirmation.`,
-                        timestamp: firebase.firestore.Timestamp.now(),
-                        isAdmin: false,
-                        isSystem: true
-                    }],
-                    unreadByAdmin: true,
-                    unreadByCustomer: false
-                };
-
-                const orderRef = await db.collection('orders').add(orderData);
-
-                // Clear cart if this was a cart order
-                if (product.context === 'order') {
-                    state.cart = [];
-                    saveState();
-                }
-
-                state.showOrderOptions = false;
-                state.activeTab = 'messages';
-                state.selectedOrder = orderRef.id;
-                await loadUserData();
-                showToast(product.context === 'support' ? 'Chat started!' : 'Order placed! Chat with admin below.');
-                render();
-            } catch (error) {
-                console.error(error);
-                alert('Action failed: ' + error.message);
+            // Prepare WhatsApp message
+            let message = '';
+            if (product.context === 'order') {
+                // Cart order
+                message = `Hello! I would like to place an order:\n\n`;
+                state.cart.forEach((item, index) => {
+                    message += `${index + 1}. ${item.name}\n   Size: ${item.selectedSize}\n   Quantity: ${item.quantity}\n   Price: ${formatMoney(item.price * item.quantity)}\n\n`;
+                });
+                message += `Total: ${formatMoney(getTotalPrice())}\n\n`;
+                message += `Customer: ${state.currentUser.displayName || state.currentUser.email}`;
+            } else if (product.context === 'support') {
+                // Support chat
+                message = `Hello! I need support.\n\nCustomer: ${state.currentUser.displayName || state.currentUser.email}`;
+            } else {
+                // Single product order
+                message = `Hello! I would like to order:\n\n${product.name}\n\nCustomer: ${state.currentUser.displayName || state.currentUser.email}`;
             }
+
+            // Open WhatsApp
+            const phoneNumber = '256700742469';
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+
+            // Clear cart if this was a cart order
+            if (product.context === 'order') {
+                state.cart = [];
+                saveState();
+            }
+
+            state.showOrderOptions = false;
+            showToast('Opening WhatsApp...');
+            render();
         }
 
-        function startSupportChat() {
+        async function placeOrderViaCall() {
             if (!state.currentUser) {
                 state.showAuthModal = true;
+                state.showOrderOptions = false;
+                showToast('Please login to place an order');
                 return;
             }
 
-            // ONE INBOX RULE: Find ANY existing support chat to reuse
-            // Filter for context='support' OR name='General Support'
-            const existingChats = state.orders
-                .filter(o => (o.product.context === 'support' || o.product.name === 'General Support') && o.status !== 'completed')
-                .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+            const phoneNumber = '+256700742469';
+            window.location.href = `tel:${phoneNumber}`;
 
-            if (existingChats.length > 0) {
-                // Open the most recent existing chat
-                selectOrder(existingChats[0].id);
-                state.activeTab = 'messages';
-                render();
-                return;
-            }
+            state.showOrderOptions = false;
+            showToast('Opening phone dialer...');
+            render();
+        }
 
-            // Create new ONLY if no active chat exists
-            state.orderProduct = {
-                name: 'General Support',
-                price: 0,
-                context: 'support',
-                image: 'https://ui-avatars.com/api/?name=Support&background=0D8ABC&color=fff'
-            };
-            placeOrder();
+        function showContactOptions() {
+            state.showContactOptions = true;
+            render();
+        }
+
+        function openWhatsApp() {
+            const phoneNumber = '256700742469';
+            const message = state.currentUser
+                ? `Hello! I need support.\n\nCustomer: ${state.currentUser.displayName || state.currentUser.email}`
+                : 'Hello! I need support.';
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+            state.showContactOptions = false;
+            render();
+        }
+
+        function makeCall() {
+            const phoneNumber = '+256700742469';
+            window.location.href = `tel:${phoneNumber}`;
+            state.showContactOptions = false;
+            render();
         }
 
         function addToCart(product, size) {
@@ -715,27 +876,21 @@
 
         function renderProductCard(product, index = 0) {
             return `
-                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow glass-card animate-fade-in-up" style="animation-delay: ${index * 50}ms">
+                <div class="bg-white rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 animate-fade-in-up" style="animation-delay: ${index * 50}ms">
                     <div onclick="selectProduct(${product.id})" class="cursor-pointer">
-                        <div class="relative h-48 bg-gray-100 group overflow-hidden">
-                            <img src="${product.image}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                            <button onclick="event.stopPropagation(); selectProduct(${product.id})" class="absolute bottom-2 right-2 bg-white rounded-full p-2 shadow-md hover:scale-110 active:scale-95 transition-transform text-pink-600">
-                                <i data-lucide="plus" class="w-5 h-5"></i>
+                        <div class="relative aspect-[3/4] bg-gray-100 group overflow-hidden rounded-t-xl">
+                            <img src="${product.image}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                            <button onclick="event.stopPropagation(); selectProduct(${product.id})" class="absolute bottom-3 right-3 bg-white rounded-full p-2 shadow-lg hover:scale-110 active:scale-95 transition-transform text-gray-900">
+                                <i data-lucide="plus" class="w-4 h-4"></i>
                             </button>
                         </div>
                         <div class="p-3">
-                            <h3 class="font-semibold text-sm mb-1 line-clamp-2">${product.name}</h3>
-                            <div class="flex items-center gap-1 mb-2">
-                                <i data-lucide="star" class="w-4 h-4 fill-yellow-400 text-yellow-400"></i>
-                                <span class="text-xs text-gray-600">${product.rating}</span>
-                                <span class="text-xs text-gray-400">(${product.reviews})</span>
-                            </div>
-                            <div class="text-lg font-bold text-pink-600 mb-2">${formatMoney(product.price)}</div>
+                            <h3 class="font-medium text-sm mb-1 line-clamp-2 text-gray-900">${product.name}</h3>
                         </div>
                     </div>
                     <div class="px-3 pb-3">
-                        <button onclick='showOrderOptions(${JSON.stringify(product).replace(/'/g, "&#39;")}, "buy")' class="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-2.5 rounded-lg font-bold text-sm shadow-lg hover:shadow-xl active:scale-95 transition-all">
-                            BUY NOW
+                    <button onclick='showOrderOptions(${JSON.stringify(product).replace(/'/g, "&#39;")}, "buy")' class="w-full bg-gray-900 text-white py-2.5 rounded-sm font-medium text-sm shadow-sm hover:bg-gray-800 active:scale-95 transition-all uppercase tracking-wider">
+                            ORDER
                         </button>
                     </div>
                 </div>
@@ -746,7 +901,7 @@
             if (state.searchQuery) {
                 const filteredProducts = getFilteredProducts();
                 return `
-                    <div class="flex-1 overflow-y-auto bg-gray-50 pb-20 p-4 animate-fade-in">
+                    <div class="flex-1 overflow-y-auto bg-gray-50 pb-6 p-4 animate-fade-in">
                         <div class="mb-4 flex items-center justify-between">
                             <h2 class="text-xl font-bold text-gray-800">Search Results</h2>
                             <span class="text-sm text-gray-500">${filteredProducts.length} found</span>
@@ -767,10 +922,10 @@
                 const filteredProducts = getFilteredProducts();
                 const category = categories.find(c => c.id === state.selectedCategory);
                 return `
-                    <div class="flex-1 overflow-y-auto bg-gray-50 pb-20 p-4 animate-fade-in">
+                    <div class="flex-1 overflow-y-auto bg-gray-50 pb-6 p-4 animate-fade-in">
                         <div class="flex items-center gap-2 mb-6 cursor-pointer hover:opacity-80 transition-opacity" onclick="backToHome()">
                             <i data-lucide="arrow-left" class="w-6 h-6 text-gray-600"></i>
-                            <h2 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-600 to-purple-600">${category.name} Collection</h2>
+                            <h2 class="text-2xl font-bold text-gray-900">${category.name} Collection</h2>
                         </div>
                         
                         <div class="grid grid-cols-2 gap-4">
@@ -785,67 +940,60 @@
             }
 
             return `
-                <div class="flex-1 overflow-y-auto bg-gray-50 pb-20 animate-fade-in">
+                <div class="flex-1 overflow-y-auto bg-gray-50 pb-6 animate-fade-in">
+                    <!-- Animated Hero Carousel -->
                     <div class="p-4 pb-0">
-                        <!-- Hero Carousel (Pharmacy Style) -->
-                        <div class="feature-banner overflow-hidden relative h-56 w-full animate-pop-card bg-gray-100">
-                            <div class="flex w-[400%] h-full animate-hero-slide">
-                                <!-- Slide 1: Delivery -->
-                                <div class="w-1/4 relative h-full">
-                                    <img src="https://loremflickr.com/800/400/delivery,truck?lock=1" class="absolute inset-0 w-full h-full object-cover">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-blue-600/90 to-indigo-700/40 p-6 flex flex-col justify-center text-white">
-                                        <h3 class="text-3xl font-bold mb-2 leading-tight drop-shadow-md">Fast Delivery</h3>
-                                        <p class="mb-4 font-medium opacity-95 text-lg">Countrywide shipping direct to you</p>
-                                        <button class="w-max bg-white text-blue-600 px-6 py-2 rounded-full font-bold shadow-lg hover:scale-105 active:scale-95 transition-transform flex items-center gap-2">
-                                            Learn More <i data-lucide="truck" class="w-4 h-4"></i>
-                                        </button>
+                        <div class="relative h-48 w-full rounded-2xl overflow-hidden shadow-lg animate-fade-in-up">
+                            <div class="flex w-[300%] h-full animate-slide">
+                                <!-- Slide 1: Main -->
+                                <div class="w-1/3 relative h-full">
+                                    <img src="https://loremflickr.com/800/400/fashion,boutique?lock=100" class="absolute inset-0 w-full h-full object-cover">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-black/70 to-black/30 p-6 flex flex-col justify-center text-white">
+                                        <h1 class="brand-text text-4xl font-bold mb-2 leading-tight">JB'S TAILORED</h1>
+                                        <p class="text-lg font-light opacity-90">Bespoke Fashion & Custom Tailoring</p>
                                     </div>
                                 </div>
-                                <!-- Slide 2: Support -->
-                                <div class="w-1/4 relative h-full">
-                                    <img src="https://loremflickr.com/800/400/customer,service?lock=2" class="absolute inset-0 w-full h-full object-cover">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-teal-500/90 to-emerald-600/40 p-6 flex flex-col justify-center text-white">
-                                        <h3 class="text-3xl font-bold mb-2 leading-tight drop-shadow-md">Quick Support</h3>
-                                        <p class="mb-4 font-medium opacity-95 text-lg">24/7 Communication Team</p>
-                                        <button onclick="startSupportChat()" class="w-max bg-white text-teal-600 px-6 py-2 rounded-full font-bold shadow-lg hover:scale-105 active:scale-95 transition-transform flex items-center gap-2">
-                                            Chat Now <i data-lucide="message-circle" class="w-4 h-4"></i>
-                                        </button>
+                                <!-- Slide 2: Locations -->
+                                <div class="w-1/3 relative h-full">
+                                    <img src="https://loremflickr.com/800/400/shop,store?lock=101" class="absolute inset-0 w-full h-full object-cover">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-green-800/90 to-green-600/40 p-6 flex flex-col justify-center text-white">
+                                        <h3 class="text-2xl font-bold mb-3 leading-tight drop-shadow-md">Visit Our Shops</h3>
+                                        <div class="space-y-2 text-sm font-medium opacity-95">
+                                            <p class="flex items-start gap-2">
+                                                <i data-lucide="map-pin" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
+                                                <span>Ntinda: Emessa Complex Level 2 S-11, Near Rubis Petro Station</span>
+                                            </p>
+                                            <p class="flex items-start gap-2">
+                                                <i data-lucide="map-pin" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
+                                                <span>Mbarara: Amazon Building L3 Rm6</span>
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
-                                 <!-- Slide 3: Tailors -->
-                                <div class="w-1/4 relative h-full">
-                                    <img src="https://loremflickr.com/800/400/tailor,sewing?lock=3" class="absolute inset-0 w-full h-full object-cover">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-pink-500/90 to-rose-600/40 p-6 flex flex-col justify-center text-white">
-                                        <h3 class="text-3xl font-bold mb-2 leading-tight drop-shadow-md">Best Tailors</h3>
-                                        <p class="mb-4 font-medium opacity-95 text-lg">Expert Custom Fitting & Design</p>
-                                        <button class="w-max bg-white text-pink-600 px-6 py-2 rounded-full font-bold shadow-lg hover:scale-105 active:scale-95 transition-transform flex items-center gap-2">
-                                            Book Tailor <i data-lucide="scissors" class="w-4 h-4"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <!-- Slide 4: Quality -->
-                                <div class="w-1/4 relative h-full">
-                                    <img src="https://loremflickr.com/800/400/silk,fabric?lock=4" class="absolute inset-0 w-full h-full object-cover">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-amber-500/90 to-orange-600/40 p-6 flex flex-col justify-center text-white">
-                                        <h3 class="text-3xl font-bold mb-2 leading-tight drop-shadow-md">Premium Quality</h3>
-                                        <p class="mb-4 font-medium opacity-95 text-lg">Finest Luxurious Fabrics</p>
-                                        <button class="w-max bg-white text-amber-600 px-6 py-2 rounded-full font-bold shadow-lg hover:scale-105 active:scale-95 transition-transform flex items-center gap-2">
-                                            Explore <i data-lucide="crown" class="w-4 h-4"></i>
-                                        </button>
+                                <!-- Slide 3: Delivery -->
+                                <div class="w-1/3 relative h-full">
+                                    <img src="https://loremflickr.com/800/400/delivery,uganda?lock=102" class="absolute inset-0 w-full h-full object-cover">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-amber-700/90 to-orange-600/40 p-6 flex flex-col justify-center text-white">
+                                        <h3 class="text-3xl font-bold mb-2 leading-tight drop-shadow-md">Nationwide Delivery</h3>
+                                        <p class="mb-3 font-medium opacity-95 text-lg">We deliver to all parts of Uganda</p>
+                                        <div class="flex items-center gap-2">
+                                            <i data-lucide="truck" class="w-6 h-6"></i>
+                                            <span class="font-bold">Fast & Reliable Service</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="bg-white mt-2 py-4" id="shop-section">
+                    <div class="bg-white mt-4 py-4" id="shop-section">
                         <div class="px-4 mb-3">
-                            <h2 class="text-lg font-bold text-gray-800">🛍 Shop by Category</h2>
+                            <h2 class="text-lg font-bold text-gray-800">Categories</h2>
                         </div>
                         <div class="px-4 grid grid-cols-4 gap-4">
                             ${categories.filter(cat => cat.id !== 'all').map((cat, i) => `
                                 <button onclick="selectCategory('${cat.id}')" class="flex flex-col items-center gap-2 animate-fade-in-up" style="animation-delay: ${i * 50}ms">
-                                    <div class="w-full aspect-square bg-gray-100 rounded-full flex items-center justify-center hover:shadow-lg transition-all overflow-hidden border-2 border-transparent hover:border-pink-500 hover:scale-105">
+                                    <div class="w-full aspect-square bg-gray-100 rounded-full flex items-center justify-center hover:shadow-lg transition-all overflow-hidden border-2 border-transparent hover:border-gray-900 hover:scale-105">
                                         <img src="${cat.image}" class="w-full h-full object-cover">
                                     </div>
                                     <span class="text-xs font-medium text-gray-700 text-center leading-tight">${cat.name}</span>
@@ -854,22 +1002,148 @@
                         </div>
                     </div>
 
-                    <div class="p-4">
-                        <div class="mb-4">
-                            <h2 class="text-lg font-bold text-gray-800">✨ Recommended For You</h2>
-                            <p class="text-xs text-gray-500">Products loaded: ${products.length} | Filtered: ${getFilteredProducts().length}</p>
+                    <!-- About JB'S TAILORED Section -->
+                    <div class="bg-white mt-6 p-6">
+                        <div class="mb-6 text-center">
+                            <h2 class="text-2xl font-bold text-gray-900 mb-3 brand-text">About JB'S TAILORED</h2>
+                            <div class="w-16 h-1 bg-gradient-to-r from-green-600 to-green-800 mx-auto mb-4"></div>
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            ${getFilteredProducts().length > 0 ? getFilteredProducts().map((p, i) => renderProductCard(p, i)).join('') : '<p class="col-span-2 text-center text-red-500">No products found! Check console for errors.</p>'}
+                        <div class="prose prose-sm max-w-none text-gray-700 space-y-4">
+                            <p class="leading-relaxed">
+                                At <span class="font-semibold text-gray-900">JB'S TAILORED</span>, we believe that exceptional style begins with impeccable craftsmanship. 
+                                For years, we have been dedicated to creating bespoke fashion that celebrates individuality while honoring the timeless art of tailoring.
+                            </p>
+                            <p class="leading-relaxed">
+                                Our master tailors bring decades of experience to every stitch, ensuring that each garment is not just worn, but experienced. 
+                                From the finest fabrics sourced globally to the meticulous attention to detail in every seam, we craft pieces that transcend trends and become cherished wardrobe staples.
+                            </p>
+                            <p class="leading-relaxed">
+                                Whether you're seeking the perfect suit for your wedding day, professional attire that commands respect, or cultural wear that honors tradition, 
+                                JB'S TAILORED is your partner in sartorial excellence. Visit our locations in Ntinda and Mbarara to experience personalized service that puts your vision first.
+                            </p>
+                        </div>
+                        
+                        <!-- Branch Locations -->
+                        <div class="mt-6 space-y-4">
+                            <h3 class="text-lg font-bold text-gray-900 mb-4">Our Locations</h3>
+                            
+                            <!-- Ntinda Branch -->
+                            <div class="bg-gray-50 rounded-xl overflow-hidden">
+                                <div class="h-48 overflow-hidden">
+                                    <img src="https://loremflickr.com/800/400/shop,boutique,store?lock=ntinda" class="w-full h-full object-cover" alt="Ntinda Branch">
+                                </div>
+                                <div class="p-4">
+                                    <h4 class="font-bold text-gray-900 mb-2 flex items-center gap-2">
+                                        <i data-lucide="map-pin" class="w-5 h-5 text-green-600"></i>
+                                        Ntinda Branch
+                                    </h4>
+                                    <p class="text-sm text-gray-700">Emessa Complex Level 2 S-11, Near Rubis Petro Station</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Mbarara Branch -->
+                            <div class="bg-gray-50 rounded-xl overflow-hidden">
+                                <div class="h-48 overflow-hidden">
+                                    <img src="https://loremflickr.com/800/400/fashion,boutique,interior?lock=mbarara" class="w-full h-full object-cover" alt="Mbarara Branch">
+                                </div>
+                                <div class="p-4">
+                                    <h4 class="font-bold text-gray-900 mb-2 flex items-center gap-2">
+                                        <i data-lucide="map-pin" class="w-5 h-5 text-green-600"></i>
+                                        Mbarara Branch
+                                    </h4>
+                                    <p class="text-sm text-gray-700">Amazon Building L3 Rm6</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
+
+                    <!-- Fashion & Tailoring Articles -->
+                    <div class="bg-gray-50 mt-6 p-6 pb-20">
+                        <div class="mb-6">
+                            <h2 class="text-2xl font-bold text-gray-900 mb-2">Style Guide & Insights</h2>
+                            <p class="text-sm text-gray-600">Expert advice on tailoring, fashion, and timeless style</p>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <!-- Article 1 -->
+                            <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                                <div class="h-52 overflow-hidden">
+                                    <img src="https://loremflickr.com/800/400/tailor,sewing,craftsmanship?lock=1" class="w-full h-full object-cover" alt="Bespoke Tailoring">
+                                </div>
+                                <div class="p-4">
+                                    <h3 class="text-lg font-bold text-gray-900 mb-2">The Art of Bespoke Tailoring</h3>
+                                    <p class="text-sm text-gray-700 leading-relaxed">
+                                        Bespoke tailoring is a collaborative art between tailor and client. Each garment begins with precise measurements 
+                                        and careful fabric selection, followed by multiple fittings to ensure perfect fit and comfort.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Article 2 -->
+                            <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                                <div class="h-52 overflow-hidden">
+                                    <img src="https://loremflickr.com/800/400/fabric,textile,wool?lock=2" class="w-full h-full object-cover" alt="Suit Fabrics">
+                                </div>
+                                <div class="p-4">
+                                    <h3 class="text-lg font-bold text-gray-900 mb-2">Understanding Suit Fabrics</h3>
+                                    <p class="text-sm text-gray-700 leading-relaxed">
+                                        Wool remains the gold standard for suiting, prized for breathability and durability. Higher super numbers 
+                                        mean softer fabrics, while blends like wool-silk or wool-cashmere offer unique benefits for different occasions.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Article 3 -->
+                            <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                                <div class="h-52 overflow-hidden">
+                                    <img src="https://loremflickr.com/800/400/wedding,groom,tuxedo?lock=3" class="w-full h-full object-cover" alt="Wedding Attire">
+                                </div>
+                                <div class="p-4">
+                                    <h3 class="text-lg font-bold text-gray-900 mb-2">Wedding Attire: Groom's Guide</h3>
+                                    <p class="text-sm text-gray-700 leading-relaxed">
+                                        Your wedding day deserves sartorial perfection. Choose a timeless tuxedo for evening ceremonies or 
+                                        a navy suit for daytime. Schedule your final fitting two weeks before the big day for perfect results.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Article 4 -->
+                            <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                                <div class="h-52 overflow-hidden">
+                                    <img src="https://loremflickr.com/800/400/business,professional,office?lock=4" class="w-full h-full object-cover" alt="Professional Wardrobe">
+                                </div>
+                                <div class="p-4">
+                                    <h3 class="text-lg font-bold text-gray-900 mb-2">Professional Wardrobe Essentials</h3>
+                                    <p class="text-sm text-gray-700 leading-relaxed">
+                                        Start with two well-fitted suits in navy and charcoal, five quality dress shirts, and leather shoes in 
+                                        black and brown. Add silk ties, a matching belt, and a classic watch to complete your professional look.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Article 5 -->
+                            <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                                <div class="h-52 overflow-hidden">
+                                    <img src="https://loremflickr.com/800/400/wardrobe,hanger,closet?lock=5" class="w-full h-full object-cover" alt="Garment Care">
+                                </div>
+                                <div class="p-4">
+                                    <h3 class="text-lg font-bold text-gray-900 mb-2">Caring for Your Tailored Garments</h3>
+                                    <p class="text-sm text-gray-700 leading-relaxed">
+                                        Use wide wooden hangers and allow suits to rest 24 hours between wears. Brush after each use, 
+                                        dry clean sparingly, and store in breathable garment bags to keep your investment looking impeccable.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             `;
         }
 
         function renderCategories() {
             return `
-                <div class="flex-1 overflow-y-auto bg-gray-50 p-4 pb-20 animate-fade-in">
+                <div class="flex-1 overflow-y-auto bg-gray-50 p-4 pb-6 animate-fade-in">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6 px-1 animate-fade-in-up">Explore Collections</h2>
                     <div class="space-y-6">
                         ${categories.filter(cat => cat.id !== 'all').map((category, i) => `
@@ -896,11 +1170,11 @@
         function renderMessages() {
             if (!state.currentUser) {
                 return `
-                    <div class="flex-1 overflow-y-auto bg-gray-50 p-4 pb-20 animate-fade-in flex items-center justify-center">
+                    <div class="flex-1 overflow-y-auto bg-gray-50 p-4 pb-6 animate-fade-in flex items-center justify-center">
                         <div class="text-center">
                             <i data-lucide="message-circle" class="w-16 h-16 text-gray-300 mx-auto mb-4"></i>
                             <p class="text-gray-500 mb-4">Please login to view messages</p>
-                            <button onclick="state.showAuthModal = true; render();" class="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-6 py-3 rounded-lg font-bold">
+                            <button onclick="state.showAuthModal = true; render();" class="bg-gray-900 text-white px-6 py-3 rounded-sm font-medium uppercase tracking-wider">
                                 Login / Sign Up
                             </button>
                         </div>
@@ -909,7 +1183,7 @@
             }
 
             return `
-                <div class="flex-1 overflow-y-auto bg-gray-50 p-4 pb-20 animate-fade-in">
+                <div class="flex-1 overflow-y-auto bg-gray-50 p-4 pb-6 animate-fade-in">
                     <h2 class="text-xl font-bold text-gray-800 mb-4 animate-fade-in-up">
                         ${state.isAdmin ? '📦 All Orders' : '💬 My Orders & Messages'}
                     </h2>
@@ -917,7 +1191,7 @@
                         <div class="text-center py-16 animate-fade-in-up">
                             <i data-lucide="inbox" class="w-16 h-16 text-gray-300 mx-auto mb-4"></i>
                             <p class="text-gray-500 mb-4">No conversations yet</p>
-                            <button onclick="startSupportChat()" class="bg-blue-600 text-white px-6 py-2 rounded-full font-bold shadow-md hover:bg-blue-700 transition-colors">
+                            <button onclick="startSupportChat()" class="bg-gray-900 text-white px-6 py-2 rounded-sm font-medium shadow-sm hover:bg-gray-800 transition-colors uppercase tracking-wider">
                                 Start Support Chat
                             </button>
                         </div>
@@ -956,10 +1230,10 @@
 
         function renderProfile() {
             return `
-                <div class="flex-1 overflow-y-auto bg-gray-50 pb-20 animate-fade-in">
-                    <div class="bg-gradient-to-r from-pink-500 to-purple-600 text-white p-8 text-center rounded-b-3xl shadow-lg relative overflow-hidden">
-                        <div class="w-24 h-24 bg-white rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg border-4 border-white/20 relative z-10 animate-fade-in-up">
-                            <i data-lucide="user" class="w-12 h-12 text-pink-500"></i>
+                <div class="flex-1 overflow-y-auto bg-gray-50 pb-6 animate-fade-in">
+                    <div class="bg-gray-900 text-white p-8 text-center rounded-b-sm shadow-sm relative overflow-hidden">
+                        <div class="w-24 h-24 bg-white rounded-full mx-auto mb-4 flex items-center justify-center shadow-sm border-2 border-gray-200 relative z-10 animate-fade-in-up">
+                            <i data-lucide="user" class="w-12 h-12 text-gray-900"></i>
                         </div>
                         <h2 class="text-2xl font-bold mb-1 relative z-10 animate-fade-in-up delay-100">
                             ${state.currentUser ? (state.currentUser.displayName || 'Welcome!') : 'Welcome!'}
@@ -967,8 +1241,8 @@
                         <p class="text-sm opacity-90 relative z-10 animate-fade-in-up delay-200">
                             ${state.currentUser ? state.currentUser.email : 'Please login to continue'}
                         </p>
-                        ${state.isAdmin ? '<span class="inline-block bg-yellow-400 text-gray-900 px-3 py-1 rounded-full text-xs font-bold mt-2">ADMIN</span>' : ''}
-                        <div class="absolute inset-0 bg-white/10 blur-xl"></div>
+                        ${state.isAdmin ? '<span class="inline-block bg-amber-600 text-white px-3 py-1 rounded-sm text-xs font-bold mt-2 uppercase tracking-wider">ADMIN</span>' : ''}
+                        <div class="absolute inset-0 bg-gray-800 opacity-10"></div>
                     </div>
                     <div class="p-6 space-y-4 -mt-4 relative z-10">
                         ${state.currentUser ? `
@@ -997,7 +1271,7 @@
                                 Logout
                             </button>
                         ` : `
-                            <button onclick="state.showAuthModal = true; render();" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white p-4 rounded-lg font-bold flex items-center justify-center gap-3 transition-all active:scale-95 animate-list-item delay-100">
+                            <button onclick="state.showAuthModal = true; render();" class="w-full bg-gray-900 text-white p-4 rounded-sm font-medium flex items-center justify-center gap-3 transition-all active:scale-95 animate-list-item delay-100 uppercase tracking-wider">
                                 <i data-lucide="log-in" class="w-5 h-5"></i>
                                 Login / Sign Up
                             </button>
@@ -1017,18 +1291,21 @@
                 app.innerHTML = `
                 <div class="flex flex-col h-screen bg-gray-50">
                     <!--Header -->
-                <div class="bg-gradient-to-r from-pink-500 to-purple-600 text-white p-4 shadow-lg sticky top-0 z-30 transition-all duration-300">
+                <div class="bg-gradient-to-r from-green-700/95 via-green-800/95 to-green-900/95 backdrop-blur-md text-white p-4 shadow-lg sticky top-0 z-30 transition-all duration-300 border-b border-green-600/30">
                     <div class="flex items-center justify-between mb-3">
-                        <i data-lucide="menu" class="w-6 h-6 cursor-pointer hover:rotate-90 transition-transform duration-300" onclick="toggleMenu()"></i>
-                        <h1 class="text-xl font-bold brand-text tracking-widest text-center flex-1 animate-fade-in">JB'S COLLECTION</h1>
-                        <div class="relative">
-                            <i data-lucide="shopping-cart" class="w-6 h-6 cursor-pointer hover:scale-110 transition-transform active:scale-90" onclick="toggleCart()"></i>
-                            ${state.cart.length > 0 ? `<span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold animate-bounce shadow-sm">${state.cart.length}</span>` : ''}
+                        <i data-lucide="menu" class="w-6 h-6 cursor-pointer hover:opacity-70 transition-opacity duration-300 text-white" onclick="toggleMenu()"></i>
+                        <h1 class="text-xl font-bold brand-text tracking-widest text-center flex-1 animate-fade-in text-white drop-shadow-lg">JB'S TAILORED</h1>
+                        <div class="flex items-center gap-4">
+                            <i data-lucide="user" class="w-6 h-6 cursor-pointer hover:opacity-70 transition-opacity text-white" onclick="switchTab('profile')"></i>
+                            <div class="relative">
+                                <i data-lucide="shopping-cart" class="w-6 h-6 cursor-pointer hover:opacity-70 transition-opacity text-white" onclick="toggleCart()"></i>
+                                ${state.cart.length > 0 ? `<span class="absolute -top-2 -right-2 bg-amber-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-md">${state.cart.length}</span>` : ''}
+                            </div>
                         </div>
                     </div>
                     <div class="relative animate-fade-in">
-                        <i data-lucide="search" class="absolute left-3 top-2.5 w-5 h-5 text-gray-400"></i>
-                        <input type="text" placeholder="Search..." value="${state.searchQuery}" oninput="handleSearch(event)" class="w-full pl-10 pr-4 py-2 rounded-full text-gray-800 focus:outline-none focus:ring-2 focus:ring-pink-300 transition-all shadow-inner bg-white/90 backdrop-blur-sm focus:bg-white" />
+                        <i data-lucide="search" class="absolute left-3 top-2.5 w-5 h-5 text-green-200"></i>
+                        <input type="text" placeholder="Search..." value="${state.searchQuery}" oninput="handleSearch(event)" class="w-full pl-10 pr-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all border border-green-600/30 bg-white/90 backdrop-blur-sm placeholder-gray-500" />
                     </div>
                 </div>
 
@@ -1039,64 +1316,33 @@
                     ${state.activeTab === 'messages' ? renderMessages() : ''}
                     ${state.activeTab === 'profile' ? renderProfile() : ''}
                     
-                    <!-- Persistent Support Button -->
-                    ${!state.selectedOrder && state.activeTab !== 'messages' ? `
-                        <button onclick="startSupportChat()" class="fixed bottom-20 right-4 bg-green-500 text-white p-4 rounded-full shadow-lg z-40 hover:scale-110 active:scale-90 transition-all animate-bounce">
-                            <i data-lucide="message-circle" class="w-6 h-6"></i>
-                        </button>
-                    ` : ''}
-
-                    <!--Bottom Nav-->
-                    <div class="bg-white/90 backdrop-blur-lg border-t p-2 flex justify-around sticky bottom-0 z-30 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] transition-transform duration-300">
-                        <button onclick="switchTab('home')" class="flex flex-col items-center gap-1 p-2 transition-all duration-300 active:scale-90 ${state.activeTab === 'home' ? 'text-pink-600 scale-110' : 'text-gray-400'}">
-                            <i data-lucide="home" class="w-6 h-6"></i>
-                            <span class="text-xs font-medium">Home</span>
-                        </button>
-                        <button onclick="switchTab('categories')" class="flex flex-col items-center gap-1 p-2 transition-all duration-300 active:scale-90 ${state.activeTab === 'categories' ? 'text-pink-600 scale-110' : 'text-gray-400'}">
-                            <i data-lucide="layout-grid" class="w-6 h-6"></i>
-                            <span class="text-xs font-medium">Categories</span>
-                        </button>
-                        <button onclick="switchTab('messages')" class="flex flex-col items-center gap-1 p-2 transition-all duration-300 active:scale-90 ${state.activeTab === 'messages' ? 'text-pink-600 scale-110' : 'text-gray-400'} relative">
-                            <i data-lucide="message-circle" class="w-6 h-6"></i>
-                            ${state.unreadCount > 0 ? `<span class="absolute top-0 right-0 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">${state.unreadCount}</span>` : ''}
-                            <span class="text-xs font-medium">Messages</span>
-                        </button>
-                        <button onclick="switchTab('profile')" class="flex flex-col items-center gap-1 p-2 transition-all duration-300 active:scale-90 ${state.activeTab === 'profile' ? 'text-pink-600 scale-110' : 'text-gray-400'}">
-                            <i data-lucide="user" class="w-6 h-6"></i>
-                            <span class="text-xs font-medium">Profile</span>
-                        </button>
-                    </div>
+                    <!-- Persistent Contact Button -->
+                    <button onclick="showContactOptions()" class="fixed bottom-6 right-4 bg-green-500 text-white p-4 rounded-full shadow-lg z-40 hover:scale-110 active:scale-90 transition-all">
+                        <i data-lucide="message-circle" class="w-6 h-6"></i>
+                    </button>
 
 
                     <!--Menu Drawer-->
                 ${state.showMenu ? `
                         <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 animate-fade-in" onclick="toggleMenu()">
                             <div class="bg-white w-80 h-full shadow-2xl overflow-y-auto animate-slide-in-right" onclick="event.stopPropagation()">
-                                <div class="bg-gradient-to-r from-pink-500 to-purple-600 text-white p-6 relative overflow-hidden">
-                                    <div class="absolute inset-0 bg-white/10 blur-xl"></div>
+                                <div class="bg-gray-900 text-white p-6 relative overflow-hidden">
                                     <div class="flex items-center justify-between mb-4 relative z-10">
-                                        <h2 class="text-xl font-bold brand-text tracking-widest">JB'S COLLECTION</h2>
+                                        <h2 class="text-xl font-bold brand-text tracking-widest">JB'S TAILORED</h2>
                                         <button onclick="toggleMenu()" class="p-2 hover:rotate-90 transition-transform active:scale-90"><i data-lucide="x" class="w-6 h-6"></i></button>
                                     </div>
-                                    <p class="text-sm opacity-90 relative z-10">Luxury Fashion</p>
+                                    <p class="text-sm opacity-90 relative z-10">Bespoke Tailoring</p>
                                 </div>
                                 <div class="p-4 border-b">
+                                    <h3 class="font-bold text-gray-700 mb-3 ml-1">Main Navigation</h3>
                                     <div class="grid grid-cols-2 gap-4">
-                                        <button onclick="switchTab('home'); toggleMenu();" class="p-3 bg-gray-50 rounded-lg text-center hover:bg-pink-50 hover:text-pink-600 transition-all active:scale-95">
-                                            <i data-lucide="home" class="w-6 h-6 mx-auto mb-2"></i>
-                                            <span class="text-xs font-bold">Home</span>
+                                        <button onclick="switchTab('home'); toggleMenu();" class="p-4 bg-gray-900 text-white rounded-sm text-center hover:bg-gray-800 transition-all active:scale-95">
+                                            <i data-lucide="home" class="w-8 h-8 mx-auto mb-2"></i>
+                                            <span class="text-sm font-bold">Home</span>
                                         </button>
-                                        <button onclick="switchTab('favorites'); toggleMenu();" class="p-3 bg-gray-50 rounded-lg text-center hover:bg-pink-50 hover:text-pink-600 transition-all active:scale-95">
-                                            <i data-lucide="heart" class="w-6 h-6 mx-auto mb-2"></i>
-                                            <span class="text-xs font-bold">Favorites</span>
-                                        </button>
-                                        <button onclick="switchTab('profile'); toggleMenu();" class="p-3 bg-gray-50 rounded-lg text-center hover:bg-pink-50 hover:text-pink-600 transition-all active:scale-95">
-                                            <i data-lucide="user" class="w-6 h-6 mx-auto mb-2"></i>
-                                            <span class="text-xs font-bold">Profile</span>
-                                        </button>
-                                        <button onclick='showOrderOptions({name: "Support", price: 0}, "support"); toggleMenu()' class="p-3 bg-gray-50 rounded-lg text-center hover:bg-pink-50 hover:text-pink-600 transition-all active:scale-95">
-                                            <i data-lucide="help-circle" class="w-6 h-6 mx-auto mb-2"></i>
-                                            <span class="text-xs font-bold">Support</span>
+                                        <button onclick="switchTab('categories'); toggleMenu();" class="p-4 bg-amber-700 text-white rounded-sm text-center hover:bg-amber-800 transition-all active:scale-95">
+                                            <i data-lucide="layout-grid" class="w-8 h-8 mx-auto mb-2"></i>
+                                            <span class="text-sm font-bold">Categories</span>
                                         </button>
                                     </div>
                                 </div>
@@ -1105,8 +1351,8 @@
                                     <div class="space-y-1">
                                     ${categories.map((cat, i) => `
                                         <button onclick="selectCategory('${cat.id}'); toggleMenu();" class="w-full text-left p-2 hover:bg-gray-50 rounded-lg flex items-center gap-4 transition-all group active:scale-98" style="animation: fadeInUp 0.3s ease-out ${i * 50}ms backwards">
-                                            <img src="${cat.image}" class="w-10 h-10 rounded-full object-cover border group-hover:border-pink-500 transition-colors">
-                                            <span class="font-medium group-hover:text-pink-600 transition-colors">${cat.name}</span>
+                                            <img src="${cat.image}" class="w-10 h-10 rounded-full object-cover border group-hover:border-amber-600 transition-colors">
+                                            <span class="font-medium group-hover:text-amber-700 transition-colors">${cat.name}</span>
                                         </button>
                                     `).join('')}
                                     </div>
@@ -1132,27 +1378,21 @@
                                         </div>
                                         <div class="p-6">
                                             <h3 class="text-2xl font-bold mb-2">${product.name}</h3>
-                                            <div class="flex items-center gap-2 mb-4">
-                                                <i data-lucide="star" class="w-5 h-5 fill-yellow-400 text-yellow-400"></i>
-                                                <span class="font-medium">${product.rating}</span>
-                                                <span class="text-gray-500">(${product.reviews} reviews)</span>
-                                            </div>
-                                            <div class="text-3xl font-bold text-pink-600 mb-6">${formatMoney(product.price)}</div>
                                             <div class="mb-6">
                                                 <h4 class="font-bold mb-3">Select Size:</h4>
                                                 <div class="grid grid-cols-4 gap-2">
                                                     ${product.sizes.map(size => `
-                                                        <button onclick="selectSize('${size}')" class="py-3 px-4 border-2 rounded-lg font-medium transition-all active:scale-95 ${state.selectedSize === size ? 'border-pink-500 bg-pink-50 text-pink-600' : 'border-gray-200 hover:border-pink-300'}">
+                                                        <button onclick="selectSize('${size}')" class="py-3 px-4 border-2 rounded-sm font-medium transition-all active:scale-95 ${state.selectedSize === size ? 'border-amber-700 bg-amber-50 text-amber-900' : 'border-gray-200 hover:border-amber-600'}">
                                                             ${size}
                                                         </button>
                                                     `).join('')}
                                                 </div>
                                             </div>
-                                            <button onclick="addToCartFromModal()" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-4 rounded-lg font-bold text-lg shadow-lg mb-3 hover:shadow-xl active:scale-95 transition-all">
+                                            <button onclick="addToCartFromModal()" class="w-full bg-gray-900 text-white py-4 rounded-sm font-medium text-lg shadow-sm mb-3 hover:bg-gray-800 active:scale-95 transition-all uppercase tracking-wider">
                                                 Add to Cart
                                             </button>
-                                            <button onclick='showOrderOptions(${JSON.stringify(product).replace(/'/g, "&#39;")}, "buy")' class="w-full bg-white border-2 border-pink-500 text-pink-600 py-4 rounded-lg font-bold text-lg hover:bg-pink-50 active:scale-95 transition-all">
-                                                BUY NOW
+                                            <button onclick='showOrderOptions(${JSON.stringify(product).replace(/'/g, "&#39;")}, "buy")' class="w-full bg-white border-2 border-gray-900 text-gray-900 py-4 rounded-sm font-medium text-lg hover:bg-gray-50 active:scale-95 transition-all uppercase tracking-wider">
+                                                ORDER
                                             </button>
                                         </div>
                                     </div>
@@ -1185,7 +1425,7 @@
                                                         <h3 class="font-semibold mb-1 line-clamp-1">${item.name}</h3>
                                                         <p class="text-sm text-gray-500 mb-2">Size: ${item.selectedSize}</p>
                                                         <div class="flex items-center justify-between">
-                                                            <span class="font-bold text-pink-600">${formatMoney(item.price)}</span>
+                                                            <span class="font-bold text-amber-700">${formatMoney(item.price)}</span>
                                                             <div class="flex items-center gap-2">
                                                                 <button onclick="updateQuantity(${item.id}, '${item.selectedSize}', -1)" class="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm border hover:bg-gray-50 active:scale-90 transition-transform">
                                                                     <i data-lucide="minus" class="w-4 h-4"></i>
@@ -1206,9 +1446,9 @@
                                         <div class="border-t pt-4 mb-4">
                                             <div class="flex items-center justify-between mb-4">
                                                 <span class="text-lg font-bold">Total:</span>
-                                                <span class="text-2xl font-bold text-pink-600">${formatMoney(getTotalPrice())}</span>
+                                                <span class="text-2xl font-bold text-amber-700">${formatMoney(getTotalPrice())}</span>
                                             </div>
-                                            <button onclick='showOrderOptions({name: "Cart Items", price: ${getTotalPrice()}}, "order")' class="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-4 rounded-lg font-bold text-lg shadow-lg hover:shadow-xl active:scale-95 transition-all">
+                                            <button onclick='showOrderOptions({name: "Cart Items", price: ${getTotalPrice()}}, "order")' class="w-full bg-gray-900 text-white py-4 rounded-sm font-medium text-lg shadow-sm hover:bg-gray-800 active:scale-95 transition-all uppercase tracking-wider">
                                                 ORDER NOW
                                             </button>
                                         </div>
@@ -1219,18 +1459,30 @@
                     ` : ''
                     }
 
-                    <!--Order Confirmation Modal-->
+                    <!--Order Options Modal-->
                 ${state.showOrderOptions ? `
-                        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-fade-in" onclick="state.showOrderOptions = false; render();">
-                            <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl transform scale-100 transition-all animate-fade-in-up" onclick="event.stopPropagation()">
-                                <h3 class="text-xl font-bold mb-4 text-center">Confirm Order</h3>
-                                <p class="text-gray-600 text-center mb-6">Place this order and chat with admin?</p>
+                        <div class="fixed inset-0 bg-black/70 backdrop-blur-md z-[60] flex items-center justify-center p-4 animate-fade-in" onclick="state.showOrderOptions = false; render();">
+                            <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl transform scale-100 transition-all animate-fade-in-up" onclick="event.stopPropagation()">
+                                <div class="text-center mb-6">
+                                    <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
+                                        <i data-lucide="phone-call" class="w-8 h-8 text-white"></i>
+                                    </div>
+                                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Place Your Order</h3>
+                                    <p class="text-gray-500 text-sm">Choose your preferred contact method</p>
+                                </div>
+                                
                                 <div class="space-y-3">
-                                    <button onclick="placeOrder()" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-3 transition-all transform hover:scale-105 active:scale-95 shadow-md">
-                                        <i data-lucide="check-circle" class="w-6 h-6"></i>
-                                        Confirm Order
+                                    <button onclick="placeOrderViaWhatsApp()" class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-4 rounded-xl font-semibold flex items-center justify-center gap-3 transition-all transform hover:from-green-600 hover:to-green-700 active:scale-95 shadow-lg hover:shadow-xl">
+                                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                                        <span>WhatsApp</span>
                                     </button>
-                                    <button onclick="state.showOrderOptions = false; render();" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-medium transition-all active:scale-95">
+                                    
+                                    <button onclick="placeOrderViaCall()" class="w-full bg-gradient-to-r from-gray-800 to-gray-900 text-white py-4 rounded-xl font-semibold flex items-center justify-center gap-3 transition-all transform hover:from-gray-900 hover:to-black active:scale-95 shadow-lg hover:shadow-xl">
+                                        <i data-lucide="phone" class="w-6 h-6"></i>
+                                        <span>Call Now</span>
+                                    </button>
+                                    
+                                    <button onclick="state.showOrderOptions = false; render();" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-medium transition-all active:scale-95 mt-2">
                                         Cancel
                                     </button>
                                 </div>
@@ -1263,14 +1515,46 @@
                                         <input type="password" name="password" required minlength="6" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent" placeholder="••••••••">
                                     </div>
                                     
-                                    <button type="submit" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-3 rounded-lg font-bold hover:shadow-lg active:scale-95 transition-all">
+                                    <button type="submit" class="w-full bg-gray-900 text-white py-3 rounded-sm font-medium hover:bg-gray-800 active:scale-95 transition-all uppercase tracking-wider">
                                         ${state.authMode === 'login' ? 'Login' : 'Sign Up'}
                                     </button>
                                 </form>
                                 
                                 <div class="mt-4 text-center">
-                                    <button onclick="state.authMode = state.authMode === 'login' ? 'signup' : 'login'; render();" class="text-pink-600 font-medium hover:underline">
+                                    <button onclick="state.authMode = state.authMode === 'login' ? 'signup' : 'login'; render();" class="text-amber-700 font-medium hover:underline">
                                         ${state.authMode === 'login' ? "Don't have an account? Sign up" : 'Already have an account? Login'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''
+                    }
+
+                    <!--Contact Options Modal-->
+                ${state.showContactOptions ? `
+                        <div class="fixed inset-0 bg-black/70 backdrop-blur-md z-[60] flex items-center justify-center p-4 animate-fade-in" onclick="state.showContactOptions = false; render();">
+                            <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl transform scale-100 transition-all animate-fade-in-up" onclick="event.stopPropagation()">
+                                <div class="text-center mb-6">
+                                    <div class="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
+                                        <i data-lucide="headphones" class="w-8 h-8 text-white"></i>
+                                    </div>
+                                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Get In Touch</h3>
+                                    <p class="text-gray-500 text-sm">We're here to help you</p>
+                                </div>
+                                
+                                <div class="space-y-3">
+                                    <button onclick="openWhatsApp()" class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-4 rounded-xl font-semibold flex items-center justify-center gap-3 transition-all transform hover:from-green-600 hover:to-green-700 active:scale-95 shadow-lg hover:shadow-xl">
+                                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                                        <span>WhatsApp</span>
+                                    </button>
+                                    
+                                    <button onclick="makeCall()" class="w-full bg-gradient-to-r from-gray-800 to-gray-900 text-white py-4 rounded-xl font-semibold flex items-center justify-center gap-3 transition-all transform hover:from-gray-900 hover:to-black active:scale-95 shadow-lg hover:shadow-xl">
+                                        <i data-lucide="phone" class="w-6 h-6"></i>
+                                        <span>Call Now</span>
+                                    </button>
+                                    
+                                    <button onclick="state.showContactOptions = false; render();" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-medium transition-all active:scale-95 mt-2">
+                                        Cancel
                                     </button>
                                 </div>
                             </div>
@@ -1287,7 +1571,7 @@
                         <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-end sm:items-center sm:justify-center p-0 sm:p-4 animate-fade-in" onclick="closeChat(event)">
                             <div class="bg-white rounded-t-3xl sm:rounded-3xl w-full sm:max-w-lg h-[90vh] flex flex-col animate-slide-in-up" onclick="event.stopPropagation()">
                                 <!-- Header -->
-                                <div class="bg-gradient-to-r from-pink-500 to-purple-600 text-white p-4 rounded-t-3xl sm:rounded-t-3xl flex items-center justify-between">
+                                <div class="bg-gray-900 text-white p-4 rounded-t-3xl sm:rounded-t-3xl flex items-center justify-between">
                                     <div class="flex items-center gap-3">
                                         <img src="${order.product?.image || order.items?.[0]?.image}" class="w-12 h-12 rounded-lg object-cover">
                                         <div>
@@ -1311,10 +1595,10 @@
                             const isMe = (state.isAdmin && msg.isAdmin) || (!state.isAdmin && !msg.isAdmin && !msg.isSystem);
                             return `
                                         <div class="flex ${msg.isSystem ? 'justify-center' : (isMe ? 'justify-end' : 'justify-start')} animate-fade-in-up" style="animation-delay: ${i * 50}ms">
-                                            <div class="max-w-[75%] ${msg.isSystem ? 'bg-gray-200 text-gray-600 text-center text-xs py-2' : (isMe ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white' : 'bg-white')} rounded-2xl p-3 shadow-sm">
-                                                ${!msg.isSystem ? `<p class="text-sm font-medium mb-1 ${isMe ? 'text-white/90' : 'text-pink-600'}">${msg.senderName}</p>` : ''}
+                                            <div class="max-w-[75%] ${msg.isSystem ? 'bg-gray-700 text-gray-300 text-center text-xs py-2' : (isMe ? 'bg-amber-500 text-gray-900' : 'bg-gray-700 text-white')} rounded-2xl p-3 shadow-sm">
+                                                ${!msg.isSystem ? `<p class="text-sm font-medium mb-1 ${isMe ? 'text-gray-900' : 'text-amber-500'}"> ${msg.senderName}</p>` : ''}
                                                 <p class="text-sm">${msg.text}</p>
-                                                <p class="text-xs mt-1 ${isMe ? 'text-white/70' : 'text-gray-400'}">${msg.timestamp ? new Date(msg.timestamp.seconds * 1000).toLocaleTimeString() : 'Just now'}</p>
+                                                <p class="text-xs mt-1 ${isMe ? 'text-gray-800' : 'text-gray-400'}">${msg.timestamp ? new Date(msg.timestamp.seconds * 1000).toLocaleTimeString() : 'Just now'}</p>
                                             </div>
                                         </div>
                                         `;
@@ -1342,7 +1626,7 @@
                                 <div class="border-t p-4 bg-white rounded-b-3xl sm:rounded-b-3xl">
                                     <form onsubmit="event.preventDefault(); sendMessage('${order.id}', event);" class="flex gap-2">
                                         <input type="text" name="message" required placeholder="Type a message..." class="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-pink-500 focus:border-transparent">
-                                        <button type="submit" class="bg-gradient-to-r from-pink-500 to-purple-600 text-white p-3 rounded-full hover:shadow-lg active:scale-95 transition-all">
+                                        <button type="submit" class="bg-gray-900 text-white p-3 rounded-full hover:bg-gray-800 active:scale-95 transition-all">
                                             <i data-lucide="send" class="w-5 h-5"></i>
                                         </button>
                                     </form>
@@ -1417,30 +1701,14 @@
 
             if (!messageText || !state.currentUser) return;
 
-            const db = firebase.firestore();
-            const orderRef = db.collection('orders').doc(orderId);
+            // Open WhatsApp with the message
+            const phoneNumber = '256700742469';
+            const message = `${messageText}\n\nFrom: ${state.currentUser.displayName || state.currentUser.email}`;
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
 
-            const newMessage = {
-                senderId: state.currentUser.uid,
-                senderName: state.currentUser.displayName || state.currentUser.email,
-                text: messageText,
-                timestamp: firebase.firestore.Timestamp.now(),
-                isAdmin: state.isAdmin
-            };
-
-            try {
-                await orderRef.update({
-                    messages: firebase.firestore.FieldValue.arrayUnion(newMessage),
-                    unreadByAdmin: !state.isAdmin,
-                    unreadByCustomer: state.isAdmin
-                });
-
-                form.reset();
-                await loadUserData();
-                render();
-            } catch (error) {
-                alert('Failed to send message: ' + error.message);
-            }
+            form.reset();
+            showToast('Opening WhatsApp...');
         }
 
         async function updateOrderStatus(orderId, newStatus) {
@@ -1542,8 +1810,6 @@
             loadUserData();
             render();
         }
-
-        render();
     </script>
 </body>
 
