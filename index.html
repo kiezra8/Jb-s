@@ -693,33 +693,91 @@
             if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
                 try {
                     const db = firebase.firestore();
-                    const snapshot = await db.collection('products').get();
 
-                    if (!snapshot.empty) {
-                        products = snapshot.docs.map(doc => doc.data());
-                        console.log('✅ Synced with Firebase:', products.length);
-                        render();
-                    } else {
-                        await seedDatabase(db);
-                    }
+                    // Force clear old products and reseed with new data
+                    console.log('🔄 Clearing old products from Firebase...');
+                    await clearAndReseedProducts(db);
+
                 } catch (e) {
-                    console.log('Using local products');
+                    console.log('Using local products', e);
                 }
             }
         }
 
+        async function clearAndReseedProducts(db) {
+            try {
+                // Get all existing products
+                const snapshot = await db.collection('products').get();
+
+                if (!snapshot.empty) {
+                    console.log(`🗑️ Deleting ${snapshot.size} old products...`);
+
+                    // Delete in batches (Firestore limit is 500 per batch)
+                    const batchSize = 500;
+                    const batches = [];
+                    let currentBatch = db.batch();
+                    let operationCount = 0;
+
+                    snapshot.docs.forEach((doc) => {
+                        currentBatch.delete(doc.ref);
+                        operationCount++;
+
+                        if (operationCount === batchSize) {
+                            batches.push(currentBatch.commit());
+                            currentBatch = db.batch();
+                            operationCount = 0;
+                        }
+                    });
+
+                    // Commit remaining operations
+                    if (operationCount > 0) {
+                        batches.push(currentBatch.commit());
+                    }
+
+                    await Promise.all(batches);
+                    console.log('✅ Old products deleted');
+                }
+
+                // Now seed with new products
+                console.log('📦 Uploading new products...');
+                await seedDatabase(db);
+
+            } catch (error) {
+                console.error('Error clearing/reseeding:', error);
+                showToast('Error updating products');
+            }
+        }
+
         async function seedDatabase(db) {
-            const batch = db.batch();
+            const batchSize = 500;
+            const batches = [];
+            let currentBatch = db.batch();
+            let operationCount = 0;
+
             products.forEach(product => {
                 const ref = db.collection('products').doc(product.id.toString());
-                batch.set(ref, product);
+                currentBatch.set(ref, product);
+                operationCount++;
+
+                if (operationCount === batchSize) {
+                    batches.push(currentBatch.commit());
+                    currentBatch = db.batch();
+                    operationCount = 0;
+                }
             });
+
+            // Commit remaining operations
+            if (operationCount > 0) {
+                batches.push(currentBatch.commit());
+            }
+
             try {
-                await batch.commit();
-                showToast('Database Seeded Successfully!');
+                await Promise.all(batches);
+                console.log(`✅ Successfully uploaded ${products.length} new products to Firebase!`);
+                showToast(`${products.length} products updated successfully!`);
             } catch (err) {
                 console.error('Error seeding:', err);
-                showToast('Error seeding database');
+                showToast('Error uploading products');
             }
         }
 
