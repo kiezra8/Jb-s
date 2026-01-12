@@ -10,6 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@100;200;300;400;500;600&display=swap');
 
@@ -222,6 +223,8 @@
             viewingCategoryPage: false,
             showContactOptions: false,
             showAdminImagePanel: false,
+            showProductManagement: false,
+            editingProduct: null,
             // Auth & Messaging
             currentUser: null,
             isAdmin: false,
@@ -375,8 +378,14 @@
             // Load saved images first
             await loadSavedImages();
 
-            // Generate products
-            generateProducts();
+            // Try to load products from storage
+            await loadProducts();
+
+            // If no products loaded, generate them
+            if (products.length === 0) {
+                generateProducts();
+            }
+
             productsLoaded = true;
             console.log('✅ Products ready:', products.length);
 
@@ -1447,10 +1456,16 @@
                                 ${state.isAdmin ? `
                                     <div class="p-4 border-t">
                                         <h3 class="font-bold text-gray-700 mb-3 ml-1">Admin Tools</h3>
-                                        <button onclick="openAdminImagePanel(); toggleMenu();" class="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white p-4 rounded-lg text-center hover:from-purple-700 hover:to-purple-800 transition-all active:scale-95 flex items-center justify-center gap-2">
-                                            <i data-lucide="image" class="w-5 h-5"></i>
-                                            <span class="font-bold">Manage Images</span>
-                                        </button>
+                                        <div class="space-y-3">
+                                            <button onclick="openAdminImagePanel(); toggleMenu();" class="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white p-4 rounded-lg text-center hover:from-purple-700 hover:to-purple-800 transition-all active:scale-95 flex items-center justify-center gap-2">
+                                                <i data-lucide="image" class="w-5 h-5"></i>
+                                                <span class="font-bold">Manage Site Images</span>
+                                            </button>
+                                            <button onclick="openProductManagement(); toggleMenu();" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 rounded-lg text-center hover:from-blue-700 hover:to-blue-800 transition-all active:scale-95 flex items-center justify-center gap-2">
+                                                <i data-lucide="package" class="w-5 h-5"></i>
+                                                <span class="font-bold">Manage Products</span>
+                                            </button>
+                                        </div>
                                     </div>
                                 ` : ''}
                             </div>
@@ -1679,19 +1694,25 @@
                                             <i data-lucide="image" class="w-5 h-5 text-purple-600"></i>
                                             Carousel Images
                                         </h4>
-                                        <div class="space-y-3">
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Slide 1 (Main)</label>
-                                                <input type="url" id="carousel-slide1" value="${siteImages.carousel.slide1}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm" placeholder="https://...">
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Slide 2 (Locations)</label>
-                                                <input type="url" id="carousel-slide2" value="${siteImages.carousel.slide2}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm" placeholder="https://...">
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Slide 3 (Delivery)</label>
-                                                <input type="url" id="carousel-slide3" value="${siteImages.carousel.slide3}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm" placeholder="https://...">
-                                            </div>
+                                        <div class="space-y-4">
+                                            ${['slide1', 'slide2', 'slide3'].map((slide, idx) => `
+                                                <div class="bg-white rounded-lg p-3 border-2 border-dashed border-gray-300">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">Slide ${idx + 1} ${['(Main)', '(Locations)', '(Delivery)'][idx]}</label>
+                                                    <div class="flex gap-3 items-start">
+                                                        <div class="flex-1">
+                                                            <input type="file" id="file-carousel-${slide}" accept="image/*" capture="environment" class="hidden" onchange="handleImageUpload(event, 'carousel', '${slide}')">
+                                                            <button onclick="document.getElementById('file-carousel-${slide}').click()" class="w-full bg-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-purple-700 active:scale-95 transition-all flex items-center justify-center gap-2">
+                                                                <i data-lucide="camera" class="w-5 h-5"></i>
+                                                                <span>Choose/Take Photo</span>
+                                                            </button>
+                                                            <div id="preview-carousel-${slide}" class="mt-2 hidden">
+                                                                <img src="${siteImages.carousel[slide]}" class="w-full h-32 object-cover rounded-lg border-2 border-purple-200">
+                                                                <p class="text-xs text-gray-500 mt-1 text-center">Current image</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            `).join('')}
                                         </div>
                                     </div>
 
@@ -1701,15 +1722,25 @@
                                             <i data-lucide="map-pin" class="w-5 h-5 text-green-600"></i>
                                             Branch Location Images
                                         </h4>
-                                        <div class="space-y-3">
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Ntinda Branch</label>
-                                                <input type="url" id="branch-ntinda" value="${siteImages.branches.ntinda}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm" placeholder="https://...">
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Mbarara Branch</label>
-                                                <input type="url" id="branch-mbarara" value="${siteImages.branches.mbarara}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm" placeholder="https://...">
-                                            </div>
+                                        <div class="space-y-4">
+                                            ${['ntinda', 'mbarara'].map((branch, idx) => `
+                                                <div class="bg-white rounded-lg p-3 border-2 border-dashed border-gray-300">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">${['Ntinda', 'Mbarara'][idx]} Branch</label>
+                                                    <div class="flex gap-3 items-start">
+                                                        <div class="flex-1">
+                                                            <input type="file" id="file-branch-${branch}" accept="image/*" capture="environment" class="hidden" onchange="handleImageUpload(event, 'branches', '${branch}')">
+                                                            <button onclick="document.getElementById('file-branch-${branch}').click()" class="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-700 active:scale-95 transition-all flex items-center justify-center gap-2">
+                                                                <i data-lucide="camera" class="w-5 h-5"></i>
+                                                                <span>Choose/Take Photo</span>
+                                                            </button>
+                                                            <div id="preview-branch-${branch}" class="mt-2 hidden">
+                                                                <img src="${siteImages.branches[branch]}" class="w-full h-32 object-cover rounded-lg border-2 border-green-200">
+                                                                <p class="text-xs text-gray-500 mt-1 text-center">Current image</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            `).join('')}
                                         </div>
                                     </div>
 
@@ -1719,27 +1750,25 @@
                                             <i data-lucide="book-open" class="w-5 h-5 text-amber-600"></i>
                                             Article Images
                                         </h4>
-                                        <div class="space-y-3">
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Tailoring Article</label>
-                                                <input type="url" id="article-tailoring" value="${siteImages.articles.tailoring}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm" placeholder="https://...">
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Fabrics Article</label>
-                                                <input type="url" id="article-fabrics" value="${siteImages.articles.fabrics}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm" placeholder="https://...">
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Wedding Article</label>
-                                                <input type="url" id="article-wedding" value="${siteImages.articles.wedding}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm" placeholder="https://...">
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Professional Article</label>
-                                                <input type="url" id="article-professional" value="${siteImages.articles.professional}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm" placeholder="https://...">
-                                            </div>
-                                            <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-1">Care Article</label>
-                                                <input type="url" id="article-care" value="${siteImages.articles.care}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-sm" placeholder="https://...">
-                                            </div>
+                                        <div class="space-y-4">
+                                            ${['tailoring', 'fabrics', 'wedding', 'professional', 'care'].map((article, idx) => `
+                                                <div class="bg-white rounded-lg p-3 border-2 border-dashed border-gray-300">
+                                                    <label class="block text-sm font-medium text-gray-700 mb-2">${['Tailoring', 'Fabrics', 'Wedding', 'Professional', 'Care'][idx]} Article</label>
+                                                    <div class="flex gap-3 items-start">
+                                                        <div class="flex-1">
+                                                            <input type="file" id="file-article-${article}" accept="image/*" capture="environment" class="hidden" onchange="handleImageUpload(event, 'articles', '${article}')">
+                                                            <button onclick="document.getElementById('file-article-${article}').click()" class="w-full bg-amber-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-amber-700 active:scale-95 transition-all flex items-center justify-center gap-2">
+                                                                <i data-lucide="camera" class="w-5 h-5"></i>
+                                                                <span>Choose/Take Photo</span>
+                                                            </button>
+                                                            <div id="preview-article-${article}" class="mt-2 hidden">
+                                                                <img src="${siteImages.articles[article]}" class="w-full h-32 object-cover rounded-lg border-2 border-amber-200">
+                                                                <p class="text-xs text-gray-500 mt-1 text-center">Current image</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            `).join('')}
                                         </div>
                                     </div>
                                 </div>
@@ -1757,6 +1786,97 @@
                         </div>
                     ` : ''
                     }
+
+                    <!--Product Management Panel-->
+                ${state.showProductManagement ? `
+                        <div class="fixed inset-0 bg-black/70 backdrop-blur-md z-[70] flex items-center justify-center p-4 animate-fade-in overflow-y-auto" onclick="state.showProductManagement = false; state.editingProduct = null; render();">
+                            <div class="bg-white rounded-3xl p-6 max-w-6xl w-full shadow-2xl my-8 max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+                                <div class="flex items-center justify-between mb-6 sticky top-0 bg-white z-10 pb-4 border-b">
+                                    <div>
+                                        <h3 class="text-2xl font-bold text-gray-900">📦 Manage Products</h3>
+                                        <p class="text-sm text-gray-500 mt-1">${state.editingProduct ? 'Edit product' : products.length + ' products'}</p>
+                                    </div>
+                                    <button onclick="state.showProductManagement = false; state.editingProduct = null; render();" class="p-2 hover:bg-gray-100 rounded-full">
+                                        <i data-lucide="x" class="w-6 h-6"></i>
+                                    </button>
+                                </div>
+
+                                ${!state.editingProduct ? `
+                                    <div class="mb-4 flex justify-between">
+                                        <h4 class="font-bold text-lg">Product List</h4>
+                                        <button onclick="state.editingProduct = {id: Date.now(), name: '', price: 0, image: '', category: 'mensuits', sizes: ['M'], rating: '4.5', reviews: 0}; render();" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 flex items-center gap-2">
+                                            <i data-lucide="plus" class="w-5 h-5"></i>
+                                            Add Product
+                                        </button>
+                                    </div>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-h-[65vh] overflow-y-auto">
+                                        ${getFilteredProducts().slice(0, 100).map(p => `
+                                            <div class="bg-gray-50 rounded-lg p-3 border-2 hover:border-blue-400">
+                                                <img src="${p.image}" class="w-full h-32 object-cover rounded-lg mb-2">
+                                                <h5 class="font-semibold text-sm line-clamp-1 mb-1">${p.name}</h5>
+                                                <div class="flex justify-between text-xs mb-3">
+                                                    <span class="font-bold text-blue-600">${formatMoney(p.price)}</span>
+                                                    <span class="bg-gray-200 px-2 py-1 rounded text-xs">${categories.find(c => c.id === p.category)?.name || p.category}</span>
+                                                </div>
+                                                <div class="flex gap-2">
+                                                    <button onclick='state.editingProduct = ${JSON.stringify(p).replace(/'/g, "\\'")}; render();' class="flex-1 bg-blue-600 text-white py-2 rounded text-xs font-bold hover:bg-blue-700">Edit</button>
+                                                    <button onclick="deleteProduct(${p.id})" class="bg-red-500 text-white py-2 px-3 rounded text-xs font-bold hover:bg-red-600">Del</button>
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                ` : `
+                                    <form onsubmit="event.preventDefault(); saveProduct(event);" class="space-y-4">
+                                        <div class="bg-blue-50 rounded-xl p-4">
+                                            <label class="block text-sm font-medium mb-2">📸 Product Image</label>
+                                            <input type="file" id="product-image-upload" accept="image/*" capture="environment" class="hidden" onchange="handleProductImageUpload(event)">
+                                            <button type="button" onclick="document.getElementById('product-image-upload').click()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 flex items-center justify-center gap-2">
+                                                <i data-lucide="camera" class="w-5 h-5"></i>
+                                                Choose/Take Photo
+                                            </button>
+                                            ${state.editingProduct.image ? `<img src="${state.editingProduct.image}" class="w-full h-48 object-cover rounded-lg mt-3 border-2 border-blue-200">` : ''}
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium mb-1">Product Name/Description</label>
+                                            <input type="text" name="name" value="${state.editingProduct.name || ''}" required class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="e.g., Elegant navy suit">
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="block text-sm font-medium mb-1">Category</label>
+                                                <select name="category" required class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                                                    ${categories.filter(c => c.id !== 'all').map(cat => `<option value="${cat.id}" ${state.editingProduct.category === cat.id ? 'selected' : ''}>${cat.name}</option>`).join('')}
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-medium mb-1">Price (UGX)</label>
+                                                <input type="number" name="price" value="${state.editingProduct.price || 0}" required min="0" step="1000" class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="500000">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium mb-2">Available Sizes</label>
+                                            <div class="flex flex-wrap gap-2">
+                                                ${['S', 'M', 'L', 'XL', 'XXL', 'One Size', 'Free Size'].map(size => `
+                                                    <label class="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border-2 ${(state.editingProduct.sizes || []).includes(size) ? 'border-blue-500 bg-blue-50' : 'border-gray-200'} cursor-pointer hover:border-blue-400">
+                                                        <input type="checkbox" name="sizes" value="${size}" ${(state.editingProduct.sizes || []).includes(size) ? 'checked' : ''} class="rounded">
+                                                        <span class="text-sm font-medium">${size}</span>
+                                                    </label>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                        <div class="flex gap-3 pt-4 border-t">
+                                            <button type="submit" class="flex-1 bg-blue-600 text-white py-3 rounded-xl font-semibold hover:bg-blue-700 flex items-center justify-center gap-2">
+                                                <i data-lucide="save" class="w-5 h-5"></i>
+                                                ${state.editingProduct.id > 1000000 ? 'Add Product' : 'Save Changes'}
+                                            </button>
+                                            <button type="button" onclick="state.editingProduct = null; render();" class="px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 py-3 rounded-xl font-medium">
+                                                Back
+                                            </button>
+                                        </div>
+                                    </form>
+                                `}
+                            </div>
+                        </div>
+                    ` : ''}
 
                     <!--Chat Modal-->
                 ${state.selectedOrder ? (() => {
@@ -1958,30 +2078,7 @@
             }
 
             try {
-                // Get all input values
-                const newImages = {
-                    carousel: {
-                        slide1: document.getElementById('carousel-slide1').value,
-                        slide2: document.getElementById('carousel-slide2').value,
-                        slide3: document.getElementById('carousel-slide3').value
-                    },
-                    branches: {
-                        ntinda: document.getElementById('branch-ntinda').value,
-                        mbarara: document.getElementById('branch-mbarara').value
-                    },
-                    articles: {
-                        tailoring: document.getElementById('article-tailoring').value,
-                        fabrics: document.getElementById('article-fabrics').value,
-                        wedding: document.getElementById('article-wedding').value,
-                        professional: document.getElementById('article-professional').value,
-                        care: document.getElementById('article-care').value
-                    }
-                };
-
-                // Update local siteImages object
-                Object.assign(siteImages.carousel, newImages.carousel);
-                Object.assign(siteImages.branches, newImages.branches);
-                Object.assign(siteImages.articles, newImages.articles);
+                showToast('Saving images...');
 
                 // Save to localStorage for persistence
                 localStorage.setItem('jbs_site_images', JSON.stringify(siteImages));
@@ -1998,6 +2095,85 @@
             } catch (error) {
                 console.error('Error saving images:', error);
                 alert('Failed to save images: ' + error.message);
+            }
+        }
+
+        // Handle image upload from phone
+        async function handleImageUpload(event, category, key) {
+            if (!state.isAdmin) {
+                showToast('Admin access required');
+                return;
+            }
+
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file');
+                return;
+            }
+
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Image size must be less than 5MB');
+                return;
+            }
+
+            try {
+                showToast('Uploading image...');
+
+                // Upload to Firebase Storage
+                if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+                    const storage = firebase.storage();
+                    const storageRef = storage.ref();
+
+                    // Create unique filename
+                    const timestamp = Date.now();
+                    const filename = `site-images/${category}/${key}_${timestamp}.${file.name.split('.').pop()}`;
+                    const imageRef = storageRef.child(filename);
+
+                    // Upload file
+                    const snapshot = await imageRef.put(file);
+
+                    // Get download URL
+                    const downloadURL = await snapshot.ref.getDownloadURL();
+
+                    // Update siteImages object
+                    siteImages[category][key] = downloadURL;
+
+                    // Show preview
+                    const previewId = `preview-${category === 'carousel' ? 'carousel' : category === 'branches' ? 'branch' : 'article'}-${key}`;
+                    const previewEl = document.getElementById(previewId);
+                    if (previewEl) {
+                        previewEl.classList.remove('hidden');
+                        const img = previewEl.querySelector('img');
+                        if (img) img.src = downloadURL;
+                    }
+
+                    showToast('Image uploaded successfully!');
+                } else {
+                    // Fallback: use base64 for local storage
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        siteImages[category][key] = e.target.result;
+
+                        // Show preview
+                        const previewId = `preview-${category === 'carousel' ? 'carousel' : category === 'branches' ? 'branch' : 'article'}-${key}`;
+                        const previewEl = document.getElementById(previewId);
+                        if (previewEl) {
+                            previewEl.classList.remove('hidden');
+                            const img = previewEl.querySelector('img');
+                            if (img) img.src = e.target.result;
+                        }
+
+                        showToast('Image loaded successfully!');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            } catch (error) {
+                console.error('Error uploading image:', error);
+                alert('Failed to upload image: ' + error.message);
             }
         }
 
@@ -2028,6 +2204,179 @@
                 }
             } catch (error) {
                 console.log('Using default images:', error);
+            }
+        }
+
+        // Product Management Functions
+        function openProductManagement() {
+            if (!state.isAdmin) {
+                showToast('Admin access required');
+                return;
+            }
+            state.showProductManagement = true;
+            state.editingProduct = null;
+            render();
+        }
+
+        async function handleProductImageUpload(event) {
+            if (!state.isAdmin) {
+                showToast('Admin access required');
+                return;
+            }
+
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file');
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Image size must be less than 5MB');
+                return;
+            }
+
+            try {
+                showToast('Uploading product image...');
+
+                if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+                    const storage = firebase.storage();
+                    const storageRef = storage.ref();
+
+                    const timestamp = Date.now();
+                    const filename = `product-images/${timestamp}_${file.name}`;
+                    const imageRef = storageRef.child(filename);
+
+                    const snapshot = await imageRef.put(file);
+                    const downloadURL = await snapshot.ref.getDownloadURL();
+
+                    state.editingProduct.image = downloadURL;
+                    showToast('Image uploaded successfully!');
+                    render();
+                } else {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        state.editingProduct.image = e.target.result;
+                        showToast('Image loaded successfully!');
+                        render();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            } catch (error) {
+                console.error('Error uploading product image:', error);
+                alert('Failed to upload image: ' + error.message);
+            }
+        }
+
+        async function saveProduct(event) {
+            if (!state.isAdmin) {
+                showToast('Admin access required');
+                return;
+            }
+
+            try {
+                const form = event.target;
+                const formData = new FormData(form);
+
+                const sizes = Array.from(form.querySelectorAll('input[name="sizes"]:checked'))
+                    .map(cb => cb.value);
+
+                if (sizes.length === 0) {
+                    alert('Please select at least one size');
+                    return;
+                }
+
+                const productData = {
+                    id: state.editingProduct.id,
+                    name: formData.get('name'),
+                    description: formData.get('name'),
+                    price: parseInt(formData.get('price')),
+                    category: formData.get('category'),
+                    image: state.editingProduct.image || `https://loremflickr.com/800/800/fashion?lock=${state.editingProduct.id}`,
+                    sizes: sizes,
+                    rating: state.editingProduct.rating || '4.5',
+                    reviews: state.editingProduct.reviews || Math.floor(Math.random() * 300) + 20
+                };
+
+                const existingIndex = products.findIndex(p => p.id === productData.id);
+
+                if (existingIndex >= 0) {
+                    products[existingIndex] = productData;
+                    showToast('Product updated successfully!');
+                } else {
+                    products.push(productData);
+                    showToast('Product added successfully!');
+                }
+
+                if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+                    const db = firebase.firestore();
+                    await db.collection('products').doc(productData.id.toString()).set(productData);
+                }
+
+                localStorage.setItem('jbs_products', JSON.stringify(products));
+
+                state.editingProduct = null;
+                render();
+            } catch (error) {
+                console.error('Error saving product:', error);
+                alert('Failed to save product: ' + error.message);
+            }
+        }
+
+        async function deleteProduct(productId) {
+            if (!state.isAdmin) {
+                showToast('Admin access required');
+                return;
+            }
+
+            if (!confirm('Are you sure you want to delete this product?')) {
+                return;
+            }
+
+            try {
+                const index = products.findIndex(p => p.id === productId);
+                if (index >= 0) {
+                    products.splice(index, 1);
+                }
+
+                if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+                    const db = firebase.firestore();
+                    await db.collection('products').doc(productId.toString()).delete();
+                }
+
+                localStorage.setItem('jbs_products', JSON.stringify(products));
+
+                showToast('Product deleted successfully!');
+                render();
+            } catch (error) {
+                console.error('Error deleting product:', error);
+                alert('Failed to delete product: ' + error.message);
+            }
+        }
+
+        async function loadProducts() {
+            try {
+                const savedProducts = localStorage.getItem('jbs_products');
+                if (savedProducts) {
+                    const parsed = JSON.parse(savedProducts);
+                    if (parsed.length > 0) {
+                        products = parsed;
+                        console.log('✅ Loaded products from localStorage:', products.length);
+                    }
+                }
+
+                if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+                    const db = firebase.firestore();
+                    const snapshot = await db.collection('products').get();
+                    if (!snapshot.empty) {
+                        products = snapshot.docs.map(doc => doc.data());
+                        localStorage.setItem('jbs_products', JSON.stringify(products));
+                        console.log('✅ Synced products from Firebase:', products.length);
+                    }
+                }
+            } catch (error) {
+                console.log('Using generated products:', error);
             }
         }
 

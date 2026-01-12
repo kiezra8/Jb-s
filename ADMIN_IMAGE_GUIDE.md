@@ -1,7 +1,7 @@
 # Admin Image Management Guide
 
 ## Overview
-The admin can now change all site images directly from their phone without editing Firebase or code!
+The admin can now **upload images directly from their phone** (camera or gallery) just like posting on Facebook or Twitter! No need for URLs anymore.
 
 ## How to Access (Admin Only)
 
@@ -28,46 +28,98 @@ The admin can now change all site images directly from their phone without editi
 - **Professional Article**: Professional wardrobe image
 - **Care Article**: Garment care image
 
-## How to Update Images
+## How to Upload Images 📸
 
-1. **Find an image online** you want to use
-2. **Copy the image URL** (must start with https://)
-   - Right-click image → "Copy image address" (Chrome)
-   - Long-press image → "Copy image link" (Mobile)
-3. **Paste the URL** into the appropriate field
-4. **Tap "Save Changes"**
+### Option 1: Take a New Photo
+1. Tap the **"Choose/Take Photo"** button
+2. Select **"Camera"** or **"Take Photo"**
+3. Take your photo
+4. Confirm/crop if needed
+5. The image uploads automatically!
+
+### Option 2: Choose from Gallery
+1. Tap the **"Choose/Take Photo"** button
+2. Select **"Gallery"** or **"Photo Library"**
+3. Browse and select your image
+4. The image uploads automatically!
+
+### Finishing Up
+- After uploading all desired images, tap **"Save Changes"**
+- Your images are now live on the website!
 
 ## Where Images Are Saved
 
-- **localStorage**: Saved on your device for instant access
-- **Firebase**: Synced to cloud so changes appear on all devices
-- Changes are **permanent** and will persist across sessions
+- **Firebase Storage**: Uploaded images are stored securely in the cloud
+- **Firebase Firestore**: Image URLs are saved for quick access
+- **localStorage**: Cached locally for instant loading
+- Changes are **permanent** and sync across all devices
 
-## Tips
+## Image Requirements
 
-✅ **Use high-quality images** (at least 800x800 pixels)
-✅ **Use HTTPS URLs** (not HTTP)
-✅ **Test images** by opening the URL in your browser first
-✅ **Keep backups** of your favorite image URLs
+✅ **File Types**: JPG, PNG, WEBP, GIF
+✅ **Max Size**: 5MB per image
+✅ **Recommended Size**: At least 800x800 pixels for best quality
+✅ **Orientation**: Landscape works best for carousel/branches
 
-## Example Image Sources
+## Tips for Great Photos
 
-- **Unsplash**: https://unsplash.com (free high-quality photos)
-- **Pexels**: https://pexels.com (free stock photos)
-- **Your own images**: Upload to Imgur, Google Photos, or similar and copy the link
+📷 **Good Lighting**: Take photos in bright, natural light
+📷 **Clean Background**: Avoid cluttered backgrounds
+📷 **High Resolution**: Use your phone's best camera quality
+📷 **Steady Hands**: Hold phone steady or use a tripod
+📷 **Horizontal Photos**: Work best for carousel and branch images
+
+## Features
+
+🎯 **Instant Preview**: See your image immediately after upload
+🎯 **Progress Feedback**: Toast notifications show upload status
+🎯 **Error Handling**: Alerts if image is too large or wrong format
+🎯 **Mobile Optimized**: Works perfectly on all phones
+🎯 **Camera Access**: Can take photos directly from the app
 
 ## Troubleshooting
 
-**Images not showing?**
-- Check the URL starts with `https://`
-- Make sure the URL ends with an image extension (.jpg, .png, etc.)
-- Try opening the URL in a new browser tab to verify it works
-
-**Changes not saving?**
-- Make sure you're logged in as admin
+**Upload Failed?**
 - Check your internet connection
-- Try refreshing the page and updating again
+- Make sure image is under 5MB
+- Try a different image format (JPG works best)
+- Ensure you're logged in as admin
+
+**Image Not Showing?**
+- Wait a few seconds for upload to complete
+- Refresh the page
+- Check if you tapped "Save Changes"
+
+**Camera Not Working?**
+- Allow camera permissions in your browser
+- Try using "Choose from Gallery" instead
+- Check if another app is using the camera
+
+**Image Too Large?**
+- Compress the image using a photo editor
+- Take a new photo at lower resolution
+- Use online tools like TinyPNG to reduce size
+
+## Example Workflow
+
+1. **Open Admin Panel** → Menu → Manage Images
+2. **Tap "Choose/Take Photo"** for Slide 1
+3. **Take a photo** of your shop front
+4. **See preview** appear automatically
+5. **Repeat** for other images as needed
+6. **Tap "Save Changes"** when done
+7. **Done!** Images are live on the website
 
 ---
 
 **Need help?** Contact support via WhatsApp or call the shop directly.
+
+## Technical Details (For Developers)
+
+- Uses Firebase Storage for image hosting
+- Generates unique filenames with timestamps
+- Supports `capture="environment"` for direct camera access
+- Falls back to base64 encoding if Firebase unavailable
+- Validates file type and size before upload
+- Shows real-time upload progress
+- Implements proper error handling
