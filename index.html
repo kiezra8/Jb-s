@@ -1830,10 +1830,10 @@
                                                     <label class="block text-sm font-medium text-gray-700 mb-2">Slide ${idx + 1} ${['(Main)', '(Locations)', '(Delivery)'][idx]}</label>
                                                     <div class="flex gap-3 items-start">
                                                         <div class="flex-1">
-                                                            <input type="file" id="file-carousel-${slide}" accept="image/*" capture="environment" class="hidden" onchange="handleImageUpload(event, 'carousel', '${slide}')">
+                                                            <input type="file" id="file-carousel-${slide}" accept="image/*" class="hidden" onchange="handleImageUpload(event, 'carousel', '${slide}')">
                                                             <button onclick="document.getElementById('file-carousel-${slide}').click()" class="w-full bg-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-purple-700 active:scale-95 transition-all flex items-center justify-center gap-2">
-                                                                <i data-lucide="camera" class="w-5 h-5"></i>
-                                                                <span>Choose/Take Photo</span>
+                                                                <i data-lucide="image" class="w-5 h-5"></i>
+                                                                <span>Choose from Gallery</span>
                                                             </button>
                                                             <div id="preview-carousel-${slide}" class="mt-2 hidden">
                                                                 <img src="${siteImages.carousel[slide]}" class="w-full h-32 object-cover rounded-lg border-2 border-purple-200">
@@ -1858,10 +1858,10 @@
                                                     <label class="block text-sm font-medium text-gray-700 mb-2">${['Ntinda', 'Mbarara'][idx]} Branch</label>
                                                     <div class="flex gap-3 items-start">
                                                         <div class="flex-1">
-                                                            <input type="file" id="file-branch-${branch}" accept="image/*" capture="environment" class="hidden" onchange="handleImageUpload(event, 'branches', '${branch}')">
+                                                            <input type="file" id="file-branch-${branch}" accept="image/*" class="hidden" onchange="handleImageUpload(event, 'branches', '${branch}')">
                                                             <button onclick="document.getElementById('file-branch-${branch}').click()" class="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-700 active:scale-95 transition-all flex items-center justify-center gap-2">
-                                                                <i data-lucide="camera" class="w-5 h-5"></i>
-                                                                <span>Choose/Take Photo</span>
+                                                                <i data-lucide="image" class="w-5 h-5"></i>
+                                                                <span>Choose from Gallery</span>
                                                             </button>
                                                             <div id="preview-branch-${branch}" class="mt-2 hidden">
                                                                 <img src="${siteImages.branches[branch]}" class="w-full h-32 object-cover rounded-lg border-2 border-green-200">
@@ -1886,10 +1886,10 @@
                                                     <label class="block text-sm font-medium text-gray-700 mb-2">${['Tailoring', 'Fabrics', 'Wedding', 'Professional', 'Care'][idx]} Article</label>
                                                     <div class="flex gap-3 items-start">
                                                         <div class="flex-1">
-                                                            <input type="file" id="file-article-${article}" accept="image/*" capture="environment" class="hidden" onchange="handleImageUpload(event, 'articles', '${article}')">
+                                                            <input type="file" id="file-article-${article}" accept="image/*" class="hidden" onchange="handleImageUpload(event, 'articles', '${article}')">
                                                             <button onclick="document.getElementById('file-article-${article}').click()" class="w-full bg-amber-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-amber-700 active:scale-95 transition-all flex items-center justify-center gap-2">
-                                                                <i data-lucide="camera" class="w-5 h-5"></i>
-                                                                <span>Choose/Take Photo</span>
+                                                                <i data-lucide="image" class="w-5 h-5"></i>
+                                                                <span>Choose from Gallery</span>
                                                             </button>
                                                             <div id="preview-article-${article}" class="mt-2 hidden">
                                                                 <img src="${siteImages.articles[article]}" class="w-full h-32 object-cover rounded-lg border-2 border-amber-200">
@@ -1959,10 +1959,10 @@
                                     <form onsubmit="event.preventDefault(); saveProduct(event);" class="space-y-4">
                                         <div class="bg-blue-50 rounded-xl p-4">
                                             <label class="block text-sm font-medium mb-2">📸 Product Image</label>
-                                            <input type="file" id="product-image-upload" accept="image/*" capture="environment" class="hidden" onchange="handleProductImageUpload(event)">
+                                            <input type="file" id="product-image-upload" accept="image/*" class="hidden" onchange="handleProductImageUpload(event)">
                                             <button type="button" onclick="document.getElementById('product-image-upload').click()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 flex items-center justify-center gap-2">
-                                                <i data-lucide="camera" class="w-5 h-5"></i>
-                                                Choose/Take Photo
+                                                <i data-lucide="image" class="w-5 h-5"></i>
+                                                Choose from Gallery
                                             </button>
                                             ${state.editingProduct.image ? `<img src="${state.editingProduct.image}" class="w-full h-48 object-cover rounded-lg mt-3 border-2 border-blue-200">` : ''}
                                         </div>
