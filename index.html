@@ -2297,6 +2297,19 @@
                     const storage = firebase.storage();
                     const storageRef = storage.ref();
 
+                    // Delete old image from Firebase Storage if it exists
+                    const oldImageUrl = siteImages[category][key];
+                    if (oldImageUrl && oldImageUrl.includes('firebasestorage.googleapis.com')) {
+                        try {
+                            // Extract the file path from the URL
+                            const oldImageRef = storage.refFromURL(oldImageUrl);
+                            await oldImageRef.delete();
+                            console.log('Old image deleted from Firebase Storage');
+                        } catch (error) {
+                            console.log('Could not delete old image:', error.message);
+                        }
+                    }
+
                     // Create unique filename
                     const timestamp = Date.now();
                     const filename = `site-images/${category}/${key}_${timestamp}.${file.name.split('.').pop()}`;
@@ -2449,6 +2462,18 @@
                 if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
                     const storage = firebase.storage();
                     const storageRef = storage.ref();
+
+                    // Delete old product image from Firebase Storage if it exists
+                    const oldImageUrl = state.editingProduct.image;
+                    if (oldImageUrl && oldImageUrl.includes('firebasestorage.googleapis.com')) {
+                        try {
+                            const oldImageRef = storage.refFromURL(oldImageUrl);
+                            await oldImageRef.delete();
+                            console.log('Old product image deleted from Firebase Storage');
+                        } catch (error) {
+                            console.log('Could not delete old product image:', error.message);
+                        }
+                    }
 
                     const timestamp = Date.now();
                     const filename = `product-images/${timestamp}_${file.name}`;
