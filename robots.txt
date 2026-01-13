@@ -1,2 +1,9 @@
 User-agent: *
 Allow: /
+
+# Sitemap location
+Sitemap: https://jbstailoredfashionz.com/sitemap.xml
+
+# Disallow admin areas (if any)
+Disallow: /admin/
+Disallow: /*.json$
