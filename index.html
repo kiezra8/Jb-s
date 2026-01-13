@@ -2327,6 +2327,15 @@
                     // Save to localStorage immediately
                     localStorage.setItem('jbs_site_images', JSON.stringify(siteImages));
 
+                    // Save to Firestore for persistence
+                    try {
+                        const db = firebase.firestore();
+                        await db.collection('settings').doc('siteImages').set(siteImages);
+                        console.log('Images saved to Firestore');
+                    } catch (error) {
+                        console.log('Could not save to Firestore:', error.message);
+                    }
+
                     // Show preview
                     const previewId = `preview-${category === 'carousel' ? 'carousel' : category === 'branches' ? 'branch' : 'article'}-${key}`;
                     const previewEl = document.getElementById(previewId);
