@@ -2311,6 +2311,9 @@
                     // Update siteImages object
                     siteImages[category][key] = downloadURL;
 
+                    // Save to localStorage immediately
+                    localStorage.setItem('jbs_site_images', JSON.stringify(siteImages));
+
                     // Show preview
                     const previewId = `preview-${category === 'carousel' ? 'carousel' : category === 'branches' ? 'branch' : 'article'}-${key}`;
                     const previewEl = document.getElementById(previewId);
@@ -2327,6 +2330,9 @@
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         siteImages[category][key] = e.target.result;
+
+                        // Save to localStorage immediately
+                        localStorage.setItem('jbs_site_images', JSON.stringify(siteImages));
 
                         // Show preview
                         const previewId = `preview-${category === 'carousel' ? 'carousel' : category === 'branches' ? 'branch' : 'article'}-${key}`;
