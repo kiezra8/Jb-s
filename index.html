@@ -2321,6 +2321,7 @@
                     }
 
                     showToast('Image uploaded successfully!');
+                    render(); // Re-render to show updated image
                 } else {
                     // Fallback: use base64 for local storage
                     const reader = new FileReader();
@@ -2337,6 +2338,7 @@
                         }
 
                         showToast('Image loaded successfully!');
+                        render(); // Re-render to show updated image
                     };
                     reader.readAsDataURL(file);
                 }
