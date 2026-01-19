@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
 
     <!-- Primary Meta Tags -->
     <title>JB'S TAILORED - Bespoke Fashion & Custom Tailoring in Uganda | Men's Suits, Women's Wear</title>
@@ -676,19 +679,21 @@
                     const snapshot = await db.collection('products').get();
 
                     if (!snapshot.empty) {
+                        // Load from Firebase (this is the source of truth)
                         products = snapshot.docs.map(doc => doc.data());
-                        console.log('✅ Synced with Firebase:', products.length);
+                        console.log('✅ Loaded from Firebase:', products.length);
                         localStorage.setItem('jbs_products', JSON.stringify(products));
                         render();
                     } else {
-                        console.log('📦 Firebase empty. Generating products...');
+                        // Only generate if Firebase is completely empty (first time setup)
+                        console.log('📦 First time setup - generating initial products...');
                         generateProducts();
                         await seedDatabase(db);
                         localStorage.setItem('jbs_products', JSON.stringify(products));
                         render();
                     }
                 } catch (e) {
-                    console.log('⚠️ Firebase sync failed. Generating local products:', e.message);
+                    console.log('⚠️ Firebase sync failed:', e.message);
                     if (products.length === 0) {
                         generateProducts();
                         render();
@@ -710,10 +715,9 @@
             });
             try {
                 await batch.commit();
-                showToast('Database Seeded Successfully!');
+                console.log('✅ Products synced to Firebase');
             } catch (err) {
                 console.error('Error seeding:', err);
-                showToast('Error seeding database');
             }
         }
 
@@ -1103,10 +1107,8 @@
             try {
                 await Promise.all(batches);
                 console.log(`✅ Successfully uploaded ${products.length} new products to Firebase!`);
-                showToast(`${products.length} products updated successfully!`);
             } catch (err) {
                 console.error('Error seeding:', err);
-                showToast('Error uploading products');
             }
         }
 

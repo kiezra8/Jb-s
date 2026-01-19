@@ -1,5 +1,0 @@
-Reduce product generation to 10 per category
-
-- Changed loop from 30 to 10 products per category
-- Total products reduced from 540 to 180 for better performance
-- More manageable catalog size for Firebase Console editing
