@@ -2423,26 +2423,28 @@
 
             const file = event.target.files[0];
             if (!file) {
-                console.log('No file selected');
+                console.log('❌ No file selected');
                 return;
             }
 
-            console.log('File selected:', file.name, 'Size:', file.size, 'Type:', file.type);
+            console.log('📁 File selected:', file.name, 'Size:', file.size, 'Type:', file.type);
 
             // Validate file type
             if (!file.type.startsWith('image/')) {
                 alert('Please select an image file');
+                event.target.value = '';
                 return;
             }
 
             // Validate file size (max 5MB)
             if (file.size > 5 * 1024 * 1024) {
                 alert('Image size must be less than 5MB');
+                event.target.value = '';
                 return;
             }
 
             try {
-                console.log('Starting upload for', category, key);
+                console.log('🚀 Starting upload for', category, key);
                 showToast('Uploading image...');
 
                 // Upload to Firebase Storage
@@ -2454,12 +2456,11 @@
                     const oldImageUrl = siteImages[category][key];
                     if (oldImageUrl && oldImageUrl.includes('firebasestorage.googleapis.com')) {
                         try {
-                            // Extract the file path from the URL
                             const oldImageRef = storage.refFromURL(oldImageUrl);
                             await oldImageRef.delete();
-                            console.log('Old image deleted from Firebase Storage');
+                            console.log('🗑️ Old image deleted from Firebase Storage');
                         } catch (error) {
-                            console.log('Could not delete old image:', error.message);
+                            console.log('⚠️ Could not delete old image:', error.message);
                         }
                     }
 
@@ -2468,69 +2469,81 @@
                     const filename = `site-images/${category}/${key}_${timestamp}.${file.name.split('.').pop()}`;
                     const imageRef = storageRef.child(filename);
 
+                    console.log('⏳ Uploading to Firebase Storage...');
                     // Upload file
                     const snapshot = await imageRef.put(file);
 
                     // Get download URL
                     const downloadURL = await snapshot.ref.getDownloadURL();
-                    console.log('Upload successful! URL:', downloadURL);
+                    console.log('✅ Upload successful! URL:', downloadURL);
 
-                    // Update siteImages object
-                    siteImages[category][key] = downloadURL;
+                    // Update siteImages object with cache-busting parameter
+                    const cacheBustedURL = `${downloadURL}?t=${timestamp}`;
+                    siteImages[category][key] = cacheBustedURL;
 
                     // Save to localStorage immediately
                     localStorage.setItem('jbs_site_images', JSON.stringify(siteImages));
+                    console.log('💾 Saved to localStorage');
 
                     // Save to Firestore for persistence
                     try {
                         const db = firebase.firestore();
-                        await db.collection('settings').doc('siteImages').set(siteImages);
-                        console.log('Images saved to Firestore');
+                        await db.collection('settings').doc('siteImages').set(siteImages, { merge: true });
+                        console.log('☁️ Images saved to Firestore');
                     } catch (error) {
-                        console.log('Could not save to Firestore:', error.message);
+                        console.error('❌ Could not save to Firestore:', error);
                     }
 
-                    // Show preview
-                    const previewId = `preview-${category === 'carousel' ? 'carousel' : category === 'branches' ? 'branch' : 'article'}-${key}`;
-                    const previewEl = document.getElementById(previewId);
-                    if (previewEl) {
-                        previewEl.classList.remove('hidden');
-                        const img = previewEl.querySelector('img');
-                        if (img) img.src = downloadURL;
-                    }
+                    showToast('✅ Image uploaded successfully!');
 
-                    showToast('Image uploaded successfully!');
-
-                    // Reset file input so same file can be selected again
+                    // Reset file input
                     event.target.value = '';
 
-                    render(); // Re-render to show updated image
+                    // Force complete re-render with a small delay to ensure state is updated
+                    setTimeout(() => {
+                        render();
+                        // Reinitialize Lucide icons
+                        if (typeof lucide !== 'undefined') {
+                            lucide.createIcons();
+                        }
+                    }, 100);
+
                 } else {
+                    console.log('⚠️ Firebase not available, using base64 fallback');
                     // Fallback: use base64 for local storage
                     const reader = new FileReader();
                     reader.onload = (e) => {
+                        const timestamp = Date.now();
                         siteImages[category][key] = e.target.result;
 
                         // Save to localStorage immediately
                         localStorage.setItem('jbs_site_images', JSON.stringify(siteImages));
+                        console.log('💾 Saved base64 to localStorage');
 
-                        // Show preview
-                        const previewId = `preview-${category === 'carousel' ? 'carousel' : category === 'branches' ? 'branch' : 'article'}-${key}`;
-                        const previewEl = document.getElementById(previewId);
-                        if (previewEl) {
-                            previewEl.classList.remove('hidden');
-                            const img = previewEl.querySelector('img');
-                            if (img) img.src = e.target.result;
-                        }
+                        showToast('✅ Image loaded successfully!');
 
-                        showToast('Image loaded successfully!');
-                        render(); // Re-render to show updated image
+                        // Reset file input
+                        event.target.value = '';
+
+                        // Force re-render
+                        setTimeout(() => {
+                            render();
+                            if (typeof lucide !== 'undefined') {
+                                lucide.createIcons();
+                            }
+                        }, 100);
+                    };
+                    reader.onerror = (error) => {
+                        console.error('❌ FileReader error:', error);
+                        alert('Failed to read image file');
+                        event.target.value = '';
                     };
                     reader.readAsDataURL(file);
                 }
             } catch (error) {
-                console.error('Error uploading image:', error);
+                console.error('❌ Error uploading image:', error);
                 alert('Failed to upload image: ' + error.message);
+                event.target.value = '';
             }
         }
 
@@ -2611,19 +2624,27 @@
             }
 
             const file = event.target.files[0];
-            if (!file) return;
+            if (!file) {
+                console.log('❌ No file selected');
+                return;
+            }
+
+            console.log('📁 Product image selected:', file.name, 'Size:', file.size);
 
             if (!file.type.startsWith('image/')) {
                 alert('Please select an image file');
+                event.target.value = '';
                 return;
             }
 
             if (file.size > 5 * 1024 * 1024) {
                 alert('Image size must be less than 5MB');
+                event.target.value = '';
                 return;
             }
 
             try {
+                console.log('🚀 Uploading product image...');
                 showToast('Uploading product image...');
 
                 if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
@@ -2636,9 +2657,9 @@
                         try {
                             const oldImageRef = storage.refFromURL(oldImageUrl);
                             await oldImageRef.delete();
-                            console.log('Old product image deleted from Firebase Storage');
+                            console.log('🗑️ Old product image deleted from Firebase Storage');
                         } catch (error) {
-                            console.log('Could not delete old product image:', error.message);
+                            console.log('⚠️ Could not delete old product image:', error.message);
                         }
                     }
 
@@ -2646,24 +2667,58 @@
                     const filename = `product-images/${timestamp}_${file.name}`;
                     const imageRef = storageRef.child(filename);
 
+                    console.log('⏳ Uploading to Firebase Storage...');
                     const snapshot = await imageRef.put(file);
                     const downloadURL = await snapshot.ref.getDownloadURL();
 
-                    state.editingProduct.image = downloadURL;
-                    showToast('Image uploaded successfully!');
-                    render();
+                    console.log('✅ Product image uploaded! URL:', downloadURL);
+
+                    // Add cache-busting parameter
+                    const cacheBustedURL = `${downloadURL}?t=${timestamp}`;
+                    state.editingProduct.image = cacheBustedURL;
+
+                    showToast('✅ Image uploaded successfully!');
+
+                    // Reset file input
+                    event.target.value = '';
+
+                    // Force re-render with delay
+                    setTimeout(() => {
+                        render();
+                        if (typeof lucide !== 'undefined') {
+                            lucide.createIcons();
+                        }
+                    }, 100);
                 } else {
+                    console.log('⚠️ Firebase not available, using base64 fallback');
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         state.editingProduct.image = e.target.result;
-                        showToast('Image loaded successfully!');
-                        render();
+                        console.log('💾 Product image loaded as base64');
+                        showToast('✅ Image loaded successfully!');
+
+                        // Reset file input
+                        event.target.value = '';
+
+                        // Force re-render
+                        setTimeout(() => {
+                            render();
+                            if (typeof lucide !== 'undefined') {
+                                lucide.createIcons();
+                            }
+                        }, 100);
+                    };
+                    reader.onerror = (error) => {
+                        console.error('❌ FileReader error:', error);
+                        alert('Failed to read image file');
+                        event.target.value = '';
                     };
                     reader.readAsDataURL(file);
                 }
             } catch (error) {
-                console.error('Error uploading product image:', error);
+                console.error('❌ Error uploading product image:', error);
                 alert('Failed to upload image: ' + error.message);
+                event.target.value = '';
             }
         }
 
