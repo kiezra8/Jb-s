@@ -2493,9 +2493,8 @@
                     const downloadURL = await snapshot.ref.getDownloadURL();
                     console.log('✅ Upload successful! URL:', downloadURL);
 
-                    // Update siteImages object with cache-busting parameter
-                    const cacheBustedURL = `${downloadURL}?t=${timestamp}`;
-                    siteImages[category][key] = cacheBustedURL;
+                    // Update siteImages object (no cache-busting to avoid issues)
+                    siteImages[category][key] = downloadURL;
 
                     // Save to localStorage immediately
                     localStorage.setItem('jbs_site_images', JSON.stringify(siteImages));
@@ -2689,9 +2688,8 @@
 
                     console.log('✅ Product image uploaded! URL:', downloadURL);
 
-                    // Add cache-busting parameter
-                    const cacheBustedURL = `${downloadURL}?t=${timestamp}`;
-                    state.editingProduct.image = cacheBustedURL;
+                    // Use the direct Firebase URL (no cache-busting to avoid issues)
+                    state.editingProduct.image = downloadURL;
 
                     showToast('✅ Image uploaded successfully!');
 
