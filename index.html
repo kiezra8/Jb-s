@@ -2756,19 +2756,17 @@
                     return;
                 }
 
-                // ⚠️ CRITICAL: Check if image is uploaded
-                if (!state.editingProduct.image || state.editingProduct.image === '') {
-                    alert('⚠️ Please upload a product image before saving!');
-                    return;
+                // Use uploaded image if available, otherwise show warning but allow save
+                let productImage = state.editingProduct.image;
+
+                if (!productImage || productImage === '' || productImage.includes('loremflickr.com')) {
+                    // No image uploaded - show warning but allow save with placeholder
+                    console.warn('⚠️ No image uploaded for this product');
+                    productImage = `https://via.placeholder.com/800x800/e5e7eb/6b7280?text=${encodeURIComponent(formData.get('name'))}`;
+                    showToast('⚠️ Product saved without image. Please upload an image and edit the product.');
                 }
 
-                // ⚠️ CRITICAL: Prevent placeholder images from being saved
-                if (state.editingProduct.image.includes('loremflickr.com')) {
-                    alert('⚠️ Please upload a real product image. Placeholder images are not allowed.');
-                    return;
-                }
-
-                console.log('💾 Saving product with image:', state.editingProduct.image);
+                console.log('💾 Saving product with image:', productImage);
 
                 const productData = {
                     id: state.editingProduct.id,
@@ -2776,7 +2774,7 @@
                     description: formData.get('name'),
                     price: parseInt(formData.get('price')),
                     category: formData.get('category'),
-                    image: state.editingProduct.image, // Use the uploaded image ONLY
+                    image: productImage,
                     sizes: sizes,
                     rating: state.editingProduct.rating || '4.5',
                     reviews: state.editingProduct.reviews || Math.floor(Math.random() * 300) + 20
