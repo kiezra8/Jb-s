@@ -1,7 +1,5 @@
-Re-enable auto-generation with Firebase management
+Reduce product generation to 10 per category
 
-- Re-enabled generateProducts() and seedDatabase() functions
-- Products now auto-generate on first load if Firebase is empty
-- Switched from manual phone uploads to Firebase Console management
-- Products can be edited directly in Firebase Console
-- Maintains 10 products per category for manageable catalog
+- Changed loop from 30 to 10 products per category
+- Total products reduced from 540 to 180 for better performance
+- More manageable catalog size for Firebase Console editing

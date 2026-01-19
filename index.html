@@ -987,7 +987,7 @@
                 const keywords = imageKeywords[cat.id] || 'fashion';
                 const descriptions = productDescriptions[cat.id] || ['Elegant piece crafted with care'];
 
-                for (let i = 0; i < 30; i++) {
+                for (let i = 0; i < 10; i++) {
                     const descIndex = i % descriptions.length;
                     const price = Math.floor(Math.random() * (config.priceRange[1] - config.priceRange[0]) + config.priceRange[0]);
                     const finalPrice = Math.round(price / 1000) * 1000;
