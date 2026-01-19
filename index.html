@@ -655,12 +655,12 @@
             // Load saved images first
             await loadSavedImages();
 
-            // Try to load products from storage
+            // Load products from storage (localStorage or Firebase)
             await loadProducts();
 
-            // If no products loaded, generate them
+            // NO AUTO-GENERATION - Products must be added manually through admin panel
             if (products.length === 0) {
-                generateProducts();
+                console.log('📦 No products found. Add products through Admin Panel.');
             }
 
             productsLoaded = true;
@@ -678,16 +678,20 @@
                     if (!snapshot.empty) {
                         products = snapshot.docs.map(doc => doc.data());
                         console.log('✅ Synced with Firebase:', products.length);
+                        localStorage.setItem('jbs_products', JSON.stringify(products));
                         render();
                     } else {
-                        await seedDatabase(db);
+                        console.log('📦 Firebase empty. Add products through Admin Panel.');
                     }
                 } catch (e) {
-                    console.log('Using local products');
+                    console.log('⚠️ Firebase sync failed. Using local products:', e.message);
                 }
             }
         }
 
+        // REMOVED: seedDatabase() - Products are now added manually through admin panel only
+        // No auto-seeding to Firebase
+        /*
         async function seedDatabase(db) {
             const batch = db.batch();
             products.forEach(product => {
@@ -702,8 +706,14 @@
                 showToast('Error seeding database');
             }
         }
+        */
 
+        // ⚠️ DISABLED: This function is no longer used
+        // Products are now added ONLY through the admin panel manually
+        // Login as admin → Profile → Manage Products → Add Product
         function generateProducts() {
+            // Function disabled - do not use
+            return; // Exit immediately
             let idCounter = 1;
 
             const productDescriptions = {
@@ -2103,12 +2113,18 @@
                                 </div>
 
                                 ${!state.editingProduct ? `
-                                    <div class="mb-4 flex justify-between">
+                                    <div class="mb-4 flex justify-between items-center">
                                         <h4 class="font-bold text-lg">Product List</h4>
-                                        <button onclick="state.editingProduct = {id: Date.now(), name: '', price: 0, image: '', category: 'mensuits', sizes: ['M'], rating: '4.5', reviews: 0}; render();" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 flex items-center gap-2">
-                                            <i data-lucide="plus" class="w-5 h-5"></i>
-                                            Add Product
-                                        </button>
+                                        <div class="flex gap-2">
+                                            <button onclick="clearAllProducts()" class="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 flex items-center gap-2">
+                                                <i data-lucide="trash-2" class="w-5 h-5"></i>
+                                                Clear All
+                                            </button>
+                                            <button onclick="state.editingProduct = {id: Date.now(), name: '', price: 0, image: '', category: 'mensuits', sizes: ['M'], rating: '4.5', reviews: 0}; render();" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 flex items-center gap-2">
+                                                <i data-lucide="plus" class="w-5 h-5"></i>
+                                                Add Product
+                                            </button>
+                                        </div>
                                     </div>
                                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-h-[65vh] overflow-y-auto">
                                         ${getFilteredProducts().slice(0, 100).map(p => `
@@ -2819,6 +2835,60 @@
             } catch (error) {
                 console.error('Error deleting product:', error);
                 alert('Failed to delete product: ' + error.message);
+            }
+        }
+
+        async function clearAllProducts() {
+            if (!state.isAdmin) {
+                showToast('Admin access required');
+                return;
+            }
+
+            const confirmMessage = `⚠️ WARNING: This will delete ALL ${products.length} products!\n\nThis action cannot be undone. Are you absolutely sure?`;
+
+            if (!confirm(confirmMessage)) {
+                return;
+            }
+
+            // Double confirmation for safety
+            if (!confirm('Last chance! Delete ALL products?')) {
+                return;
+            }
+
+            try {
+                console.log('🗑️ Clearing all products...');
+
+                // Clear products array
+                products = [];
+
+                // Clear localStorage
+                localStorage.removeItem('jbs_products');
+                console.log('💾 Cleared from localStorage');
+
+                // Try to clear Firestore (optional)
+                if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+                    try {
+                        const db = firebase.firestore();
+                        const snapshot = await db.collection('products').get();
+
+                        // Delete in batches
+                        const batch = db.batch();
+                        snapshot.docs.forEach(doc => {
+                            batch.delete(doc.ref);
+                        });
+                        await batch.commit();
+
+                        console.log('☁️ Cleared from Firestore');
+                    } catch (firestoreError) {
+                        console.log('⚠️ Firestore clear failed (localStorage cleared):', firestoreError.message);
+                    }
+                }
+
+                showToast('✅ All products cleared! You can now start fresh.');
+                render();
+            } catch (error) {
+                console.error('❌ Error clearing products:', error);
+                alert('Failed to clear products: ' + error.message);
             }
         }
 

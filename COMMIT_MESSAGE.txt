@@ -1,6 +1,0 @@
-Fix: Image upload and display issues
-
-- Added cache-busting to force fresh image loads
-- Fixed images not showing after upload/edit
-- Enhanced error handling and logging
-- Images now persist correctly across sessions
