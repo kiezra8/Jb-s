@@ -2275,7 +2275,12 @@
             }
 
             const file = event.target.files[0];
-            if (!file) return;
+            if (!file) {
+                console.log('No file selected');
+                return;
+            }
+
+            console.log('File selected:', file.name, 'Size:', file.size, 'Type:', file.type);
 
             // Validate file type
             if (!file.type.startsWith('image/')) {
@@ -2290,6 +2295,7 @@
             }
 
             try {
+                console.log('Starting upload for', category, key);
                 showToast('Uploading image...');
 
                 // Upload to Firebase Storage
@@ -2320,6 +2326,7 @@
 
                     // Get download URL
                     const downloadURL = await snapshot.ref.getDownloadURL();
+                    console.log('Upload successful! URL:', downloadURL);
 
                     // Update siteImages object
                     siteImages[category][key] = downloadURL;
@@ -2346,6 +2353,10 @@
                     }
 
                     showToast('Image uploaded successfully!');
+
+                    // Reset file input so same file can be selected again
+                    event.target.value = '';
+
                     render(); // Re-render to show updated image
                 } else {
                     // Fallback: use base64 for local storage
