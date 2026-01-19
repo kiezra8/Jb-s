@@ -1,0 +1,6 @@
+Confirm manual product system and update storage configuration
+
+- Maintained manual product management (auto-generation disabled) to allow phone uploads
+- Created STORAGE_RULES.txt with correct public read permissions to fix broken images
+- Added PHONE_DEBUG_GUIDE.md for troubleshooting mobile uploads
+- Confirmed Firestore rules are correct, pinpointed Storage rules as root cause of image issues
