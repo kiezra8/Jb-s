@@ -1262,7 +1262,7 @@
                 <div class="bg-white rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 animate-fade-in-up" style="animation-delay: ${index * 50}ms">
                     <div onclick="selectProduct(${product.id})" class="cursor-pointer">
                         <div class="relative aspect-[3/4] bg-gray-100 group overflow-hidden rounded-t-xl">
-                            <img src="${product.image}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                            <img src="${product.image}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x400?text=No+Image';">
                             <button onclick="event.stopPropagation(); selectProduct(${product.id})" class="absolute bottom-3 right-3 bg-white rounded-full p-2 shadow-lg hover:scale-110 active:scale-95 transition-transform text-gray-900">
                                 <i data-lucide="plus" class="w-4 h-4"></i>
                             </button>
@@ -1772,7 +1772,7 @@
                                     </div>
                                     <div class="p-0">
                                         <div class="h-80 bg-gray-100 relative group">
-                                            <img src="${product.image}" class="w-full h-full object-cover">
+                                            <img src="${product.image}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://via.placeholder.com/800x800?text=No+Image';">
                                         </div>
                                         <div class="p-6">
                                             <h3 class="text-2xl font-bold mb-2">${product.name}</h3>
@@ -2678,15 +2678,34 @@
                         }
                     }
 
+                    // SANITIZE FILENAME
                     const timestamp = Date.now();
-                    const filename = `product-images/${timestamp}_${file.name}`;
+                    const cleanName = file.name.replace(/[^a-zA-Z0-9.]/g, '_').toLowerCase();
+                    const filename = `product-images/${timestamp}_${cleanName}`;
                     const imageRef = storageRef.child(filename);
 
-                    console.log('⏳ Uploading to Firebase Storage...');
-                    const snapshot = await imageRef.put(file);
+                    console.log('⏳ Uploading to Firebase Storage:', filename);
+
+                    // UPLOAD WITH METADATA (ContentType)
+                    const metadata = { contentType: file.type };
+                    const snapshot = await imageRef.put(file, metadata);
                     const downloadURL = await snapshot.ref.getDownloadURL();
 
                     console.log('✅ Product image uploaded! URL:', downloadURL);
+
+                    // PRE-LOAD IMAGE TO VERIFY
+                    try {
+                        await new Promise((resolve, reject) => {
+                            const img = new Image();
+                            img.onload = resolve;
+                            img.onerror = () => reject(new Error('Image failed to load (403/404)'));
+                            img.src = downloadURL;
+                        });
+                        console.log('✅ Image URL verified accessible');
+                    } catch (e) {
+                        console.warn('⚠️ Image uploaded but not accessible (likely CORS or Permissions):', e.message);
+                        alert('Warning: Image uploaded but might be private. Please check Firebase Storage Rules.');
+                    }
 
                     // Use the direct Firebase URL (no cache-busting to avoid issues)
                     state.editingProduct.image = downloadURL;
