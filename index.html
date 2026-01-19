@@ -2756,17 +2756,33 @@
                     return;
                 }
 
+                // ⚠️ CRITICAL: Check if image is uploaded
+                if (!state.editingProduct.image || state.editingProduct.image === '') {
+                    alert('⚠️ Please upload a product image before saving!');
+                    return;
+                }
+
+                // ⚠️ CRITICAL: Prevent placeholder images from being saved
+                if (state.editingProduct.image.includes('loremflickr.com')) {
+                    alert('⚠️ Please upload a real product image. Placeholder images are not allowed.');
+                    return;
+                }
+
+                console.log('💾 Saving product with image:', state.editingProduct.image);
+
                 const productData = {
                     id: state.editingProduct.id,
                     name: formData.get('name'),
                     description: formData.get('name'),
                     price: parseInt(formData.get('price')),
                     category: formData.get('category'),
-                    image: state.editingProduct.image || `https://loremflickr.com/800/800/fashion?lock=${state.editingProduct.id}`,
+                    image: state.editingProduct.image, // Use the uploaded image ONLY
                     sizes: sizes,
                     rating: state.editingProduct.rating || '4.5',
                     reviews: state.editingProduct.reviews || Math.floor(Math.random() * 300) + 20
                 };
+
+                console.log('📦 Product data to save:', productData);
 
                 const existingIndex = products.findIndex(p => p.id === productData.id);
 
@@ -2778,24 +2794,25 @@
 
                 // Save to localStorage first (always works)
                 localStorage.setItem('jbs_products', JSON.stringify(products));
+                console.log('💾 Saved to localStorage');
 
                 // Try to save to Firestore (optional - may fail if not configured)
                 if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
                     try {
                         const db = firebase.firestore();
                         await db.collection('products').doc(productData.id.toString()).set(productData);
-                        console.log('Product saved to Firestore');
+                        console.log('☁️ Product saved to Firestore');
                     } catch (firestoreError) {
-                        console.log('Firestore save failed (using localStorage only):', firestoreError.message);
+                        console.log('⚠️ Firestore save failed (using localStorage only):', firestoreError.message);
                         // Continue anyway - localStorage save succeeded
                     }
                 }
 
-                showToast(existingIndex >= 0 ? 'Product updated!' : 'Product added!');
+                showToast(existingIndex >= 0 ? '✅ Product updated!' : '✅ Product added!');
                 state.editingProduct = null;
                 render();
             } catch (error) {
-                console.error('Error saving product:', error);
+                console.error('❌ Error saving product:', error);
                 alert('Failed to save product: ' + error.message);
             }
         }
