@@ -681,17 +681,27 @@
                         localStorage.setItem('jbs_products', JSON.stringify(products));
                         render();
                     } else {
-                        console.log('📦 Firebase empty. Add products through Admin Panel.');
+                        console.log('📦 Firebase empty. Generating products...');
+                        generateProducts();
+                        await seedDatabase(db);
+                        localStorage.setItem('jbs_products', JSON.stringify(products));
+                        render();
                     }
                 } catch (e) {
-                    console.log('⚠️ Firebase sync failed. Using local products:', e.message);
+                    console.log('⚠️ Firebase sync failed. Generating local products:', e.message);
+                    if (products.length === 0) {
+                        generateProducts();
+                        render();
+                    }
+                }
+            } else {
+                if (products.length === 0) {
+                    generateProducts();
+                    render();
                 }
             }
         }
 
-        // REMOVED: seedDatabase() - Products are now added manually through admin panel only
-        // No auto-seeding to Firebase
-        /*
         async function seedDatabase(db) {
             const batch = db.batch();
             products.forEach(product => {
@@ -706,14 +716,8 @@
                 showToast('Error seeding database');
             }
         }
-        */
 
-        // ⚠️ DISABLED: This function is no longer used
-        // Products are now added ONLY through the admin panel manually
-        // Login as admin → Profile → Manage Products → Add Product
         function generateProducts() {
-            // Function disabled - do not use
-            return; // Exit immediately
             let idCounter = 1;
 
             const productDescriptions = {

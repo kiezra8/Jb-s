@@ -1,6 +1,7 @@
-Confirm manual product system and update storage configuration
+Re-enable auto-generation with Firebase management
 
-- Maintained manual product management (auto-generation disabled) to allow phone uploads
-- Created STORAGE_RULES.txt with correct public read permissions to fix broken images
-- Added PHONE_DEBUG_GUIDE.md for troubleshooting mobile uploads
-- Confirmed Firestore rules are correct, pinpointed Storage rules as root cause of image issues
+- Re-enabled generateProducts() and seedDatabase() functions
+- Products now auto-generate on first load if Firebase is empty
+- Switched from manual phone uploads to Firebase Console management
+- Products can be edited directly in Firebase Console
+- Maintains 10 products per category for manageable catalog
