@@ -464,6 +464,18 @@
     <script>
         const ADMIN_EMAIL = 'israelezrakisakye@gmail.com';
 
+        // Global Error Handler to prevent white screen
+        window.onerror = function (msg, url, line) {
+            console.error('⚠️ Global Error:', msg);
+            // Attempt to force render if something crashes and body is empty
+            try {
+                if (document.body && (document.body.innerHTML === '' || document.getElementById('app').innerHTML === '')) {
+                    document.body.innerHTML = '<div class="p-4 text-center mt-10"><h3>App Loading Error</h3><p class="text-sm text-gray-500 mb-4">' + msg + '</p><button onclick="window.location.reload()" class="p-3 bg-gray-900 text-white rounded shadow">Reload App</button></div>';
+                }
+            } catch (e) { }
+            return false;
+        };
+
         // ========================================
         // IMAGE CONFIGURATION - Change URLs here
         // ========================================
@@ -507,7 +519,7 @@
             editingProduct: null,
             // Auth & Messaging
             currentUser: null,
-            isAdmin: false,
+            isAdmin: localStorage.getItem('jbs_is_admin') === 'true',
             showAuthModal: false,
             authMode: 'login', // 'login' or 'signup'
             orders: [],
@@ -580,23 +592,26 @@
                 if (user) {
                     state.currentUser = user;
                     state.isAdmin = user.email === ADMIN_EMAIL;
+                    localStorage.setItem('jbs_is_admin', state.isAdmin);
                     console.log(`Logged in as: ${user.email}`, state.isAdmin ? '(ADMIN)' : '(Customer)');
                     await loadUserData();
                 } else {
                     state.currentUser = null;
                     state.isAdmin = false;
+                    localStorage.removeItem('jbs_is_admin');
                 }
 
-                // Load products AFTER auth is checked to ensure permissions
-                if (!productsLoaded) {
-                    initializeApp();
-                } else {
-                    render();
-                }
+                // Re-render to update UI (show/hide Admin panel)
+                render();
             });
+
         } catch (e) {
             console.warn("Firebase config missing or invalid", e);
         }
+
+        // Load products immediately (don't wait for auth or firebase)
+        // This ensures the page NEVER stays blank
+        setTimeout(() => initializeApp(), 100);
 
         // Auth Functions
         async function login(email, password) {
