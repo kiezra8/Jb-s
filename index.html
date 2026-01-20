@@ -672,45 +672,33 @@
             // Render
             render();
 
-            // FIREBASE IS THE ONLY SOURCE OF TRUTH
-            // Products will NEVER auto-generate or regenerate
-            // Only load what exists in Firebase
+            // FIREBASE READ-ONLY MODE
+            // Only load products from Firebase
+            // Never generate, never seed, never modify
             if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
                 try {
                     const db = firebase.firestore();
                     const snapshot = await db.collection('products').get();
 
                     if (!snapshot.empty) {
-                        // Load from Firebase - this is the ONLY source
                         products = snapshot.docs.map(doc => doc.data());
-                        console.log('✅ Loaded from Firebase:', products.length);
+                        console.log('✅ Loaded', products.length, 'products from Firebase');
                         localStorage.setItem('jbs_products', JSON.stringify(products));
-                        render();
                     } else {
-                        // Firebase is empty - show message
-                        console.log('📦 No products in Firebase. Please add products manually or run initial setup.');
+                        console.log('📦 No products in Firebase');
                         products = [];
-                        render();
                     }
                 } catch (e) {
-                    console.log('⚠️ Firebase error:', e.message);
-                    // Try localStorage as fallback
+                    console.error('Firebase error:', e.message);
+                    // Fallback to localStorage
                     const saved = localStorage.getItem('jbs_products');
                     if (saved) {
                         products = JSON.parse(saved);
-                        console.log('📦 Loaded from localStorage:', products.length);
-                        render();
                     }
                 }
-            } else {
-                // No Firebase - try localStorage
-                const saved = localStorage.getItem('jbs_products');
-                if (saved) {
-                    products = JSON.parse(saved);
-                    console.log('📦 Loaded from localStorage:', products.length);
-                    render();
-                }
             }
+
+            render();
         }
 
         async function seedDatabase(db) {
@@ -1752,21 +1740,6 @@
                                     `).join('')}
                                     </div>
                                 </div>
-                                ${state.isAdmin ? `
-                                    <div class="p-4 border-t">
-                                        <h3 class="font-bold text-gray-700 mb-3 ml-1">Admin Tools</h3>
-                                        <div class="space-y-3">
-                                            <button onclick="openAdminImagePanel(); toggleMenu();" class="w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white p-4 rounded-lg text-center hover:from-purple-700 hover:to-purple-800 transition-all active:scale-95 flex items-center justify-center gap-2">
-                                                <i data-lucide="image" class="w-5 h-5"></i>
-                                                <span class="font-bold">Manage Site Images</span>
-                                            </button>
-                                            <button onclick="openProductManagement(); toggleMenu();" class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 rounded-lg text-center hover:from-blue-700 hover:to-blue-800 transition-all active:scale-95 flex items-center justify-center gap-2">
-                                                <i data-lucide="package" class="w-5 h-5"></i>
-                                                <span class="font-bold">Manage Products</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                ` : ''}
                             </div>
                         </div>
                     ` : ''
