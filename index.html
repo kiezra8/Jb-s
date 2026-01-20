@@ -672,36 +672,42 @@
             // Render
             render();
 
-            // Sync with Firebase in background
+            // FIREBASE IS THE ONLY SOURCE OF TRUTH
+            // Products will NEVER auto-generate or regenerate
+            // Only load what exists in Firebase
             if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
                 try {
                     const db = firebase.firestore();
                     const snapshot = await db.collection('products').get();
 
                     if (!snapshot.empty) {
-                        // Load from Firebase (this is the source of truth)
+                        // Load from Firebase - this is the ONLY source
                         products = snapshot.docs.map(doc => doc.data());
                         console.log('✅ Loaded from Firebase:', products.length);
                         localStorage.setItem('jbs_products', JSON.stringify(products));
                         render();
                     } else {
-                        // Only generate if Firebase is completely empty (first time setup)
-                        console.log('📦 First time setup - generating initial products...');
-                        generateProducts();
-                        await seedDatabase(db);
-                        localStorage.setItem('jbs_products', JSON.stringify(products));
+                        // Firebase is empty - show message
+                        console.log('📦 No products in Firebase. Please add products manually or run initial setup.');
+                        products = [];
                         render();
                     }
                 } catch (e) {
-                    console.log('⚠️ Firebase sync failed:', e.message);
-                    if (products.length === 0) {
-                        generateProducts();
+                    console.log('⚠️ Firebase error:', e.message);
+                    // Try localStorage as fallback
+                    const saved = localStorage.getItem('jbs_products');
+                    if (saved) {
+                        products = JSON.parse(saved);
+                        console.log('📦 Loaded from localStorage:', products.length);
                         render();
                     }
                 }
             } else {
-                if (products.length === 0) {
-                    generateProducts();
+                // No Firebase - try localStorage
+                const saved = localStorage.getItem('jbs_products');
+                if (saved) {
+                    products = JSON.parse(saved);
+                    console.log('📦 Loaded from localStorage:', products.length);
                     render();
                 }
             }
@@ -2122,6 +2128,12 @@
                                     <div class="mb-4 flex justify-between items-center">
                                         <h4 class="font-bold text-lg">Product List</h4>
                                         <div class="flex gap-2">
+                                            ${products.length === 0 ? `
+                                                <button onclick="generateInitialProducts()" class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 flex items-center gap-2">
+                                                    <i data-lucide="package-plus" class="w-5 h-5"></i>
+                                                    Generate 180 Products
+                                                </button>
+                                            ` : ''}
                                             <button onclick="clearAllProducts()" class="bg-red-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-700 flex items-center gap-2">
                                                 <i data-lucide="trash-2" class="w-5 h-5"></i>
                                                 Clear All
@@ -2927,6 +2939,37 @@
             } catch (error) {
                 console.error('❌ Error clearing products:', error);
                 alert('Failed to clear products: ' + error.message);
+            }
+        }
+
+        async function generateInitialProducts() {
+            if (!state.isAdmin) {
+                showToast('Admin access required');
+                return;
+            }
+
+            if (!confirm('Generate 180 initial products? This will create placeholder products that you can edit.')) {
+                return;
+            }
+
+            try {
+                console.log('🎨 Generating initial products...');
+                generateProducts();
+
+                // Save to Firebase
+                if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+                    const db = firebase.firestore();
+                    await seedDatabase(db);
+                }
+
+                // Save to localStorage
+                localStorage.setItem('jbs_products', JSON.stringify(products));
+
+                showToast('✅ 180 products generated! You can now edit them.');
+                render();
+            } catch (error) {
+                console.error('❌ Error generating products:', error);
+                alert('Failed to generate products: ' + error.message);
             }
         }
 
