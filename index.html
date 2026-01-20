@@ -2837,8 +2837,16 @@
                 localStorage.setItem('jbs_products', JSON.stringify(products));
                 console.log('💾 Saved to localStorage');
 
-                // REMOVED: Firestore write - App is read-only
-                // Use Firebase Console to edit products
+                // Save to Firestore
+                if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+                    try {
+                        const db = firebase.firestore();
+                        await db.collection('products').doc(String(productData.id)).set(productData);
+                        console.log('☁️ Saved to Firestore');
+                    } catch (firestoreError) {
+                        console.warn('⚠️ Firestore save failed (localStorage saved):', firestoreError.message);
+                    }
+                }
 
                 showToast(existingIndex >= 0 ? '✅ Product updated!' : '✅ Product added!');
                 state.editingProduct = null;
@@ -2868,8 +2876,16 @@
                 // Save to localStorage first (always works)
                 localStorage.setItem('jbs_products', JSON.stringify(products));
 
-                // REMOVED: Firestore delete - App is read-only
-                // Use Firebase Console to delete products
+                // Delete from Firestore
+                if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+                    try {
+                        const db = firebase.firestore();
+                        await db.collection('products').doc(String(productId)).delete();
+                        console.log('☁️ Deleted from Firestore');
+                    } catch (firestoreError) {
+                        console.warn('⚠️ Firestore delete failed (localStorage updated):', firestoreError.message);
+                    }
+                }
 
                 showToast('Product deleted!');
                 render();
