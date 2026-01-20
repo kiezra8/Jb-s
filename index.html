@@ -683,13 +683,56 @@
             state.unreadCount = state.orders.filter(o => o.unreadByCustomer && !state.isAdmin).length;
         }
 
+        // Load products from Firestore or localStorage
+        async function loadProducts() {
+            console.log('📦 Loading products...');
+
+            try {
+                // Try to load from Firestore first
+                if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+                    const db = firebase.firestore();
+                    const snapshot = await db.collection('products').get();
+
+                    if (!snapshot.empty) {
+                        products = snapshot.docs.map(doc => ({
+                            id: doc.id,
+                            ...doc.data()
+                        }));
+
+                        // Save to localStorage as backup
+                        localStorage.setItem('jbs_products', JSON.stringify(products));
+                        console.log(`✅ Loaded ${products.length} products from Firestore`);
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.warn('⚠️ Failed to load from Firestore:', error.message);
+            }
+
+            // Fallback to localStorage
+            try {
+                const savedProducts = localStorage.getItem('jbs_products');
+                if (savedProducts) {
+                    products = JSON.parse(savedProducts);
+                    console.log(`✅ Loaded ${products.length} products from localStorage`);
+                    return;
+                }
+            } catch (error) {
+                console.warn('⚠️ Failed to load from localStorage:', error.message);
+            }
+
+            // No products found
+            console.log('📦 No products found. Add products through Admin Panel.');
+            products = [];
+        }
+
         async function initializeApp() {
             console.log('🚀 Initializing app...');
 
             // Load saved images first
             await loadSavedImages();
 
-            // Load products from storage (localStorage or Firebase)
+            // Load products from storage (Firestore or localStorage)
             await loadProducts();
 
             // NO AUTO-GENERATION - Products must be added manually through admin panel
@@ -703,11 +746,6 @@
             // Render
             render();
         }
-
-
-        // REMOVED: seedDatabase - App is read-only
-        // REMOVED: generateProducts - App is read-only
-        // All product management must be done in Firebase Console
 
         function generateProducts() {
             // DISABLED - App is read-only
@@ -1002,41 +1040,15 @@
             });
         }
 
-        async function initializeApp() {
-            console.log('🚀 Initializing app...');
-
-            // Generate products
-            generateProducts();
-            productsLoaded = true;
-            console.log('✅ Products ready:', products.length);
-
-            // Render
-            render();
-
-            // Sync with Firebase in background
-            if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
-                try {
-                    const db = firebase.firestore();
-
-                    // Force clear old products and reseed with new data
-                    console.log('🔄 Clearing old products from Firebase...');
-                    await clearAndReseedProducts(db);
-
-                } catch (e) {
-                    console.log('Using local products', e);
-                }
-            }
+        async function initializeApp_OLD_REMOVED() {
+            // This function has been removed - see line 686 for the correct initializeApp()
+            console.warn('This is the old duplicate initializeApp - it should not be called');
         }
 
-        async function clearAndReseedProducts(db) {
-            console.log('🛡️ Prevented accidental clearing of products');
+        async function clearAndReseedProducts_OLD_REMOVED(db) {
+            // This function has been removed to prevent data loss
+            console.warn('clearAndReseedProducts is disabled to prevent data loss');
             return;
-            /* 
-            // DISABLED TO PREVENT DATA LOSS
-            try {
-                // ... (original code)
-            } catch (error) { ... }
-            */
         }
 
         // REMOVED: Duplicate seedDatabase function
