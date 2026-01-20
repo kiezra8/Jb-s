@@ -560,6 +560,21 @@
             firebase.initializeApp(firebaseConfig);
             console.log("Firebase initialized");
 
+            // Enable Offline Persistence
+            try {
+                firebase.firestore().enablePersistence()
+                    .then(() => console.log("🔥 Offline persistence enabled"))
+                    .catch((err) => {
+                        if (err.code == 'failed-precondition') {
+                            console.log("Persistence failed: Multiple tabs open");
+                        } else if (err.code == 'unimplemented') {
+                            console.log("Persistence not supported");
+                        }
+                    });
+            } catch (pErr) {
+                console.log("Persistence setup error:", pErr);
+            }
+
             // Auth state listener
             firebase.auth().onAuthStateChanged(async (user) => {
                 if (user) {
@@ -572,14 +587,13 @@
                     state.isAdmin = false;
                 }
 
-                // Only render if products are loaded
-                if (productsLoaded) {
+                // Load products AFTER auth is checked to ensure permissions
+                if (!productsLoaded) {
+                    initializeApp();
+                } else {
                     render();
                 }
             });
-
-            // Load products
-            initializeApp();
         } catch (e) {
             console.warn("Firebase config missing or invalid", e);
         }
@@ -998,47 +1012,14 @@
         }
 
         async function clearAndReseedProducts(db) {
+            console.log('🛡️ Prevented accidental clearing of products');
+            return;
+            /* 
+            // DISABLED TO PREVENT DATA LOSS
             try {
-                // Get all existing products
-                const snapshot = await db.collection('products').get();
-
-                if (!snapshot.empty) {
-                    console.log(`🗑️ Deleting ${snapshot.size} old products...`);
-
-                    // Delete in batches (Firestore limit is 500 per batch)
-                    const batchSize = 500;
-                    const batches = [];
-                    let currentBatch = db.batch();
-                    let operationCount = 0;
-
-                    snapshot.docs.forEach((doc) => {
-                        currentBatch.delete(doc.ref);
-                        operationCount++;
-
-                        if (operationCount === batchSize) {
-                            batches.push(currentBatch.commit());
-                            currentBatch = db.batch();
-                            operationCount = 0;
-                        }
-                    });
-
-                    // Commit remaining operations
-                    if (operationCount > 0) {
-                        batches.push(currentBatch.commit());
-                    }
-
-                    await Promise.all(batches);
-                    console.log('✅ Old products deleted');
-                }
-
-                // Now seed with new products
-                console.log('📦 Uploading new products...');
-                await seedDatabase(db);
-
-            } catch (error) {
-                console.error('Error clearing/reseeding:', error);
-                showToast('Error updating products');
-            }
+                // ... (original code)
+            } catch (error) { ... }
+            */
         }
 
         // REMOVED: Duplicate seedDatabase function
