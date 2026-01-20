@@ -601,7 +601,9 @@
                     localStorage.removeItem('jbs_is_admin');
                 }
 
-                // Re-render to update UI (show/hide Admin panel)
+                // Re-load products ensuring we have correct permissions
+                // This fixes the issue where products don't show on refresh if they require auth to read
+                await loadProducts();
                 render();
             });
 
