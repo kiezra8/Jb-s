@@ -671,34 +671,6 @@
 
             // Render
             render();
-
-            // FIREBASE READ-ONLY MODE
-            // Only load products from Firebase
-            // Never generate, never seed, never modify
-            if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
-                try {
-                    const db = firebase.firestore();
-                    const snapshot = await db.collection('products').get();
-
-                    if (!snapshot.empty) {
-                        products = snapshot.docs.map(doc => doc.data());
-                        console.log('✅ Loaded', products.length, 'products from Firebase');
-                        localStorage.setItem('jbs_products', JSON.stringify(products));
-                    } else {
-                        console.log('📦 No products in Firebase');
-                        products = [];
-                    }
-                } catch (e) {
-                    console.error('Firebase error:', e.message);
-                    // Fallback to localStorage
-                    const saved = localStorage.getItem('jbs_products');
-                    if (saved) {
-                        products = JSON.parse(saved);
-                    }
-                }
-            }
-
-            render();
         }
 
 
