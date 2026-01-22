@@ -1527,7 +1527,7 @@
                     
                     <!-- Product Info -->
                     <div class="p-2 bg-white">
-                        <h3 class="text-xs font-medium mb-2 line-clamp-2 text-gray-800 leading-relaxed uppercase tracking-wide">${product.name}</h3>
+                        <h3 class="text-xs font-medium mb-2 line-clamp-2 text-gray-800 leading-relaxed tracking-wide">${product.name.toLowerCase()}</h3>
                         
                         <!-- Price Display (Empire Style) -->
                         <div class="flex items-center gap-2">
@@ -1712,29 +1712,10 @@
                             <div class="relative">
                                 <div class="overflow-x-auto scrollbar-hide -mx-4 px-4 pb-4">
                                     <div class="grid grid-rows-2 grid-flow-col gap-x-4 gap-y-8 w-max">
-                                        ${[
-                    { id: 'mensuits', name: "Men's Suits", img: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=400' },
-                    { id: 'officewear', name: "Office Wear", img: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400' },
-                    { id: 'casualwear', name: "Casual Wear", img: 'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=400' },
-                    { id: 'groomsuits', name: "Groom's Suits", img: 'https://images.unsplash.com/photo-1505235687559-28b5f54645b7?w=400' },
-                    { id: 'groomsmensuits', name: "Groomsmen", img: 'https://images.unsplash.com/photo-1565462900100-36f272a85368?w=400' },
-                    { id: 'womenswear', name: "Women's Wear", img: 'https://images.unsplash.com/photo-1548239088-2cb9d784fa76?w=400' },
-                    { id: 'pageboys', name: "Page Boys", img: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400' },
-                    { id: 'changingwear', name: "Changing Wear", img: 'https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=400' },
-                    { id: 'kaftans', name: "Kaftans & Tunics", img: 'https://images.unsplash.com/photo-1576995853123-5a4387453cbb?w=400' },
-                    { id: 'shoes', name: "Shoes", img: 'https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=400' },
-                    { id: 'suspenders', name: "Suspenders", img: 'https://images.unsplash.com/photo-1536766820879-059fec98ec0a?w=400' },
-                    { id: 'walkingsticks', name: "Walking Sticks", img: 'https://images.unsplash.com/photo-1542272201-b1ca555f8505?w=400' },
-                    { id: 'neckties', name: "Neckties", img: 'https://images.unsplash.com/photo-1589756823695-278bc923f962?w=400' },
-                    { id: 'shirts', name: "Shirts", img: 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=400' },
-                    { id: 'watches', name: "Watches", img: 'https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=400' },
-                    { id: 'kanzus', name: "Kanzus", img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0N9r5y6z4k9j_x6p9d8q_6y9j4e4r3t2w1q&s' },
-                    { id: 'kwanjula', name: "Kwanjula", img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5y6z4k9j_x6p9d8q_6y9j4e4r3t2w1q&s' },
-                    { id: 'kukyala', name: "Kukyala", img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5y6z4k9j_x6p9d8q_6y9j4e4r3t2w1q&s' }
-                ].map(cat => `
+                                        ${categories.map(cat => `
                                             <div class="w-32 sm:w-40 flex flex-col items-center gap-3 cursor-pointer group/item" onclick="selectCategory('${cat.id}')">
                                                 <div class="relative w-full aspect-[3/4] overflow-hidden rounded-sm bg-gray-100 shadow-sm transition-all duration-500 group-hover/item:shadow-lg">
-                                                    <img src="${cat.img}" 
+                                                    <img src="${cat.image}" 
                                                          class="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110"
                                                          onerror="this.src='https://via.placeholder.com/400x600?text=${cat.name}'">
                                                 </div>
@@ -1757,7 +1738,7 @@
                         <div class="max-w-7xl mx-auto">
                             <div class="text-center mb-3">
                                 <h2 class="text-2xl sm:text-3xl font-bold uppercase tracking-wider mb-2">TRENDING NOW</h2>
-                                <p class="text-sm text-gray-600 uppercase tracking-widest">Our Most Popular Pieces</p>
+                                <p class="text-sm text-gray-600 tracking-widest">our most popular pieces</p>
                                 ${state.isAdmin ? `
                                     <p class="text-xs text-amber-600 mt-2">👑 Admin: Click products below to mark/unmark as trending</p>
                                 ` : ''}
@@ -1816,7 +1797,7 @@
                             
                             ${state.isAdmin ? `
                                 <div class="text-center mt-4">
-                                    <input type="file" id="video-upload" accept="video/*" capture="environment" class="hidden" onchange="handleVideoUpload(event)">
+                                    <input type="file" id="video-upload" accept="video/*" class="hidden" onchange="handleVideoUpload(event)">
                                     <button onclick="document.getElementById('video-upload').click()" 
                                             class="text-xs bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition-colors uppercase tracking-wider flex items-center gap-2 mx-auto">
                                         📹 Upload Video from Gallery
@@ -1832,7 +1813,7 @@
                         <div class="max-w-7xl mx-auto">
                             <div class="text-center mb-8">
                                 <h2 class="text-2xl sm:text-3xl font-bold uppercase tracking-wider mb-2">HOME OF QUALITY</h2>
-                                <p class="text-sm text-gray-600 uppercase tracking-widest">Crafted to Perfection</p>
+                                <p class="text-sm text-gray-600 tracking-widest">crafted to perfection</p>
                                 ${state.isAdmin ? `
                                     <p class="text-xs text-green-600 mt-2">👑 Admin: Triple-click products to mark/unmark as quality</p>
                                 ` : ''}
