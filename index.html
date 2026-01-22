@@ -1637,10 +1637,16 @@
                                 <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
                                     <div class="text-center px-6 max-w-3xl">
                                         <h1 class="brand-text text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 text-white leading-tight">
-                                            THE EMPIRE STANDARD<br>OF EXCELLENCE
+                                            THE EMPIRE
+                                        </h1>
+                                        <h1 class="brand-text text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 text-white leading-tight">
+                                            STANDARD OF
+                                        </h1>
+                                        <h1 class="brand-text text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 text-white leading-tight">
+                                            EXCELLENCE
                                         </h1>
                                         <p class="text-white/90 text-base sm:text-lg mb-8 font-light max-w-2xl mx-auto">
-                                            Premium men's suits, tuxedos & wedding suites tailored to perfection
+                                            premium men's suits, tuxedos & wedding suites tailored to perfection
                                         </p>
                                         <button onclick="document.getElementById('products-grid').scrollIntoView({behavior: 'smooth'})" 
                                                 class="bg-white text-black px-12 py-4 font-bold uppercase text-xs tracking-[0.2em] hover:bg-gray-100 transition-colors">
@@ -1656,13 +1662,16 @@
                                 <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
                                     <div class="text-center px-6 max-w-3xl">
                                         <h1 class="brand-text text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 text-white leading-tight">
-                                            VISIT OUR SHOPS
+                                            ELEVATE
                                         </h1>
-                                        <p class="text-white/90 text-base sm:text-lg mb-4 font-light">
-                                            📍 Ntinda: Emessa Complex Level 2 S-11
-                                        </p>
-                                        <p class="text-white/90 text-base sm:text-lg mb-8 font-light">
-                                            📍 Mbarara: Amazon Building L3 Rm6
+                                        <h1 class="brand-text text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 text-white leading-tight">
+                                            YOUR
+                                        </h1>
+                                        <h1 class="brand-text text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 text-white leading-tight">
+                                            CLASS
+                                        </h1>
+                                        <p class="text-white/90 text-base sm:text-lg mb-8 font-light max-w-2xl mx-auto">
+                                            where style meets sophistication
                                         </p>
                                     </div>
                                 </div>
@@ -3313,6 +3322,72 @@
             }
         }
 
+        // Video Compression Function
+        async function compressVideo(file) {
+            return new Promise((resolve, reject) => {
+                const video = document.createElement('video');
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                video.preload = 'metadata';
+                video.src = URL.createObjectURL(file);
+
+                video.onloadedmetadata = async () => {
+                    // Set canvas size (reduce resolution for compression)
+                    const maxWidth = 1280;
+                    const maxHeight = 720;
+                    let width = video.videoWidth;
+                    let height = video.videoHeight;
+
+                    if (width > maxWidth) {
+                        height = (height * maxWidth) / width;
+                        width = maxWidth;
+                    }
+                    if (height > maxHeight) {
+                        width = (width * maxHeight) / height;
+                        height = maxHeight;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    // Create MediaRecorder for compression
+                    const stream = canvas.captureStream(30); // 30 fps
+                    const mediaRecorder = new MediaRecorder(stream, {
+                        mimeType: 'video/webm;codecs=vp8',
+                        videoBitsPerSecond: 1000000 // 1 Mbps for good quality but smaller size
+                    });
+
+                    const chunks = [];
+                    mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+                    mediaRecorder.onstop = () => {
+                        const blob = new Blob(chunks, { type: 'video/webm' });
+                        URL.revokeObjectURL(video.src);
+                        resolve(blob);
+                    };
+
+                    mediaRecorder.start();
+                    video.play();
+
+                    const drawFrame = () => {
+                        if (video.ended || video.paused) {
+                            mediaRecorder.stop();
+                            return;
+                        }
+                        ctx.drawImage(video, 0, 0, width, height);
+                        requestAnimationFrame(drawFrame);
+                    };
+
+                    drawFrame();
+                };
+
+                video.onerror = () => {
+                    URL.revokeObjectURL(video.src);
+                    reject(new Error('Failed to load video'));
+                };
+            });
+        }
+
         // Video Upload Function
         async function handleVideoUpload(event) {
             if (!state.isAdmin) {
@@ -3329,18 +3404,44 @@
                 return;
             }
 
-            if (file.size > 50 * 1024 * 1024) {
-                alert('Video size must be less than 50MB');
-                event.target.value = '';
-                return;
-            }
-
             try {
+                console.log('🚀 Processing video...');
+                showToast('Compressing video... Please wait.');
+
+                let videoToUpload = file;
+                const originalSize = (file.size / (1024 * 1024)).toFixed(2);
+
+                // Compress if larger than 10MB
+                if (file.size > 10 * 1024 * 1024) {
+                    try {
+                        const compressedBlob = await compressVideo(file);
+                        const compressedSize = (compressedBlob.size / (1024 * 1024)).toFixed(2);
+
+                        // Create a File object from the blob
+                        videoToUpload = new File([compressedBlob], file.name.replace(/\.[^/.]+$/, '.webm'), {
+                            type: 'video/webm'
+                        });
+
+                        console.log(`✅ Video compressed: ${originalSize}MB → ${compressedSize}MB`);
+                        showToast(`Video compressed from ${originalSize}MB to ${compressedSize}MB`);
+                    } catch (compressionError) {
+                        console.warn('Compression failed, uploading original:', compressionError);
+                        showToast('Compression failed, uploading original video...');
+                    }
+                }
+
+                // Check final size
+                if (videoToUpload.size > 100 * 1024 * 1024) {
+                    alert('Video is still too large (max 100MB). Please use a shorter video or compress it externally.');
+                    event.target.value = '';
+                    return;
+                }
+
                 console.log('🚀 Uploading video to Cloudinary...');
                 showToast('Uploading video... This may take a moment.');
 
                 // Upload to Cloudinary
-                const result = await uploadToCloudinary(file, {
+                const result = await uploadToCloudinary(videoToUpload, {
                     folder: 'jbs-tailored/videos',
                     tags: ['shop-video'],
                     resourceType: 'video'
@@ -3358,6 +3459,7 @@
                 localStorage.setItem('jbs_site_images', JSON.stringify(siteImages));
 
                 // Save to Firestore if available
+
                 if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
                     try {
                         const db = firebase.firestore();
