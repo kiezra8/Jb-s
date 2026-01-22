@@ -1787,16 +1787,30 @@
                             
                             <div class="relative aspect-video bg-black rounded-lg overflow-hidden">
                                 <video 
-                                    class="w-full h-full object-cover" 
-                                    autoplay 
-                                    muted 
-                                    loop 
-                                    playsinline
-                                    poster="${siteImages.branches.ntinda}">
-                                    <source src="${siteImages.video?.shopVideo || 'https://www.w3schools.com/html/mov_bbb.mp4'}" type="video/mp4">
-                                    <img src="${siteImages.branches.ntinda}" class="w-full h-full object-cover" alt="JB'S Shop">
-                                </video>
-                                <div class="absolute inset-0 bg-black/20 flex items-center justify-center">
+                                ${siteImages.video?.shopVideo ? `
+                                    <video 
+                                        class="w-full h-full object-cover" 
+                                        autoplay 
+                                        muted 
+                                        loop 
+                                        playsinline
+                                        poster="${siteImages.branches.ntinda}">
+                                        <source src="${siteImages.video.shopVideo}" type="video/mp4">
+                                        <source src="${siteImages.video.shopVideo}" type="video/webm">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                ` : `
+                                    <div class="w-full h-full relative">
+                                        <img src="${siteImages.branches.ntinda}" class="w-full h-full object-cover" alt="JB'S Shop">
+                                        <div class="absolute inset-0 bg-black/20 flex items-center justify-center">
+                                            <div class="text-center text-white">
+                                                <i data-lucide="play-circle" class="w-16 h-16 opacity-80"></i>
+                                                <p class="mt-2 text-sm font-medium">Video Coming Soon</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `}
+                                <div class="absolute inset-0 bg-black/20 pointer-events-none flex items-center justify-center" ${siteImages.video?.shopVideo ? '' : 'style="display:none"'}>
                                     <div class="text-center text-white">
                                         <p class="text-sm uppercase tracking-widest mb-2">Visit Us Today</p>
                                         <h3 class="text-2xl font-bold uppercase">JB'S TAILORED</h3>
@@ -3453,7 +3467,7 @@
                 if (!siteImages.video) {
                     siteImages.video = {};
                 }
-                siteImages.video.shopVideo = result.url;
+                siteImages.video.shopVideo = result.secure_url || result.url;
 
                 // Save to localStorage
                 localStorage.setItem('jbs_site_images', JSON.stringify(siteImages));
@@ -3473,9 +3487,11 @@
                     }
                 }
 
-                showToast('✅ Video uploaded successfully!');
+                showToast('✅ Video uploaded successfully! Reloading...');
                 event.target.value = '';
-                render();
+
+                // Force reload to ensure video plays
+                setTimeout(() => window.location.reload(), 1500);
 
             } catch (error) {
                 console.error('❌ Error uploading video:', error);
