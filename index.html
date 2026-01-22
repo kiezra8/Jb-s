@@ -675,7 +675,7 @@
             unreadCount: 0
         };
 
-        const categories = [
+        const categories = JSON.parse(localStorage.getItem('jbs_categories')) || [
 
             { id: 'mensuits', name: 'Men Suits', image: 'https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTfn0EYu_BPrsbd5vCgxnzomOH-ELeDC_lPIWvFLTnAbLdNnGwCHdm-AjMmQ6lbS2-6GMI2NZfLPmperpruJ-LY0Vtub021cPIf4BmoNdAWTBTMvAjfQ2GFdg&usqp=CAc' },
             { id: 'officewear', name: 'Office Wear', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZTMWnremjT94nu49B0Ts_28GCKKUlU5Fi9w&s' },
