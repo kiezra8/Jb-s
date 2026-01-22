@@ -50,6 +50,30 @@
     <!-- Contact Info -->
     <meta name="contact" content="+256700742469">
 
+    <!-- TikTok & Social Media Meta Tags (Bypass External Link Warning) -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="JB'S TAILORED">
+    <meta name="application-name" content="JB'S TAILORED">
+    <meta name="theme-color" content="#000000">
+    <meta name="msapplication-TileColor" content="#000000">
+    <meta name="msapplication-navbutton-color" content="#000000">
+
+    <!-- Security & Trust Headers -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="origin-when-cross-origin">
+    <meta name="format-detection" content="telephone=yes">
+
+    <!-- TikTok Specific -->
+    <meta property="tiktok:app_id" content="jbstailored">
+    <meta name="tiktok-domain-verification" content="jbstailoredfashionz.com">
+
+    <!-- Additional Open Graph for Better Recognition -->
+    <meta property="og:site" content="JB'S TAILORED - The Fashion Kingdom">
+    <meta property="og:see_also" content="https://jbstailoredfashionz.com">
+
+
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
@@ -292,11 +316,53 @@
         console.log('✅ Cloudinary configured:', CLOUDINARY_CONFIG.cloudName);
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@100;200;300;400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Lato:wght@300;400;700&display=swap');
+
+        :root {
+            --empire-black: #000000;
+            --empire-white: #FFFFFF;
+            --empire-gold: #C9A961;
+            --empire-red: #E31E24;
+            --empire-gray: #F8F8F8;
+            --empire-dark-gray: #2C2C2C;
+            --empire-border: #E0E0E0;
+            --empire-text: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
+            font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-weight: 400;
+            background: var(--empire-white);
+            color: var(--empire-text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Empire Typography */
+        .brand-text {
             font-family: 'Montserrat', sans-serif;
-            font-weight: 300;
+            letter-spacing: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: var(--empire-black);
         }
 
         /* Advanced Animations */
@@ -364,12 +430,24 @@
             }
         }
 
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.02);
+            }
+        }
+
         .animate-slide {
             animation: slide 20s cubic-bezier(0.4, 0, 0.2, 1) infinite;
         }
 
         .animate-fade-in-up {
-            animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         .animate-slide-in-right {
@@ -377,17 +455,108 @@
         }
 
         .animate-slide-in-up {
-            animation: slideInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            animation: slideInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         .animate-fade-in {
             animation: fadeIn 0.3s ease-out forwards;
         }
 
+        .animate-pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* Empire Product Card Styles */
+        .empire-card {
+            background: var(--empire-white);
+            border: none;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .empire-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            transform: translateY(-4px);
+        }
+
+        .sale-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--empire-red);
+            color: var(--empire-white);
+            padding: 6px 14px;
+            border-radius: 2px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: 10;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .quick-add-btn {
+            position: absolute;
+            bottom: 12px;
+            right: 12px;
+            width: 44px;
+            height: 44px;
+            background: var(--empire-white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+            opacity: 0;
+        }
+
+        .empire-card:hover .quick-add-btn {
+            opacity: 1;
+        }
+
+        .quick-add-btn:hover {
+            background: var(--empire-black);
+            color: var(--empire-white);
+            transform: scale(1.1);
+        }
+
+        /* Contact Button */
+        .empire-chat-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #16a34a;
+            color: var(--empire-white);
+            padding: 16px 28px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 12px;
+        }
+
+        .empire-chat-btn:hover {
+            background: #15803d;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Utility Classes */
         .line-clamp-1 {
             display: -webkit-box;
             -webkit-line-clamp: 1;
-            line-clamp: 1;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
@@ -395,71 +564,46 @@
         .line-clamp-2 {
             display: -webkit-box;
             -webkit-line-clamp: 2;
-            line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
 
-        .brand-text {
-            font-family: 'Cormorant Garamond', serif;
-            letter-spacing: 4px;
-            font-weight: 300;
-            text-shadow: none;
-        }
-
-        @keyframes float-up {
-            0% {
-                transform: translateY(20px);
-                opacity: 0;
-            }
-
-            100% {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .animate-float-up {
-            animation: float-up 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-        }
-
-        .bg-luxury {
-            background: #fafaf8;
-        }
-
-        .glass-card {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
-            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-
-        .glass-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.12);
-            border-color: rgba(255, 255, 255, 0.9);
-        }
-
-        /* Override standard scrollbar for a cleaner look */
+        /* Scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
         }
 
         ::-webkit-scrollbar-track {
-            background: transparent;
+            background: var(--empire-gray);
         }
 
         ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
+            background: var(--empire-dark-gray);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--empire-black);
+        }
+
+        /* Hide scrollbar for horizontal scroll */
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
         }
     </style>
 </head>
 
-<body class="bg-luxury text-gray-800 antialiased selection:bg-amber-50 selection:text-amber-900">
-    <div id="app"></div>
+<body class="bg-white text-black antialiased selection:bg-gray-100 selection:text-black">
+    <div id="app">
+        <div class="fixed inset-0 bg-white flex items-center justify-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+        </div>
+    </div>
 
     <script>
         const ADMIN_EMAIL = 'israelezrakisakye@gmail.com';
@@ -729,6 +873,9 @@
         async function initializeApp() {
             console.log('🚀 Initializing app...');
 
+            // RENDER IMMEDIATELY for instant UI feedback
+            render();
+
             // Load saved images first
             await loadSavedImages();
 
@@ -743,7 +890,7 @@
             productsLoaded = true;
             console.log('✅ Products ready:', products.length);
 
-            // Render
+            // Re-render with data
             render();
         }
 
@@ -1098,10 +1245,23 @@
                 message = `Hello! I would like to order:\n\n${product.name}\n\nCustomer: ${state.currentUser.displayName || state.currentUser.email}`;
             }
 
-            // Open WhatsApp
+            // Open WhatsApp with iOS-compatible URL
             const phoneNumber = '256700742469';
-            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-            window.open(whatsappUrl, '_blank');
+            const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+
+            // For iOS devices, use a different approach
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            if (isIOS) {
+                // Try to open WhatsApp app directly first
+                window.location.href = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+                // Fallback to web version after a delay if app doesn't open
+                setTimeout(() => {
+                    window.open(whatsappUrl, '_blank');
+                }, 1000);
+            } else {
+                window.open(whatsappUrl, '_blank');
+            }
+
 
             // Clear cart if this was a cart order
             if (product.context === 'order') {
@@ -1123,7 +1283,18 @@
             }
 
             const phoneNumber = '+256700742469';
-            window.location.href = `tel:${phoneNumber}`;
+
+            // iOS-compatible call handling
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            if (isIOS) {
+                // For iOS, use tel: protocol directly
+                window.location.href = `tel:${phoneNumber}`;
+            } else {
+                // For other devices, try to open in new context
+                const telLink = document.createElement('a');
+                telLink.href = `tel:${phoneNumber}`;
+                telLink.click();
+            }
 
             state.showOrderOptions = false;
             showToast('Opening phone dialer...');
@@ -1140,15 +1311,38 @@
             const message = state.currentUser
                 ? `Hello! I need support.\n\nCustomer: ${state.currentUser.displayName || state.currentUser.email}`
                 : 'Hello! I need support.';
-            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-            window.open(whatsappUrl, '_blank');
+
+            // Use official WhatsApp API URL
+            const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+
+            // iOS-compatible WhatsApp handling
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            if (isIOS) {
+                window.location.href = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+                setTimeout(() => {
+                    window.open(whatsappUrl, '_blank');
+                }, 1000);
+            } else {
+                window.open(whatsappUrl, '_blank');
+            }
+
             state.showContactOptions = false;
             render();
         }
 
         function makeCall() {
             const phoneNumber = '+256700742469';
-            window.location.href = `tel:${phoneNumber}`;
+
+            // iOS-compatible call handling
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            if (isIOS) {
+                window.location.href = `tel:${phoneNumber}`;
+            } else {
+                const telLink = document.createElement('a');
+                telLink.href = `tel:${phoneNumber}`;
+                telLink.click();
+            }
+
             state.showContactOptions = false;
             render();
         }
@@ -1202,26 +1396,142 @@
             setTimeout(() => toast.remove(), 2000);
         }
 
+        // Toggle Trending Status (Admin Only)
+        async function toggleTrending(productId) {
+            if (!state.isAdmin) {
+                showToast('Admin access required');
+                return;
+            }
+
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            // Toggle trending status
+            product.trending = !product.trending;
+
+            try {
+                // Save to Firebase
+                if (db) {
+                    const productRef = doc(db, 'products', productId.toString());
+                    await updateDoc(productRef, {
+                        trending: product.trending
+                    });
+                    console.log(`✅ Product ${productId} trending status updated to: ${product.trending}`);
+                }
+
+                // Save to localStorage as backup
+                localStorage.setItem('products', JSON.stringify(products));
+
+                // Show success message
+                showToast(product.trending ? '⭐ Added to Trending!' : '✓ Removed from Trending');
+
+                // Re-render
+                render();
+            } catch (error) {
+                console.error('Error updating trending status:', error);
+                showToast('Error updating trending status');
+                // Revert the change
+                product.trending = !product.trending;
+            }
+        }
+
+        // Toggle Quality Status (Admin Only)
+        async function toggleQuality(productId) {
+            if (!state.isAdmin) {
+                showToast('Admin access required');
+                return;
+            }
+
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            // Toggle quality status
+            product.quality = !product.quality;
+
+            try {
+                // Save to Firebase
+                if (db) {
+                    const productRef = doc(db, 'products', productId.toString());
+                    await updateDoc(productRef, {
+                        quality: product.quality
+                    });
+                    console.log(`✅ Product ${productId} quality status updated to: ${product.quality}`);
+                }
+
+                // Save to localStorage as backup
+                localStorage.setItem('products', JSON.stringify(products));
+
+                // Show success message
+                showToast(product.quality ? '💎 Added to Quality!' : '✓ Removed from Quality');
+
+                // Re-render
+                render();
+            } catch (error) {
+                console.error('Error updating quality status:', error);
+                showToast('Error updating quality status');
+                // Revert the change
+                product.quality = !product.quality;
+            }
+        }
+
         const getImg = (p) => p.image.startsWith('http') ? p.image : `https://loremflickr.com/400/400/fashion?lock=${p.id || 999}`;
 
-        function renderProductCard(product, index = 0) {
+        function renderProductCard(product, index = 0, section = 'trending') {
+            // Calculate sale price (20% off for display)
+            const originalPrice = product.price;
+            const salePrice = Math.round(originalPrice * 0.8);
+
+            const isQualitySection = section === 'quality';
+            const badgeProperty = isQualitySection ? 'quality' : 'trending';
+            const badgeColor = isQualitySection ? 'bg-green-600' : 'bg-amber-500';
+            const badgeText = isQualitySection ? '💎 Quality' : '⭐ Trending';
+            const clickHandler = isQualitySection ? 'toggleQuality' : 'toggleTrending';
+            const clickType = isQualitySection ? 'Triple-click' : 'Double-click';
+
             return `
-                <div class="bg-white rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 animate-fade-in-up" style="animation-delay: ${index * 50}ms">
-                    <div onclick="selectProduct(${product.id})" class="cursor-pointer">
-                        <div class="relative aspect-[3/4] bg-gray-100 group overflow-hidden rounded-t-xl">
-                            <img src="${product.image}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x400?text=No+Image';">
-                            <button onclick="event.stopPropagation(); selectProduct(${product.id})" class="absolute bottom-3 right-3 bg-white rounded-full p-2 shadow-lg hover:scale-110 active:scale-95 transition-transform text-gray-900">
-                                <i data-lucide="plus" class="w-4 h-4"></i>
-                            </button>
+                <div class="empire-card overflow-hidden animate-fade-in-up cursor-pointer relative" 
+                     style="animation-delay: ${index * 50}ms"
+                     onclick="selectProduct(${product.id})"
+                     ${state.isAdmin ? `on${isQualitySection ? 'click' : 'dblclick'}="event.stopPropagation(); ${clickHandler}(${product.id}); ${isQualitySection ? 'if(event.detail === 3) event.preventDefault();' : ''}"` : ''}>
+                    
+                    <!-- Sale Badge -->
+                    <div class="sale-badge">SALE</div>
+                    
+                    <!-- Trending/Quality Badge (Admin Only) -->
+                    ${product[badgeProperty] && state.isAdmin ? `
+                        <div class="absolute top-2 left-2 ${badgeColor} text-white text-[10px] px-2 py-1 rounded-full font-bold uppercase tracking-wider z-10 flex items-center gap-1">
+                            ${badgeText}
                         </div>
-                        <div class="p-3">
-                            <h3 class="font-medium text-sm mb-1 line-clamp-2 text-gray-900">${product.name}</h3>
+                    ` : ''}
+                    
+                    <!-- Product Image -->
+                    <div class="relative aspect-[3/4] bg-gray-50 group overflow-hidden">
+                        <img src="${product.image}" 
+                             class="w-full h-full object-cover transition-all duration-700 group-hover:scale-110" 
+                             onerror="this.onerror=null; this.src='https://via.placeholder.com/400x600/f8f8f8/333333?text=${encodeURIComponent(product.name)}'">
+                        
+                        <!-- Quick Add Button -->
+                        <div class="quick-add-btn" onclick="event.stopPropagation(); selectProduct(${product.id})">
+                            <i data-lucide="shopping-cart" class="w-5 h-5"></i>
                         </div>
+                        
+                        <!-- Admin Toggle Hint -->
+                        ${state.isAdmin ? `
+                            <div class="absolute bottom-2 left-2 bg-black/70 text-white text-[9px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                                ${clickType} to ${product[badgeProperty] ? 'remove from' : 'add to'} ${isQualitySection ? 'quality' : 'trending'}
+                            </div>
+                        ` : ''}
                     </div>
-                    <div class="px-3 pb-3">
-                    <button onclick='showOrderOptions(${JSON.stringify(product).replace(/'/g, "&#39;")}, "buy")' class="w-full bg-gray-900 text-white py-2.5 rounded-sm font-medium text-sm shadow-sm hover:bg-gray-800 active:scale-95 transition-all uppercase tracking-wider">
-                            ORDER
-                        </button>
+                    
+                    <!-- Product Info -->
+                    <div class="p-2 bg-white">
+                        <h3 class="text-xs font-medium mb-2 line-clamp-2 text-gray-800 leading-relaxed uppercase tracking-wide">${product.name}</h3>
+                        
+                        <!-- Price Display (Empire Style) -->
+                        <div class="flex items-center gap-2">
+                            <span class="text-base font-bold text-black">${formatMoney(salePrice)}</span>
+                            <span class="text-xs text-gray-400 line-through">${formatMoney(originalPrice)}</span>
+                        </div>
                     </div>
                 </div>
             `;
@@ -1270,199 +1580,354 @@
             }
 
             return `
-                <div class="flex-1 overflow-y-auto bg-gray-50 pb-6 animate-fade-in">
-                    <!-- Animated Hero Carousel -->
-                    <div class="p-4 pb-0">
-                        <div class="relative h-48 w-full rounded-2xl overflow-hidden shadow-lg animate-fade-in-up">
-                            <div class="flex w-[300%] h-full animate-slide">
-                                <!-- Slide 1: Main -->
-                                <div class="w-1/3 relative h-full">
-                                    <img src="${siteImages.carousel.slide1}" class="absolute inset-0 w-full h-full object-cover">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-black/70 to-black/30 p-6 flex flex-col justify-center text-white">
-                                        <h1 class="brand-text text-4xl font-bold mb-2 leading-tight">JB'S TAILORED</h1>
-                                        <p class="text-lg font-light opacity-90">Bespoke Fashion & Custom Tailoring</p>
-                                    </div>
+                <!-- Empire Style Header -->
+                <header class="sticky top-0 bg-white border-b border-gray-200 z-50">
+                    <div class="px-2 sm:px-3 py-1.5 flex items-center justify-between max-w-7xl mx-auto">
+                        <button onclick="state.showMenu = true; render();" class="p-2 hover:bg-gray-50 transition-colors -ml-2">
+                            <i data-lucide="menu" class="w-5 h-5 text-gray-900"></i>
+                        </button>
+                        
+                        <div class="absolute left-1/2 transform -translate-x-1/2 cursor-pointer" onclick="state.activeTab = 'home'; state.viewingCategoryPage = false; render();">
+                            <div class="text-center leading-none">
+                                <div class="text-3xl sm:text-4xl font-black italic tracking-tight" style="background: linear-gradient(135deg, #b45af2 0%, #e94b8a 40%, #f97316 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-family: 'Montserrat', sans-serif; letter-spacing: -0.08em; line-height: 0.9;">
+                                    jb's
                                 </div>
-                                <!-- Slide 2: Locations -->
-                                <div class="w-1/3 relative h-full">
-                                    <img src="${siteImages.carousel.slide2}" class="absolute inset-0 w-full h-full object-cover">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-green-800/90 to-green-600/40 p-6 flex flex-col justify-center text-white">
-                                        <h3 class="text-2xl font-bold mb-3 leading-tight drop-shadow-md">Visit Our Shops</h3>
-                                        <div class="space-y-2 text-sm font-medium opacity-95">
-                                            <p class="flex items-start gap-2">
-                                                <i data-lucide="map-pin" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
-                                                <span>Ntinda: Emessa Complex Level 2 S-11, Near Rubis Petro Station</span>
-                                            </p>
-                                            <p class="flex items-start gap-2">
-                                                <i data-lucide="map-pin" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>SS
-                                                <span>Mbarara: Amazon Building L3 Rm6</span>
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Slide 3: Delivery -->
-                                <div class="w-1/3 relative h-full">
-                                    <img src="${siteImages.carousel.slide3}" class="absolute inset-0 w-full h-full object-cover">
-                                    <div class="absolute inset-0 bg-gradient-to-r from-amber-700/90 to-orange-600/40 p-6 flex flex-col justify-center text-white">
-                                        <h3 class="text-3xl font-bold mb-2 leading-tight drop-shadow-md">Nationwide Delivery</h3>
-                                        <p class="mb-3 font-medium opacity-95 text-lg">We deliver to all parts of Uganda</p>
-                                        <div class="flex items-center gap-2">
-                                            <i data-lucide="truck" class="w-6 h-6"></i>
-                                            <span class="font-bold">Fast & Reliable Service</span>
-                                        </div>
-                                    </div>
+                                <div class="text-[7px] sm:text-[8px] text-gray-500 uppercase tracking-widest mt-0.5 font-light" style="font-family: 'Lato', sans-serif; letter-spacing: 0.2em;">
+                                    the fashion kingdom
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="bg-white mt-4 py-4" id="shop-section">
-                        <div class="px-4 mb-3">
-                            <h2 class="text-lg font-bold text-gray-800">Categories</h2>
-                        </div>
-                        <div class="px-4 grid grid-cols-4 gap-4">
-                            ${categories.filter(cat => cat.id !== 'all').map((cat, i) => `
-                                <button onclick="selectCategory('${cat.id}')" class="flex flex-col items-center gap-2 animate-fade-in-up" style="animation-delay: ${i * 50}ms">
-                                    <div class="w-full aspect-square bg-gray-100 rounded-full flex items-center justify-center hover:shadow-lg transition-all overflow-hidden border-2 border-transparent hover:border-gray-900 hover:scale-105">
-                                        <img src="${cat.image}" class="w-full h-full object-cover">
-                                    </div>
-                                    <span class="text-xs font-medium text-gray-700 text-center leading-tight">${cat.name}</span>
+                        
+                        
+                        <div class="flex items-center gap-1">
+                            <button onclick="state.activeTab = 'search'; render();" class="p-2 hover:bg-gray-50 transition-colors">
+                                <i data-lucide="search" class="w-5 h-5 text-gray-900"></i>
+                            </button>
+                            ${state.currentUser ? `
+                                <button onclick="state.activeTab = 'profile'; render();" class="p-2 hover:bg-gray-50 transition-colors">
+                                    <i data-lucide="user" class="w-5 h-5 text-gray-900"></i>
                                 </button>
-                            `).join('')}
+                            ` : `
+                                <button onclick="state.showAuthModal = true; render();" class="p-2 hover:bg-gray-50 transition-colors">
+                                    <i data-lucide="user" class="w-5 h-5 text-gray-900"></i>
+                                </button>
+                            `}
+                            <button onclick="state.showCart = true; render();" class="p-2 hover:bg-gray-50 transition-colors relative -mr-2">
+                                <i data-lucide="shopping-bag" class="w-5 h-5 text-gray-900"></i>
+                                ${state.cart.length > 0 ? `
+                                    <span class="absolute -top-1 -right-1 bg-black text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                                        ${state.cart.length}
+                                    </span>
+                                ` : ''}
+                            </button>
+                        </div>
+                    </div>
+                </header>
+
+
+                <div class="flex-1 overflow-y-auto bg-white pb-20 animate-fade-in">
+                    <!-- Empire Animated Hero Carousel -->
+                    <div class="relative h-[450px] sm:h-[600px] w-full overflow-hidden">
+                        <div class="flex w-[300%] h-full animate-slide">
+                            <!-- Slide 1 -->
+                            <div class="w-1/3 relative h-full">
+                                <img src="${siteImages.carousel.slide1}" class="absolute inset-0 w-full h-full object-cover">
+                                <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                    <div class="text-center px-6 max-w-3xl">
+                                        <h1 class="brand-text text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 text-white leading-tight">
+                                            THE EMPIRE STANDARD<br>OF EXCELLENCE
+                                        </h1>
+                                        <p class="text-white/90 text-base sm:text-lg mb-8 font-light max-w-2xl mx-auto">
+                                            Premium men's suits, tuxedos & wedding suites tailored to perfection
+                                        </p>
+                                        <button onclick="document.getElementById('products-grid').scrollIntoView({behavior: 'smooth'})" 
+                                                class="bg-white text-black px-12 py-4 font-bold uppercase text-xs tracking-[0.2em] hover:bg-gray-100 transition-colors">
+                                            Shop Now
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Slide 2 -->
+                            <div class="w-1/3 relative h-full">
+                                <img src="${siteImages.carousel.slide2}" class="absolute inset-0 w-full h-full object-cover">
+                                <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                    <div class="text-center px-6 max-w-3xl">
+                                        <h1 class="brand-text text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 text-white leading-tight">
+                                            VISIT OUR SHOPS
+                                        </h1>
+                                        <p class="text-white/90 text-base sm:text-lg mb-4 font-light">
+                                            📍 Ntinda: Emessa Complex Level 2 S-11
+                                        </p>
+                                        <p class="text-white/90 text-base sm:text-lg mb-8 font-light">
+                                            📍 Mbarara: Amazon Building L3 Rm6
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Slide 3 -->
+                            <div class="w-1/3 relative h-full">
+                                <img src="${siteImages.carousel.slide3}" class="absolute inset-0 w-full h-full object-cover">
+                                <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                    <div class="text-center px-6 max-w-3xl">
+                                        <h1 class="brand-text text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 text-white leading-tight">
+                                            NATIONWIDE<br>DELIVERY
+                                        </h1>
+                                        <p class="text-white/90 text-base sm:text-lg mb-8 font-light max-w-2xl mx-auto">
+                                            We deliver to all parts of Uganda
+                                        </p>
+                                        <div class="flex items-center justify-center gap-3 text-white text-lg font-semibold">
+                                            <i data-lucide="truck" class="w-6 h-6"></i>
+                                            <span>Fast & Reliable Service</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- About JB'S TAILORED Section -->
-                    <div class="bg-white mt-6 p-6">
-                        <div class="mb-6 text-center">
-                            <h2 class="text-2xl font-bold text-gray-900 mb-3 brand-text">About JB'S TAILORED</h2>
-                            <div class="w-16 h-1 bg-gradient-to-r from-green-600 to-green-800 mx-auto mb-4"></div>
-                        </div>
-                        <div class="prose prose-sm max-w-none text-gray-700 space-y-4">
-                            <p class="leading-relaxed">
-                                At <span class="font-semibold text-gray-900">JB'S TAILORED</span>, we believe that exceptional style begins with impeccable craftsmanship. 
-                                For years, we have been dedicated to creating bespoke fashion that celebrates individuality while honoring the timeless art of tailoring.
-                            </p>
-                            <p class="leading-relaxed">
-                                Our master tailors bring decades of experience to every stitch, ensuring that each garment is not just worn, but experienced. 
-                                From the finest fabrics sourced globally to the meticulous attention to detail in every seam, we craft pieces that transcend trends and become cherished wardrobe staples.
-                            </p>
-                            <p class="leading-relaxed">
-                                Whether you're seeking the perfect suit for your wedding day, professional attire that commands respect, or cultural wear that honors tradition, 
-                                JB'S TAILORED is your partner in sartorial excellence. Visit our locations in Ntinda and Mbarara to experience personalized service that puts your vision first.
-                            </p>
-                        </div>
-                        
-                        <!-- Branch Locations -->
-                        <div class="mt-6 space-y-4">
-                            <h3 class="text-lg font-bold text-gray-900 mb-4">Our Locations</h3>
-                            
-                            <!-- Ntinda Branch -->
-                            <div class="bg-gray-50 rounded-xl overflow-hidden">
-                                <div class="h-48 overflow-hidden">
-                                    <img src="${siteImages.branches.ntinda}" class="w-full h-full object-cover" alt="Ntinda Branch">
+                    <!-- Empire Category Section (All Categories - 2 Rows Horizontal Scroll) -->
+                    <div class="bg-white py-6 px-4 sm:px-6 border-b border-gray-100 relative group" id="category-section">
+                        <div class="max-w-7xl mx-auto">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-gray-400">Shop by Category</h3>
+                                <div class="flex items-center gap-2 text-xs font-medium text-gray-400 animate-pulse">
+                                    <span>SCROLL</span>
+                                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
                                 </div>
-                                <div class="p-4">
-                                    <h4 class="font-bold text-gray-900 mb-2 flex items-center gap-2">
-                                        <i data-lucide="map-pin" class="w-5 h-5 text-green-600"></i>
-                                        Ntinda Branch
-                                    </h4>
-                                    <p class="text-sm text-gray-700">Emessa Complex Level 2 S-11, Near Rubis Petro Station</p>
+                            </div>
+
+                            <!-- Horizontal Scroll Container -->
+                            <div class="relative">
+                                <div class="overflow-x-auto scrollbar-hide -mx-4 px-4 pb-4">
+                                    <div class="grid grid-rows-2 grid-flow-col gap-x-4 gap-y-8 w-max">
+                                        ${[
+                    { id: 'mensuits', name: "Men's Suits", img: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=400' },
+                    { id: 'officewear', name: "Office Wear", img: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400' },
+                    { id: 'casualwear', name: "Casual Wear", img: 'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=400' },
+                    { id: 'groomsuits', name: "Groom's Suits", img: 'https://images.unsplash.com/photo-1505235687559-28b5f54645b7?w=400' },
+                    { id: 'groomsmensuits', name: "Groomsmen", img: 'https://images.unsplash.com/photo-1565462900100-36f272a85368?w=400' },
+                    { id: 'womenswear', name: "Women's Wear", img: 'https://images.unsplash.com/photo-1548239088-2cb9d784fa76?w=400' },
+                    { id: 'pageboys', name: "Page Boys", img: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400' },
+                    { id: 'changingwear', name: "Changing Wear", img: 'https://images.unsplash.com/photo-1516762689617-e1cffcef479d?w=400' },
+                    { id: 'kaftans', name: "Kaftans & Tunics", img: 'https://images.unsplash.com/photo-1576995853123-5a4387453cbb?w=400' },
+                    { id: 'shoes', name: "Shoes", img: 'https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=400' },
+                    { id: 'suspenders', name: "Suspenders", img: 'https://images.unsplash.com/photo-1536766820879-059fec98ec0a?w=400' },
+                    { id: 'walkingsticks', name: "Walking Sticks", img: 'https://images.unsplash.com/photo-1542272201-b1ca555f8505?w=400' },
+                    { id: 'neckties', name: "Neckties", img: 'https://images.unsplash.com/photo-1589756823695-278bc923f962?w=400' },
+                    { id: 'shirts', name: "Shirts", img: 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=400' },
+                    { id: 'watches', name: "Watches", img: 'https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=400' },
+                    { id: 'kanzus', name: "Kanzus", img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0N9r5y6z4k9j_x6p9d8q_6y9j4e4r3t2w1q&s' },
+                    { id: 'kwanjula', name: "Kwanjula", img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ5y6z4k9j_x6p9d8q_6y9j4e4r3t2w1q&s' },
+                    { id: 'kukyala', name: "Kukyala", img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5y6z4k9j_x6p9d8q_6y9j4e4r3t2w1q&s' }
+                ].map(cat => `
+                                            <div class="w-32 sm:w-40 flex flex-col items-center gap-3 cursor-pointer group/item" onclick="selectCategory('${cat.id}')">
+                                                <div class="relative w-full aspect-[3/4] overflow-hidden rounded-sm bg-gray-100 shadow-sm transition-all duration-500 group-hover/item:shadow-lg">
+                                                    <img src="${cat.img}" 
+                                                         class="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110"
+                                                         onerror="this.src='https://via.placeholder.com/400x600?text=${cat.name}'">
+                                                </div>
+                                                <h3 class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-center text-gray-900 group-hover/item:text-amber-700 transition-colors line-clamp-2 leading-tight">
+                                                    ${cat.name}
+                                                </h3>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                                
+                                <!-- Blur overlay to signal more content -->
+                                <div class="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white to-transparent pointer-events-none sm:hidden"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trending Products (12 Products - Editable via Admin) -->
+                    <div class="bg-white py-3 px-2 sm:px-3" id="products-grid">
+                        <div class="max-w-7xl mx-auto">
+                            <div class="text-center mb-3">
+                                <h2 class="text-2xl sm:text-3xl font-bold uppercase tracking-wider mb-2">TRENDING NOW</h2>
+                                <p class="text-sm text-gray-600 uppercase tracking-widest">Our Most Popular Pieces</p>
+                                ${state.isAdmin ? `
+                                    <p class="text-xs text-amber-600 mt-2">👑 Admin: Click products below to mark/unmark as trending</p>
+                                ` : ''}
+                            </div>
+                            
+                            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
+                                ${(() => {
+                    const trendingProducts = products.filter(p => p.trending === true);
+                    const displayProducts = trendingProducts.length > 0 ? trendingProducts.slice(0, 12) : products.slice(0, 12);
+
+                    if (displayProducts.length === 0) {
+                        return `
+                                            <div class="col-span-full text-center py-6">
+                                                <p class="text-gray-500">No trending products yet. ${state.isAdmin ? 'Mark products as trending from the product list!' : ''}</p>
+                                            </div>
+                                        `;
+                    }
+
+                    return displayProducts.map((p, i) => renderProductCard(p, i)).join('');
+                })()}
+                            </div>
+
+                            ${products.length > 12 ? `
+                                <div class="text-center mt-12">
+                                    <button onclick="selectCategory('all')" 
+                                            class="bg-black text-white px-16 py-4 font-bold uppercase text-xs tracking-[0.2em] hover:bg-gray-800 transition-colors">
+                                        View All Shop
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <!-- JB'S Shop Video (10 seconds - Editable via Admin) -->
+                    <div class="bg-gray-50 py-3 px-2 sm:px-3">
+                        <div class="max-w-5xl mx-auto">
+                            
+                            <div class="relative aspect-video bg-black rounded-lg overflow-hidden">
+                                <video 
+                                    class="w-full h-full object-cover" 
+                                    autoplay 
+                                    muted 
+                                    loop 
+                                    playsinline
+                                    poster="${siteImages.branches.ntinda}">
+                                    <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+                                    <img src="${siteImages.branches.ntinda}" class="w-full h-full object-cover" alt="JB'S Shop">
+                                </video>
+                                <div class="absolute inset-0 bg-black/20 flex items-center justify-center">
+                                    <div class="text-center text-white">
+                                        <p class="text-sm uppercase tracking-widest mb-2">Visit Us Today</p>
+                                        <h3 class="text-2xl font-bold uppercase">JB'S TAILORED</h3>
+                                    </div>
                                 </div>
                             </div>
                             
-                            <!-- Mbarara Branch -->
-                            <div class="bg-gray-50 rounded-xl overflow-hidden">
-                                <div class="h-48 overflow-hidden">
-                                    <img src="${siteImages.branches.mbarara}" class="w-full h-full object-cover" alt="Mbarara Branch">
+                            ${state.isAdmin ? `
+                                <div class="text-center mt-4">
+                                    <button onclick="state.showAdminImagePanel = true; render();" 
+                                            class="text-xs text-gray-600 hover:text-black uppercase tracking-wider">
+                                        📹 Update Shop Video (Admin)
+                                    </button>
                                 </div>
-                                <div class="p-4">
-                                    <h4 class="font-bold text-gray-900 mb-2 flex items-center gap-2">
-                                        <i data-lucide="map-pin" class="w-5 h-5 text-green-600"></i>
-                                        Mbarara Branch
-                                    </h4>
-                                    <p class="text-sm text-gray-700">Amazon Building L3 Rm6</p>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Home of Quality Products Section -->
+                    <div class="bg-white py-3 px-2 sm:px-3">
+                        <div class="max-w-7xl mx-auto">
+                            <div class="text-center mb-8">
+                                <h2 class="text-2xl sm:text-3xl font-bold uppercase tracking-wider mb-2">HOME OF QUALITY</h2>
+                                <p class="text-sm text-gray-600 uppercase tracking-widest">Crafted to Perfection</p>
+                                ${state.isAdmin ? `
+                                    <p class="text-xs text-green-600 mt-2">👑 Admin: Triple-click products to mark/unmark as quality</p>
+                                ` : ''}
+                            </div>
+                            
+                            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
+                                ${(() => {
+                    const qualityProducts = products.filter(p => p.quality === true);
+                    const displayProducts = qualityProducts.length > 0 ? qualityProducts.slice(0, 12) : products.slice(12, 24);
+
+                    if (displayProducts.length === 0) {
+                        return `
+                                            <div class="col-span-full text-center py-6">
+                                                <p class="text-gray-500">No quality products yet. ${state.isAdmin ? 'Mark products as quality!' : ''}</p>
+                                            </div>
+                                        `;
+                    }
+
+                    return displayProducts.map((p, i) => renderProductCard(p, i + 12, 'quality')).join('');
+                })()}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Location Images (Editable via Admin) -->
+                    <div class="bg-gray-50 py-3 px-2 sm:px-3">
+                        <div class="max-w-7xl mx-auto">
+                            <div class="text-center mb-8">
+                                <h2 class="text-2xl sm:text-3xl font-bold uppercase tracking-wider mb-2">OUR LOCATIONS</h2>
+                                <p class="text-sm text-gray-600 uppercase tracking-widest">Visit Us Today</p>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <!-- Ntinda Branch -->
+                                <div class="relative group">
+                                    <div class="aspect-[4/3] overflow-hidden rounded-lg">
+                                        <img src="${siteImages.branches.ntinda}" 
+                                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                                             alt="Ntinda Branch">
+                                    </div>
+                                    <div class="mt-4 text-center">
+                                        <h3 class="text-lg font-bold uppercase tracking-wider mb-2 flex items-center justify-center gap-2">
+                                            <i data-lucide="map-pin" class="w-5 h-5"></i>
+                                            Ntinda Branch
+                                        </h3>
+                                        <p class="text-sm text-gray-600">Emessa Complex Level 2 S-11</p>
+                                        <p class="text-sm text-gray-600">Near Rubis Petro Station</p>
+                                    </div>
+                                    ${state.isAdmin ? `
+                                        <button onclick="state.showAdminImagePanel = true; render();" 
+                                                class="absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded text-xs uppercase tracking-wider hover:bg-black">
+                                            📷 Update
+                                        </button>
+                                    ` : ''}
+                                </div>
+
+                                <!-- Mbarara Branch -->
+                                <div class="relative group">
+                                    <div class="aspect-[4/3] overflow-hidden rounded-lg">
+                                        <img src="${siteImages.branches.mbarara}" 
+                                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                                             alt="Mbarara Branch">
+                                    </div>
+                                    <div class="mt-4 text-center">
+                                        <h3 class="text-lg font-bold uppercase tracking-wider mb-2 flex items-center justify-center gap-2">
+                                            <i data-lucide="map-pin" class="w-5 h-5"></i>
+                                            Mbarara Branch
+                                        </h3>
+                                        <p class="text-sm text-gray-600">Amazon Building L3 Rm6</p>
+                                        <p class="text-sm text-gray-600">Mbarara City</p>
+                                    </div>
+                                    ${state.isAdmin ? `
+                                        <button onclick="state.showAdminImagePanel = true; render();" 
+                                                class="absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded text-xs uppercase tracking-wider hover:bg-black">
+                                            📷 Update
+                                        </button>
+                                    ` : ''}
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Fashion & Tailoring Articles -->
-                    <div class="bg-gray-50 mt-6 p-6 pb-20">
-                        <div class="mb-6">
-                            <h2 class="text-2xl font-bold text-gray-900 mb-2">Style Guide & Insights</h2>
-                            <p class="text-sm text-gray-600">Expert advice on tailoring, fashion, and timeless style</p>
-                        </div>
-                        
-                        <div class="space-y-4">
-                            <!-- Article 1 -->
-                            <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                                <div class="h-52 overflow-hidden">
-                                    <img src="${siteImages.articles.tailoring}" class="w-full h-full object-cover" alt="Bespoke Tailoring">
+                    <!-- Empire Features Section -->
+                    <div class="bg-white py-6 px-2 sm:px-3">
+                        <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
+                            <div class="flex flex-col items-center">
+                                <div class="w-16 h-16 bg-black rounded-full flex items-center justify-center mb-4">
+                                    <i data-lucide="headphones" class="w-8 h-8 text-white"></i>
                                 </div>
-                                <div class="p-4">
-                                    <h3 class="text-lg font-bold text-gray-900 mb-2">The Art of Bespoke Tailoring</h3>
-                                    <p class="text-sm text-gray-700 leading-relaxed">
-                                        Bespoke tailoring is a collaborative art between tailor and client. Each garment begins with precise measurements 
-                                        and careful fabric selection, followed by multiple fittings to ensure perfect fit and comfort.
-                                    </p>
-                                </div>
+                                <h3 class="text-base font-bold uppercase tracking-wider mb-2">SUPPORT 24/7</h3>
+                                <p class="text-sm text-gray-600">Contact us 24 hours a day, 7 days a week</p>
                             </div>
 
-                            <!-- Article 2 -->
-                            <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                                <div class="h-52 overflow-hidden">
-                                    <img src="${siteImages.articles.fabrics}" class="w-full h-full object-cover" alt="Suit Fabrics">
+                            <div class="flex flex-col items-center">
+                                <div class="w-16 h-16 bg-black rounded-full flex items-center justify-center mb-4">
+                                    <i data-lucide="refresh-cw" class="w-8 h-8 text-white"></i>
                                 </div>
-                                <div class="p-4">
-                                    <h3 class="text-lg font-bold text-gray-900 mb-2">Understanding Suit Fabrics</h3>
-                                    <p class="text-sm text-gray-700 leading-relaxed">
-                                        Wool remains the gold standard for suiting, prized for breathability and durability. Higher super numbers 
-                                        mean softer fabrics, while blends like wool-silk or wool-cashmere offer unique benefits for different occasions.
-                                    </p>
-                                </div>
+                                <h3 class="text-base font-bold uppercase tracking-wider mb-2">2 DAYS RETURN</h3>
+                                <p class="text-sm text-gray-600">Simply return it within 2 days for an exchange</p>
                             </div>
 
-                            <!-- Article 3 -->
-                            <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                                <div class="h-52 overflow-hidden">
-                                    <img src="${siteImages.articles.wedding}" class="w-full h-full object-cover" alt="Wedding Attire">
+                            <div class="flex flex-col items-center">
+                                <div class="w-16 h-16 bg-black rounded-full flex items-center justify-center mb-4">
+                                    <i data-lucide="shield-check" class="w-8 h-8 text-white"></i>
                                 </div>
-                                <div class="p-4">
-                                    <h3 class="text-lg font-bold text-gray-900 mb-2">Wedding Attire: Groom's Guide</h3>
-                                    <p class="text-sm text-gray-700 leading-relaxed">
-                                        Your wedding day deserves sartorial perfection. Choose a timeless tuxedo for evening ceremonies or 
-                                        a navy suit for daytime. Schedule your final fitting two weeks before the big day for perfect results.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <!-- Article 4 -->
-                            <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                                <div class="h-52 overflow-hidden">
-                                    <img src="${siteImages.articles.professional}" class="w-full h-full object-cover" alt="Professional Wardrobe">
-                                </div>
-                                <div class="p-4">
-                                    <h3 class="text-lg font-bold text-gray-900 mb-2">Professional Wardrobe Essentials</h3>
-                                    <p class="text-sm text-gray-700 leading-relaxed">
-                                        Start with two well-fitted suits in navy and charcoal, five quality dress shirts, and leather shoes in 
-                                        black and brown. Add silk ties, a matching belt, and a classic watch to complete your professional look.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <!-- Article 5 -->
-                            <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                                <div class="h-52 overflow-hidden">
-                                    <img src="${siteImages.articles.care}" class="w-full h-full object-cover" alt="Garment Care">
-                                </div>
-                                <div class="p-4">
-                                    <h3 class="text-lg font-bold text-gray-900 mb-2">Caring for Your Tailored Garments</h3>
-                                    <p class="text-sm text-gray-700 leading-relaxed">
-                                        Use wide wooden hangers and allow suits to rest 24 hours between wears. Brush after each use, 
-                                        dry clean sparingly, and store in breathable garment bags to keep your investment looking impeccable.
-                                    </p>
-                                </div>
+                                <h3 class="text-base font-bold uppercase tracking-wider mb-2">100% PAYMENT SECURE</h3>
+                                <p class="text-sm text-gray-600">We ensure secure payment with PEV</p>
                             </div>
                         </div>
                     </div>
@@ -1620,36 +2085,12 @@
                 }
                 app.innerHTML = `
                 <div class="flex flex-col h-screen bg-gray-50">
-                    <!--Header -->
-                <div class="bg-gradient-to-r from-green-700/95 via-green-800/95 to-green-900/95 backdrop-blur-md text-white p-4 shadow-lg sticky top-0 z-30 transition-all duration-300 border-b border-green-600/30">
-                    <div class="flex items-center justify-between mb-3">
-                        <i data-lucide="menu" class="w-6 h-6 cursor-pointer hover:opacity-70 transition-opacity duration-300 text-white" onclick="toggleMenu()"></i>
-                        <h1 class="text-xl font-bold brand-text tracking-widest text-center flex-1 animate-fade-in text-white drop-shadow-lg">JB'S TAILORED</h1>
-                        <div class="flex items-center gap-4">
-                            <i data-lucide="user" class="w-6 h-6 cursor-pointer hover:opacity-70 transition-opacity text-white" onclick="switchTab('profile')"></i>
-                            <div class="relative">
-                                <i data-lucide="shopping-cart" class="w-6 h-6 cursor-pointer hover:opacity-70 transition-opacity text-white" onclick="toggleCart()"></i>
-                                ${state.cart.length > 0 ? `<span class="absolute -top-2 -right-2 bg-amber-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold shadow-md">${state.cart.length}</span>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="relative animate-fade-in">
-                        <i data-lucide="search" class="absolute left-3 top-2.5 w-5 h-5 text-green-200"></i>
-                        <input type="text" placeholder="Search..." value="${state.searchQuery}" oninput="handleSearch(event)" class="w-full pl-10 pr-4 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all border border-green-600/30 bg-white/90 backdrop-blur-sm placeholder-gray-500" />
-                    </div>
-                </div>
-
-
 
                     ${state.activeTab === 'home' ? renderHome() : ''}
                     ${state.activeTab === 'categories' ? renderCategories() : ''}
                     ${state.activeTab === 'messages' ? renderMessages() : ''}
                     ${state.activeTab === 'profile' ? renderProfile() : ''}
-                    
-                    <!-- Persistent Contact Button -->
-                    <button onclick="showContactOptions()" class="fixed bottom-6 right-4 bg-green-500 text-white p-4 rounded-full shadow-lg z-40 hover:scale-110 active:scale-90 transition-all">
-                        <i data-lucide="message-circle" class="w-6 h-6"></i>
-                    </button>
+
 
 
                     <!--Menu Drawer-->
@@ -1910,6 +2351,15 @@
                         </div>
                     ` : ''
                     }
+
+                    <!-- Empire Gold Floating Chat Button -->
+                    <button onclick="state.showContactOptions = true; render();" 
+                            class="empire-chat-btn animate-pulse">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+                        </svg>
+                        <span>CHAT</span>
+                    </button>
 
                     <!--Admin Image Management Panel-->
                 ${state.showAdminImagePanel ? `
