@@ -316,7 +316,7 @@
         console.log('✅ Cloudinary configured:', CLOUDINARY_CONFIG.cloudName);
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Lato:wght@300;400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400..900;1,400..900&family=Playfair+Display:ital,wght@1,700;1,900&family=Montserrat:wght@100;300;400;500;600;700;800&family=Lato:wght@300;400;700&display=swap');
 
         :root {
             --empire-black: #000000;
@@ -448,6 +448,22 @@
 
         .animate-fade-in-up {
             animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .animate-slide-in-left {
+            animation: slideInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         .animate-slide-in-right {
@@ -1179,7 +1195,7 @@
                         name: descriptions[descIndex],
                         description: descriptions[descIndex],
                         price: finalPrice,
-                        image: `https://via.placeholder.com/800x800/e5e7eb/6b7280?text=${encodeURIComponent(cat.name)}`,
+                        image: `https://via.placeholder.com/800x800/e5e7eb/6b7280?text=${encodeURIComponent(cat.name)}+${descIndex + 1}`,
                         category: cat.id,
                         rating: (4.0 + Math.random() * 1.0).toFixed(1),
                         reviews: Math.floor(Math.random() * 300) + 20,
@@ -1247,20 +1263,23 @@
                 message = `Hello! I would like to order:\n\n${product.name}\n\nCustomer: ${state.currentUser.displayName || state.currentUser.email}`;
             }
 
-            // Open WhatsApp with iOS-compatible URL
+            // Open WhatsApp with direct app intent first
             const phoneNumber = '256700742469';
-            const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 
-            // For iOS devices, use a different approach
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            if (isIOS) {
-                // Try to open WhatsApp app directly first
+            // Comprehensive mobile detection
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+            if (isMobile) {
+                // Try to open WhatsApp app directly using deep link
                 window.location.href = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
-                // Fallback to web version after a delay if app doesn't open
+
+                // Fallback to web version if app doesn't open after a delay
                 setTimeout(() => {
                     window.open(whatsappUrl, '_blank');
-                }, 1000);
+                }, 1500);
             } else {
+                // Desktop - use web api
                 window.open(whatsappUrl, '_blank');
             }
 
@@ -1286,17 +1305,8 @@
 
             const phoneNumber = '+256700742469';
 
-            // iOS-compatible call handling
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            if (isIOS) {
-                // For iOS, use tel: protocol directly
-                window.location.href = `tel:${phoneNumber}`;
-            } else {
-                // For other devices, try to open in new context
-                const telLink = document.createElement('a');
-                telLink.href = `tel:${phoneNumber}`;
-                telLink.click();
-            }
+            // Universal call handling
+            window.location.href = `tel:${phoneNumber}`;
 
             state.showOrderOptions = false;
             showToast('Opening phone dialer...');
@@ -1314,16 +1324,14 @@
                 ? `Hello! I need support.\n\nCustomer: ${state.currentUser.displayName || state.currentUser.email}`
                 : 'Hello! I need support.';
 
-            // Use official WhatsApp API URL
-            const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-            // iOS-compatible WhatsApp handling
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            if (isIOS) {
+            if (isMobile) {
                 window.location.href = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
                 setTimeout(() => {
                     window.open(whatsappUrl, '_blank');
-                }, 1000);
+                }, 1500);
             } else {
                 window.open(whatsappUrl, '_blank');
             }
@@ -1590,14 +1598,7 @@
                         </button>
                         
                         <div class="absolute left-1/2 transform -translate-x-1/2 cursor-pointer" onclick="state.activeTab = 'home'; state.viewingCategoryPage = false; render();">
-                            <div class="text-center leading-none">
-                                <div class="text-3xl sm:text-4xl font-black italic tracking-tight" style="background: linear-gradient(135deg, #b45af2 0%, #e94b8a 40%, #f97316 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-family: 'Montserrat', sans-serif; letter-spacing: -0.08em; line-height: 0.9;">
-                                    jb's
-                                </div>
-                                <div class="text-[7px] sm:text-[8px] text-gray-500 uppercase tracking-widest mt-0.5 font-light" style="font-family: 'Lato', sans-serif; letter-spacing: 0.2em;">
-                                    the fashion kingdom
-                                </div>
-                            </div>
+                            <img src="file:///C:/Users/Jolly/.gemini/antigravity/brain/1a6316fe-b582-432b-8825-d078bed7f95c/uploaded_media_1769335206969.jpg" alt="JB'S" class="h-16 sm:h-20 w-auto object-contain">
                         </div>
                         
                         
@@ -1634,23 +1635,17 @@
                             <!-- Slide 1 -->
                             <div class="w-1/3 relative h-full">
                                 <img src="${siteImages.carousel.slide1}" class="absolute inset-0 w-full h-full object-cover">
-                                <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
-                                    <div class="text-center px-6 max-w-3xl">
-                                        <h1 class="brand-text text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 text-white leading-tight">
-                                            THE EMPIRE
-                                        </h1>
-                                        <h1 class="brand-text text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 text-white leading-tight">
-                                            STANDARD OF
-                                        </h1>
-                                        <h1 class="brand-text text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 text-white leading-tight">
-                                            EXCELLENCE
-                                        </h1>
-                                        <p class="text-white/90 text-base sm:text-lg mb-8 font-light max-w-2xl mx-auto">
-                                            premium men's suits, tuxedos & wedding suites tailored to perfection
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end justify-start pb-16 pl-8 sm:pl-16">
+                                    <div class="text-left max-w-2xl animate-slide-in-left">
+                                        <h2 class="text-white text-3xl sm:text-5xl font-light tracking-wide mb-4 leading-tight" style="font-family: 'Bodoni Moda', serif;">
+                                            The Empire<br><span class="font-bold italic">Standard</span>
+                                        </h2>
+                                        <p class="text-gray-200 text-sm sm:text-base font-light opacity-90 mb-8 border-l-2 border-white/50 pl-4">
+                                            Premium men's suits, tuxedos & wedding suites<br>tailored to perfection
                                         </p>
                                         <button onclick="document.getElementById('products-grid').scrollIntoView({behavior: 'smooth'})" 
-                                                class="bg-white text-black px-12 py-4 font-bold uppercase text-xs tracking-[0.2em] hover:bg-gray-100 transition-colors">
-                                            Shop Now
+                                                class="bg-white text-black px-8 py-3 rounded-sm text-xs font-bold uppercase tracking-[0.2em] hover:bg-gray-100 transition-all transform hover:translate-x-2">
+                                            Shop Collection
                                         </button>
                                     </div>
                                 </div>
@@ -1659,41 +1654,22 @@
                             <!-- Slide 2 -->
                             <div class="w-1/3 relative h-full">
                                 <img src="${siteImages.carousel.slide2}" class="absolute inset-0 w-full h-full object-cover">
-                                <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
-                                    <div class="text-center px-6 max-w-3xl">
-                                        <h1 class="brand-text text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 text-white leading-tight">
-                                            ELEVATE
-                                        </h1>
-                                        <h1 class="brand-text text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 text-white leading-tight">
-                                            YOUR
-                                        </h1>
-                                        <h1 class="brand-text text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 text-white leading-tight">
-                                            CLASS
-                                        </h1>
-                                        <p class="text-white/90 text-base sm:text-lg mb-8 font-light max-w-2xl mx-auto">
-                                            where style meets sophistication
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end justify-start pb-16 pl-8 sm:pl-16">
+                                    <div class="text-left max-w-2xl animate-slide-in-left">
+                                        <h2 class="text-white text-3xl sm:text-5xl font-light tracking-wide mb-4 leading-tight" style="font-family: 'Bodoni Moda', serif;">
+                                            Elevate<br><span class="font-bold italic">Your Class</span>
+                                        </h2>
+                                        <p class="text-gray-200 text-sm sm:text-base font-light opacity-90 border-l-2 border-white/50 pl-4">
+                                            Where style meets sophistication
                                         </p>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Slide 3 -->
+                            <!-- Slide 3 (Plain Image) -->
                             <div class="w-1/3 relative h-full">
                                 <img src="${siteImages.carousel.slide3}" class="absolute inset-0 w-full h-full object-cover">
-                                <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
-                                    <div class="text-center px-6 max-w-3xl">
-                                        <h1 class="brand-text text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 text-white leading-tight">
-                                            NATIONWIDE<br>DELIVERY
-                                        </h1>
-                                        <p class="text-white/90 text-base sm:text-lg mb-8 font-light max-w-2xl mx-auto">
-                                            We deliver to all parts of Uganda
-                                        </p>
-                                        <div class="flex items-center justify-center gap-3 text-white text-lg font-semibold">
-                                            <i data-lucide="truck" class="w-6 h-6"></i>
-                                            <span>Fast & Reliable Service</span>
-                                        </div>
-                                    </div>
-                                </div>
+                                <!-- No text overlay as requested -->
                             </div>
                         </div>
                     </div>
@@ -2193,27 +2169,52 @@
                                         <button onclick="closeProductModal()" class="p-2 hover:bg-gray-100 rounded-full active:scale-90 transition-transform"><i data-lucide="x" class="w-6 h-6"></i></button>
                                     </div>
                                     <div class="p-0">
-                                        <div class="h-80 bg-gray-100 relative group">
-                                            <img src="${product.image}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://via.placeholder.com/800x800?text=No+Image';">
+                                        <!-- Main Image -->
+                                        <div class="h-80 bg-gray-100 relative group overflow-hidden">
+                                            <img id="main-product-image" src="${product.image}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-110" onerror="this.onerror=null; this.src='https://via.placeholder.com/800x800?text=No+Image';">
                                         </div>
+                                        
+                                        <!-- Thumbnail Images (4 images) -->
+                                        <div class="grid grid-cols-4 gap-2 p-2 bg-white">
+                                            ${(product.images || [product.image, product.image, product.image, product.image]).slice(0, 4).map((img, idx) => `
+                                                <div onclick="document.getElementById('main-product-image').src = '${img}'" 
+                                                     class="aspect-square bg-gray-50 rounded-lg overflow-hidden cursor-pointer border-2 border-transparent hover:border-amber-600 transition-all">
+                                                    <img src="${img}" class="w-full h-full object-cover">
+                                                </div>
+                                            `).join('')}
+                                        </div>
+
                                         <div class="p-6">
-                                            <h3 class="text-2xl font-bold mb-2">${product.name}</h3>
+                                            <h3 class="text-2xl font-bold mb-2 text-gray-900">${product.name}</h3>
+                                            <div class="flex items-baseline gap-3 mb-4">
+                                                <span class="text-2xl font-bold text-amber-700">${formatMoney(product.price)}</span>
+                                            </div>
+
                                             <div class="mb-6">
-                                                <h4 class="font-bold mb-3">Select Size:</h4>
+                                                <h4 class="font-bold mb-3 text-sm uppercase tracking-wider text-gray-500">Select Size:</h4>
                                                 <div class="grid grid-cols-4 gap-2">
                                                     ${product.sizes.map(size => `
-                                                        <button onclick="selectSize('${size}')" class="py-3 px-4 border-2 rounded-sm font-medium transition-all active:scale-95 ${state.selectedSize === size ? 'border-amber-700 bg-amber-50 text-amber-900' : 'border-gray-200 hover:border-amber-600'}">
+                                                        <button onclick="selectSize('${size}')" class="py-3 px-1 text-sm border-2 rounded-sm font-bold transition-all active:scale-95 ${state.selectedSize === size ? 'border-gray-900 bg-gray-900 text-white' : 'border-gray-200 text-gray-600 hover:border-gray-400'}">
                                                             ${size}
                                                         </button>
                                                     `).join('')}
                                                 </div>
                                             </div>
-                                            <button onclick="addToCartFromModal()" class="w-full bg-gray-900 text-white py-4 rounded-sm font-medium text-lg shadow-sm mb-3 hover:bg-gray-800 active:scale-95 transition-all uppercase tracking-wider">
-                                                Add to Cart
-                                            </button>
-                                            <button onclick='showOrderOptions(${JSON.stringify(product).replace(/'/g, "&#39;")}, "buy")' class="w-full bg-white border-2 border-gray-900 text-gray-900 py-4 rounded-sm font-medium text-lg hover:bg-gray-50 active:scale-95 transition-all uppercase tracking-wider">
-                                                ORDER
-                                            </button>
+
+                                            <!-- Direct Action Buttons -->
+                                            <div class="space-y-3">
+                                                <button onclick="state.orderProduct={...${JSON.stringify(product).replace(/"/g, "&quot;")}, context:'order'}; placeOrderViaWhatsApp()" 
+                                                        class="w-full bg-[#25D366] text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-[#128C7E] active:scale-95 transition-all flex items-center justify-center gap-2">
+                                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                                                    Order via WhatsApp
+                                                </button>
+                                                
+                                                <button onclick="placeOrderViaCall()" 
+                                                        class="w-full bg-gray-900 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-black active:scale-95 transition-all flex items-center justify-center gap-2">
+                                                    <i data-lucide="phone" class="w-6 h-6"></i>
+                                                    Call to Order
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -2625,28 +2626,51 @@
                                 ` : `
                                     <form onsubmit="event.preventDefault(); saveProduct(event);" class="space-y-4">
                                         <div class="bg-blue-50 rounded-xl p-4">
-                                            <label class="block text-sm font-medium mb-2">📸 Product Image</label>
+                                            <label class="block text-sm font-bold mb-3 text-blue-900 flex items-center gap-2">
+                                                <i data-lucide="images" class="w-4 h-4"></i>
+                                                Product Gallery (4 Images)
+                                            </label>
                                             
-                                            ${state.editingProduct.image ? `
-                                                <div class="mb-3">
-                                                    <img src="${state.editingProduct.image}" class="w-full h-48 object-cover rounded-lg border-2 border-blue-200">
-                                                    <div class="flex gap-2 mt-2">
-                                                        <button type="button" onclick="document.getElementById('product-image-upload').click()" class="flex-1 bg-blue-100 text-blue-700 py-2 px-3 rounded-lg text-sm font-medium hover:bg-blue-200 active:scale-95 transition-all">
-                                                            Change Image
-                                                        </button>
-                                                        <button type="button" onclick="removeProductImage()" class="bg-red-100 text-red-700 py-2 px-3 rounded-lg text-sm font-medium hover:bg-red-200 active:scale-95 transition-all">
-                                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            ` : `
-                                                <button type="button" onclick="document.getElementById('product-image-upload').click()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 flex items-center justify-center gap-2">
-                                                    <i data-lucide="image" class="w-5 h-5"></i>
-                                                    Choose from Gallery
-                                                </button>
-                                            `}
-                                            
-                                            <input type="file" id="product-image-upload" accept="image/*" class="hidden" onchange="handleProductImageUpload(event)">
+                                            <div class="grid grid-cols-2 gap-4">
+                                                ${[0, 1, 2, 3].map(idx => {
+                        // Get image from array or fallback to legacy 'image' property for index 0
+                        const img = (state.editingProduct.images && state.editingProduct.images[idx]) || (idx === 0 ? state.editingProduct.image : '');
+
+                        return `
+                                                        <div class="bg-white rounded-lg p-2 border-2 border-dashed ${img ? 'border-green-300' : 'border-gray-300 hover:border-blue-400'} transition-all">
+                                                            <div class="flex justify-between items-center mb-2 px-1">
+                                                                <span class="text-[10px] font-bold uppercase tracking-wider text-gray-500">
+                                                                    ${idx === 0 ? 'Main Image' : `View ${idx + 1}`}
+                                                                </span>
+                                                                ${img ? `
+                                                                    <button type="button" onclick="removeProductImage(${idx})" class="text-red-500 hover:bg-red-50 p-1 rounded transition-colors">
+                                                                        <i data-lucide="trash-2" class="w-3 h-3"></i>
+                                                                    </button>
+                                                                ` : ''}
+                                                            </div>
+                                                            
+                                                            ${img ? `
+                                                                <div class="relative group cursor-pointer" onclick="document.getElementById('prod-img-${idx}').click()">
+                                                                    <div class="aspect-[3/4] overflow-hidden rounded-md bg-gray-100">
+                                                                        <img src="${img}" class="w-full h-full object-cover transition-transform group-hover:scale-105">
+                                                                    </div>
+                                                                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity rounded-md">
+                                                                        <i data-lucide="upload" class="w-6 h-6 text-white"></i>
+                                                                    </div>
+                                                                </div>
+                                                            ` : `
+                                                                <button type="button" onclick="document.getElementById('prod-img-${idx}').click()" class="w-full aspect-[3/4] bg-gray-50 rounded-md flex flex-col items-center justify-center text-gray-400 hover:bg-blue-50 hover:text-blue-600 transition-all group">
+                                                                    <div class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                                                                        <i data-lucide="plus" class="w-5 h-5"></i>
+                                                                    </div>
+                                                                    <span class="text-xs font-medium">Add Photo</span>
+                                                                </button>
+                                                            `}
+                                                            <input type="file" id="prod-img-${idx}" accept="image/*" class="hidden" onchange="handleProductImageUpload(event, ${idx})">
+                                                        </div>
+                                                    `;
+                    }).join('')}
+                                            </div>
                                         </div>
                                         <div>
                                             <label class="block text-sm font-medium mb-1">Product Name/Description</label>
@@ -2832,8 +2856,18 @@
             // Open WhatsApp with the message
             const phoneNumber = '256700742469';
             const message = `${messageText}\n\nFrom: ${state.currentUser.displayName || state.currentUser.email}`;
+
             const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-            window.open(whatsappUrl, '_blank');
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+            if (isMobile) {
+                window.location.href = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+                setTimeout(() => {
+                    window.open(whatsappUrl, '_blank');
+                }, 1500);
+            } else {
+                window.open(whatsappUrl, '_blank');
+            }
 
             form.reset();
             showToast('Opening WhatsApp...');
@@ -3112,7 +3146,7 @@
             render();
         }
 
-        async function handleProductImageUpload(event) {
+        async function handleProductImageUpload(event, index) {
             if (!state.isAdmin) {
                 showToast('Admin access required');
                 return;
@@ -3150,8 +3184,18 @@
 
                 console.log('✅ Product image uploaded to Cloudinary!', result);
 
-                // Store Cloudinary URL
-                state.editingProduct.image = result.url;
+                // Initialize images array if it doesn't exist
+                if (!state.editingProduct.images) {
+                    state.editingProduct.images = [];
+                }
+
+                // Store Cloudinary URL at specific index
+                state.editingProduct.images[index] = result.url;
+
+                // If index 0 (main image), also update the main image property
+                if (index === 0) {
+                    state.editingProduct.image = result.url;
+                }
 
                 showToast('✅ Image uploaded successfully!');
 
@@ -3494,14 +3538,25 @@
             }
         }
 
-        function removeProductImage() {
+        function removeProductImage(index = 0) {
             if (!state.isAdmin) {
                 showToast('Admin access required');
                 return;
             }
 
             if (confirm('Remove product image?')) {
-                state.editingProduct.image = '';
+                // Ensure images array exists
+                if (!state.editingProduct.images) {
+                    state.editingProduct.images = [];
+                }
+
+                state.editingProduct.images[index] = '';
+
+                // If removing main image, update legacy property
+                if (index === 0) {
+                    state.editingProduct.image = '';
+                }
+
                 showToast('Image removed');
                 render();
             }
@@ -3557,8 +3612,18 @@
                     return;
                 }
 
+                // Ensure images array exists
+                if (!state.editingProduct.images) {
+                    state.editingProduct.images = [];
+                }
+
                 // Use uploaded image if available, otherwise show warning but allow save
                 let productImage = state.editingProduct.image;
+
+                // If main image is missing but we have images in array, use the first one
+                if ((!productImage || productImage === '') && state.editingProduct.images.length > 0 && state.editingProduct.images[0]) {
+                    productImage = state.editingProduct.images[0];
+                }
 
                 if (!productImage || productImage === '' || productImage.includes('loremflickr.com')) {
                     // No image uploaded - show warning but allow save with placeholder
@@ -3566,6 +3631,9 @@
                     productImage = `https://via.placeholder.com/800x800/e5e7eb/6b7280?text=${encodeURIComponent(formData.get('name'))}`;
                     showToast('⚠️ Product saved without image. Please upload an image and edit the product.');
                 }
+
+                // Sync images[0] with main image
+                state.editingProduct.images[0] = productImage;
 
                 console.log('💾 Saving product with image:', productImage);
 
@@ -3576,6 +3644,7 @@
                     price: parseInt(formData.get('price')),
                     category: formData.get('category'),
                     image: productImage,
+                    images: state.editingProduct.images, // Save the full images array
                     sizes: sizes,
                     rating: state.editingProduct.rating || '4.5',
                     reviews: state.editingProduct.reviews || Math.floor(Math.random() * 300) + 20
