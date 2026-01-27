@@ -910,11 +910,11 @@
         }
 
         // Load saved category images from Firestore (with localStorage fallback)
-        async function loadSavedImages() {
+        async function loadCategoryImages() {
             console.log('📸 Loading category images...');
 
             try {
-                // Try Firestore first
+                // Try Firestore first for Source of Truth
                 if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
                     const db = firebase.firestore();
                     const snapshot = await db.collection('categories').get();
@@ -931,14 +931,15 @@
                         // Save to localStorage as backup
                         localStorage.setItem('jbs_categories', JSON.stringify(categories));
                         console.log('✅ Category images loaded from Firestore');
+                        render(); // Force render updates
                         return;
                     }
                 }
             } catch (error) {
-                console.warn('⚠️ Failed to load from Firestore:', error.message);
+                console.warn('⚠️ Failed to load categories from Firestore:', error.message);
             }
 
-            // Fallback to localStorage
+            // Fallback to localStorage if Firestore failed or empty
             try {
                 const savedCategories = localStorage.getItem('jbs_categories');
                 if (savedCategories) {
@@ -950,6 +951,7 @@
                         }
                     });
                     console.log('✅ Category images loaded from localStorage');
+                    render();
                 }
             } catch (error) {
                 console.warn('⚠️ Failed to load category images:', error);
@@ -1004,7 +1006,7 @@
                 try {
                     localStorage.setItem('jbs_categories', JSON.stringify(categories));
                     console.log('✅ Saved to localStorage (Offline Mode)');
-                    showToast('Saved locally only (Cloud sync failed: ' + error.message + ')');
+                    alert('⚠️ Save failed! Changes saved locally only. \nError: ' + error.message + '\n\nPlease check your internet and click "Save" again to sync to cloud.');
                     state.showCategoryEditor = false;
                     render();
                 } catch (e) {
@@ -1018,6 +1020,12 @@
         async function handleCategoryImageUpload(event, categoryId) {
             if (!state.isAdmin) {
                 showToast('Admin access required');
+                return;
+            }
+
+            if (!navigator.onLine) {
+                alert('No internet connection. Cannot upload to Cloud. Please check your connection.');
+                if (event.target) event.target.value = '';
                 return;
             }
 
@@ -1048,53 +1056,14 @@
                 }
             } catch (cloudError) {
                 console.error('Cloudinary upload failed:', cloudError);
-                showToast('Cloud upload failed. Using local optimization...');
+                // Force error - do NOT fallback for admin since it breaks public sync
+                alert('Cloudinary upload failed. Check network or console. Image NOT saved to cloud.');
+                return;
             }
 
-            // FALLBACK TO LOCAL RESIZE/COMPRESSION (Backup Method)
-            showToast('Processing image locally...');
 
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const img = new Image();
-                img.onload = function () {
-                    const canvas = document.createElement('canvas');
-                    let width = img.width;
-                    let height = img.height;
 
-                    // Resize if larger than 800px (Good balance for quality/size)
-                    const MAX_SIZE = 800;
-                    if (width > height) {
-                        if (width > MAX_SIZE) {
-                            height *= MAX_SIZE / width;
-                            width = MAX_SIZE;
-                        }
-                    } else {
-                        if (height > MAX_SIZE) {
-                            width *= MAX_SIZE / height;
-                            height = MAX_SIZE;
-                        }
-                    }
 
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-
-                    // Compress to JPG 0.7 quality to save space
-                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-
-                    // Update category
-                    const category = categories.find(c => c.id === categoryId);
-                    if (category) {
-                        category.image = dataUrl;
-                        render(); // Show preview immediately
-                        showToast('Image processed! Click Save.');
-                    }
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
         }
 
         async function initializeApp() {
@@ -1120,8 +1089,14 @@
             // RENDER IMMEDIATELY with loaded images
             render();
 
-            // Load saved images from Firestore (background update)
-            loadSavedImages().then(() => render());
+            // Load saved images from Firestore (Parallel loading)
+            Promise.all([
+                loadCategoryImages(),
+                loadSiteImages()
+            ]).then(() => {
+                console.log('✅ All cloud images loaded');
+                render();
+            });
 
             // Load products from storage (Firestore or localStorage)
             await loadProducts();
@@ -3346,19 +3321,21 @@
             }
         }
 
-        // Load saved images on startup
-        async function loadSavedImages() {
+        // Load saved site images (Carousel, Video, etc)
+        async function loadSiteImages() {
             try {
-                // First try localStorage
+                // First try localStorage for instant display
                 const savedImages = localStorage.getItem('jbs_site_images');
                 if (savedImages) {
                     const parsed = JSON.parse(savedImages);
                     Object.assign(siteImages.carousel, parsed.carousel || {});
                     Object.assign(siteImages.branches, parsed.branches || {});
                     Object.assign(siteImages.articles, parsed.articles || {});
+                    if (parsed.video) siteImages.video = parsed.video; // Load video
+                    render();
                 }
 
-                // Then try Firebase for latest version
+                // Then try Firestore for latest version
                 if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
                     const db = firebase.firestore();
                     const doc = await db.collection('settings').doc('siteImages').get();
@@ -3367,8 +3344,12 @@
                         Object.assign(siteImages.carousel, data.carousel || {});
                         Object.assign(siteImages.branches, data.branches || {});
                         Object.assign(siteImages.articles, data.articles || {});
+                        if (data.video) siteImages.video = data.video; // Sync video
+
                         // Update localStorage with Firebase data
                         localStorage.setItem('jbs_site_images', JSON.stringify(siteImages));
+                        console.log('✅ Site images synced from Firestore');
+                        render();
                     }
                 }
             } catch (error) {
@@ -3390,6 +3371,12 @@
         async function handleProductImageUpload(event) {
             if (!state.isAdmin) {
                 showToast('Admin access required');
+                return;
+            }
+
+            if (!navigator.onLine) {
+                alert('No internet connection. Cannot upload to cloud.');
+                event.target.value = '';
                 return;
             }
 
@@ -3455,6 +3442,12 @@
                 return;
             }
 
+            if (!navigator.onLine) {
+                alert('No internet connection. Cannot upload to cloud.');
+                event.target.value = '';
+                return;
+            }
+
             const file = event.target.files[0];
             if (!file) return;
 
@@ -3498,7 +3491,9 @@
 
             } catch (error) {
                 console.error('❌ Error uploading image:', error);
-                alert('Failed to upload image: ' + error.message);
+
+                // FORCE FAIL - Do not fallback to local base64 to ensure sync consistency
+                alert('Cloudinary upload failed: ' + error.message + '\n\nPlease check your internet connection and try again. Image NOT saved.');
                 event.target.value = '';
             }
         }
@@ -3591,6 +3586,12 @@
                 return;
             }
 
+            if (!navigator.onLine) {
+                alert('No internet connection. Cannot upload video to Cloud.');
+                if (event.target) event.target.value = '';
+                return;
+            }
+
             const file = event.target.files[0];
             if (!file) return;
 
@@ -3656,16 +3657,19 @@
 
                 // Save to Firestore if available
 
+                // Save to Firestore if available
                 if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
                     try {
-                        const db = firebase.firestore();
-                        await db.collection('settings').doc('siteImages').set({
-                            images: siteImages,
-                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                        console.log('☁️ Video saved to Firestore');
+                        const user = firebase.auth().currentUser;
+                        if (user && user.email === ADMIN_EMAIL) {
+                            const db = firebase.firestore();
+                            // CORRECTED: Save siteImages directly, NOT wrapped in { images: ... }
+                            await db.collection('settings').doc('siteImages').set(siteImages);
+                            console.log('☁️ Video saved to Firestore');
+                        }
                     } catch (firestoreError) {
-                        console.warn('⚠️ Firestore save failed (localStorage saved):', firestoreError.message);
+                        console.error('❌ Firestore save failed:', firestoreError);
+                        alert('Video uploaded to Cloudinary but failed to save to Database. Users will NOT see this change. Check internet.');
                     }
                 }
 
@@ -3694,8 +3698,12 @@
         }
 
         async function saveAdminImages() {
-            if (!state.isAdmin) {
-                showToast('Admin access required');
+            // Strict Admin Check
+            const user = firebase.auth().currentUser;
+            const isRealAdmin = user && user.email === ADMIN_EMAIL;
+
+            if (!state.isAdmin || !isRealAdmin) {
+                showToast('Admin access required defined. Please login.');
                 return;
             }
 
@@ -3720,7 +3728,9 @@
 
             } catch (error) {
                 console.error('❌ Error saving images:', error);
-                alert('Failed to save images: ' + error.message);
+                // Fallback: Ensure localStorage is at least updated
+                localStorage.setItem('jbs_site_images', JSON.stringify(siteImages));
+                showToast('Saved locally only (Cloud error: ' + error.message + ')');
             }
         }
 
@@ -3788,7 +3798,8 @@
                         await db.collection('products').doc(String(productData.id)).set(productData);
                         console.log('☁️ Saved to Firestore');
                     } catch (firestoreError) {
-                        console.warn('⚠️ Firestore save failed (localStorage saved):', firestoreError.message);
+                        console.error('❌ Firestore save failed:', firestoreError);
+                        alert('Product saved locally but failed to send to Cloud. Others will NOT see it. Check internet.');
                     }
                 }
 
