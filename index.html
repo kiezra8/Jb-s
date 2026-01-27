@@ -958,7 +958,14 @@
 
         // Save category images to Firestore AND localStorage
         async function saveCategoryImages() {
+            if (!state.isAdmin) {
+                showToast('Admin access required');
+                return;
+            }
+
             try {
+                showToast('Saving changes...');
+
                 // Save to Firestore
                 if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
                     const db = firebase.firestore();
@@ -980,8 +987,15 @@
                 // Also save to localStorage as backup
                 localStorage.setItem('jbs_categories', JSON.stringify(categories));
                 console.log('✅ Category images saved to localStorage');
+
+                showToast('✅ Images saved successfully!');
+                state.showCategoryEditor = false;
+                render();
+
             } catch (error) {
                 console.error('⚠️ Failed to save category images:', error);
+                showToast('Save failed: ' + error.message);
+
                 // At least try localStorage
                 try {
                     localStorage.setItem('jbs_categories', JSON.stringify(categories));
@@ -991,17 +1005,118 @@
             }
         }
 
+        // Handle Category Image Upload (Cloudinary > Resize Fallback)
+        async function handleCategoryImageUpload(event, categoryId) {
+            if (!state.isAdmin) {
+                showToast('Admin access required');
+                return;
+            }
+
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // TRY CLOUDINARY UPLOAD FIRST (Like Products/Site Images)
+            try {
+                if (typeof uploadToCloudinary === 'function') {
+                    showToast('Uploading to Cloud...');
+
+                    const result = await uploadToCloudinary(file, {
+                        folder: 'jbs-tailored/categories',
+                        tags: ['category', categoryId]
+                    });
+
+                    console.log('✅ Cloudinary upload success:', result);
+
+                    const category = categories.find(c => c.id === categoryId);
+                    if (category) {
+                        category.image = result.url;
+                        render();
+                        showToast('✅ Upload complete! Click Save.');
+                    }
+                    return; // Exit if successful
+                } else {
+                    console.warn('uploadToCloudinary function not found, using fallback');
+                }
+            } catch (cloudError) {
+                console.error('Cloudinary upload failed:', cloudError);
+                showToast('Cloud upload failed. Using local optimization...');
+            }
+
+            // FALLBACK TO LOCAL RESIZE/COMPRESSION (Backup Method)
+            showToast('Processing image locally...');
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = new Image();
+                img.onload = function () {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+
+                    // Resize if larger than 800px (Good balance for quality/size)
+                    const MAX_SIZE = 800;
+                    if (width > height) {
+                        if (width > MAX_SIZE) {
+                            height *= MAX_SIZE / width;
+                            width = MAX_SIZE;
+                        }
+                    } else {
+                        if (height > MAX_SIZE) {
+                            width *= MAX_SIZE / height;
+                            height = MAX_SIZE;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Compress to JPG 0.7 quality to save space
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+
+                    // Update category
+                    const category = categories.find(c => c.id === categoryId);
+                    if (category) {
+                        category.image = dataUrl;
+                        render(); // Show preview immediately
+                        showToast('Image processed! Click Save.');
+                    }
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
         async function initializeApp() {
             console.log('🚀 Initializing app...');
 
-            // RENDER IMMEDIATELY for instant UI feedback
+            // INSTANT LOAD: Load from localStorage synchronously BEFORE first render
+            try {
+                const savedCategories = localStorage.getItem('jbs_categories');
+                if (savedCategories) {
+                    const saved = JSON.parse(savedCategories);
+                    categories.forEach(cat => {
+                        const savedCat = saved.find(s => s.id === cat.id);
+                        if (savedCat && savedCat.image) {
+                            cat.image = savedCat.image;
+                        }
+                    });
+                    console.log('⚡ Instantly loaded category images from localStorage');
+                }
+            } catch (e) {
+                console.warn('Failed instant load:', e);
+            }
+
+            // RENDER IMMEDIATELY with loaded images
             render();
 
-            // Load saved images first
-            await loadSavedImages();
+            // Load saved images from Firestore (background update)
+            loadSavedImages().then(() => render());
 
             // Load products from storage (Firestore or localStorage)
             await loadProducts();
+
 
             // NO AUTO-GENERATION - Products must be added manually through admin panel
             if (products.length === 0) {
@@ -3392,94 +3507,7 @@
             }
         }
 
-        // Category Image Upload Functions
-        async function handleCategoryImageUpload(event, categoryId) {
-            if (!state.isAdmin) {
-                showToast('Admin access required');
-                return;
-            }
 
-            const file = event.target.files[0];
-            if (!file) return;
-
-            if (!file.type.startsWith('image/')) {
-                alert('Please select an image file');
-                event.target.value = '';
-                return;
-            }
-
-            if (file.size > 5 * 1024 * 1024) {
-                alert('Image size must be less than 5MB');
-                event.target.value = '';
-                return;
-            }
-
-            try {
-                console.log(`🚀 Uploading category image to Cloudinary...`);
-                showToast('Uploading category image...');
-
-                // Upload to Cloudinary
-                const result = await uploadToCloudinary(file, {
-                    folder: 'jbs-tailored/categories',
-                    tags: ['category', categoryId]
-                });
-
-                console.log('✅ Category image uploaded!', result);
-
-                // Update category image
-                const category = categories.find(c => c.id === categoryId);
-                if (category) {
-                    category.image = result.url;
-                    showToast('✅ Image uploaded! Click "Save Changes" to apply.');
-                }
-
-                event.target.value = '';
-                render();
-                if (typeof lucide !== 'undefined') {
-                    lucide.createIcons();
-                }
-
-            } catch (error) {
-                console.error('❌ Error uploading category image:', error);
-                alert('Failed to upload image: ' + error.message);
-                event.target.value = '';
-            }
-        }
-
-        async function saveCategoryImages() {
-            if (!state.isAdmin) {
-                showToast('Admin access required');
-                return;
-            }
-
-            try {
-                showToast('Saving category images...');
-
-                // Save to localStorage
-                localStorage.setItem('jbs_categories', JSON.stringify(categories));
-
-                // Save to Firestore if available
-                if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
-                    try {
-                        const db = firebase.firestore();
-                        await db.collection('settings').doc('categories').set({
-                            categories: categories,
-                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                        console.log('☁️ Categories saved to Firestore');
-                    } catch (firestoreError) {
-                        console.warn('⚠️ Firestore save failed (localStorage saved):', firestoreError.message);
-                    }
-                }
-
-                showToast('✅ Category images saved successfully!');
-                state.showCategoryEditor = false;
-                render();
-            } catch (error) {
-                console.error('❌ Error saving categories:', error);
-                alert('Failed to save categories: ' + error.message);
-            }
-        }
 
         // Video Compression Function
         async function compressVideo(file) {
