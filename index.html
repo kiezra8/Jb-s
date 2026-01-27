@@ -400,22 +400,6 @@
             }
         }
 
-        @keyframes slideInLeft {
-            from {
-                transform: translateX(-100%);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        .animate-slide-in-left {
-            animation: slideInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
         @keyframes slideInRight {
             from {
                 transform: translateX(100%);
@@ -639,7 +623,7 @@
         // ========================================
         // IMAGE CONFIGURATION - Change URLs here
         // ========================================
-        const DEFAULT_IMAGES = {
+        const siteImages = JSON.parse(localStorage.getItem('jbs_site_images')) || {
             // Carousel Images
             carousel: {
                 slide1: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPOFiy02Gf6Xwbf1SaNg1OSC7dNru3YqHERA&s',
@@ -661,26 +645,6 @@
             }
         };
 
-        // Robust initialization: Merge stored images with defaults to prevent undefined properties
-        let storedImages = {};
-        try {
-            const storedStr = localStorage.getItem('jbs_site_images');
-            if (storedStr) storedImages = JSON.parse(storedStr);
-        } catch (e) {
-            console.warn('Resetting corrupt image settings:', e);
-            localStorage.removeItem('jbs_site_images');
-        }
-
-        const siteImages = {
-            ...DEFAULT_IMAGES,
-            ...storedImages,
-            // Deep merge critical sections to ensure sub-properties (like carousel.slide1) exist
-            branding: { ...DEFAULT_IMAGES.branding, ...(storedImages.branding || {}) },
-            carousel: { ...DEFAULT_IMAGES.carousel, ...(storedImages.carousel || {}) },
-            branches: { ...DEFAULT_IMAGES.branches, ...(storedImages.branches || {}) },
-            articles: { ...DEFAULT_IMAGES.articles, ...(storedImages.articles || {}) }
-        };
-
         const state = {
             activeTab: 'home',
             cart: JSON.parse(localStorage.getItem('jbs_cart') || '[]'),
@@ -696,7 +660,6 @@
             showContactOptions: false,
             showAdminImagePanel: false,
             showCategoryEditor: false,
-            showContactEditor: false,
             editingCategory: null,
             showProductManagement: false,
             editingProduct: null,
@@ -909,198 +872,17 @@
             products = [];
         }
 
-        // Load saved category images from Firestore (with localStorage fallback)
-        async function loadCategoryImages() {
-            console.log('📸 Loading category images...');
-
-            try {
-                // Try Firestore first for Source of Truth
-                if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
-                    const db = firebase.firestore();
-                    const snapshot = await db.collection('categories').get();
-
-                    if (!snapshot.empty) {
-                        snapshot.docs.forEach(doc => {
-                            const data = doc.data();
-                            const category = categories.find(c => c.id === doc.id);
-                            if (category && data.image) {
-                                category.image = data.image;
-                            }
-                        });
-
-                        // Save to localStorage as backup
-                        localStorage.setItem('jbs_categories', JSON.stringify(categories));
-                        console.log('✅ Category images loaded from Firestore');
-                        render(); // Force render updates
-                        return;
-                    }
-                }
-            } catch (error) {
-                console.warn('⚠️ Failed to load categories from Firestore:', error.message);
-            }
-
-            // Fallback to localStorage if Firestore failed or empty
-            try {
-                const savedCategories = localStorage.getItem('jbs_categories');
-                if (savedCategories) {
-                    const saved = JSON.parse(savedCategories);
-                    categories.forEach(cat => {
-                        const savedCat = saved.find(s => s.id === cat.id);
-                        if (savedCat && savedCat.image) {
-                            cat.image = savedCat.image;
-                        }
-                    });
-                    console.log('✅ Category images loaded from localStorage');
-                    render();
-                }
-            } catch (error) {
-                console.warn('⚠️ Failed to load category images:', error);
-            }
-        }
-
-        // Save category images to Firestore AND localStorage
-        async function saveCategoryImages() {
-            // Strict Admin Check: Verify against Firebase Auth, not just Client State
-            const user = firebase.auth().currentUser;
-            const isRealAdmin = user && user.email === ADMIN_EMAIL;
-
-            if (!state.isAdmin || !isRealAdmin) {
-                showToast('Admin access required completely. Please ensure you are logged in as Admin.');
-                console.warn('Blocked save attempt: User is not authenticated as admin in Firebase.');
-                return;
-            }
-
-            try {
-                showToast('Saving changes...');
-
-                // Save to Firestore
-                if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
-                    const db = firebase.firestore();
-                    const batch = db.batch();
-
-                    categories.forEach(cat => {
-                        const docRef = db.collection('categories').doc(cat.id);
-                        batch.set(docRef, {
-                            id: cat.id,
-                            name: cat.name,
-                            image: cat.image
-                        }, { merge: true });
-                    });
-
-                    await batch.commit();
-                    console.log('✅ Category images saved to Firestore');
-                }
-
-                // Also save to localStorage as backup
-                localStorage.setItem('jbs_categories', JSON.stringify(categories));
-                console.log('✅ Category images saved to localStorage');
-
-                showToast('✅ Images saved successfully!');
-                state.showCategoryEditor = false;
-                render();
-
-            } catch (error) {
-                console.error('⚠️ Failed to save category images:', error);
-
-                // At least try localStorage
-                try {
-                    localStorage.setItem('jbs_categories', JSON.stringify(categories));
-                    console.log('✅ Saved to localStorage (Offline Mode)');
-                    alert('⚠️ Save failed! Changes saved locally only. \nError: ' + error.message + '\n\nPlease check your internet and click "Save" again to sync to cloud.');
-                    state.showCategoryEditor = false;
-                    render();
-                } catch (e) {
-                    console.error('Failed to save to localStorage too:', e);
-                    showToast('Save failed completely: ' + error.message);
-                }
-            }
-        }
-
-        // Handle Category Image Upload (Cloudinary > Resize Fallback)
-        async function handleCategoryImageUpload(event, categoryId) {
-            if (!state.isAdmin) {
-                showToast('Admin access required');
-                return;
-            }
-
-            if (!navigator.onLine) {
-                alert('No internet connection. Cannot upload to Cloud. Please check your connection.');
-                if (event.target) event.target.value = '';
-                return;
-            }
-
-            const file = event.target.files[0];
-            if (!file) return;
-
-            // TRY CLOUDINARY UPLOAD FIRST (Like Products/Site Images)
-            try {
-                if (typeof uploadToCloudinary === 'function') {
-                    showToast('Uploading to Cloud...');
-
-                    const result = await uploadToCloudinary(file, {
-                        folder: 'jbs-tailored/categories',
-                        tags: ['category', categoryId]
-                    });
-
-                    console.log('✅ Cloudinary upload success:', result);
-
-                    const category = categories.find(c => c.id === categoryId);
-                    if (category) {
-                        category.image = result.url;
-                        render();
-                        showToast('✅ Upload complete! Click Save.');
-                    }
-                    return; // Exit if successful
-                } else {
-                    console.warn('uploadToCloudinary function not found, using fallback');
-                }
-            } catch (cloudError) {
-                console.error('Cloudinary upload failed:', cloudError);
-                // Force error - do NOT fallback for admin since it breaks public sync
-                alert('Cloudinary upload failed. Check network or console. Image NOT saved to cloud.');
-                return;
-            }
-
-
-
-
-        }
-
         async function initializeApp() {
             console.log('🚀 Initializing app...');
 
-            // INSTANT LOAD: Load from localStorage synchronously BEFORE first render
-            try {
-                const savedCategories = localStorage.getItem('jbs_categories');
-                if (savedCategories) {
-                    const saved = JSON.parse(savedCategories);
-                    categories.forEach(cat => {
-                        const savedCat = saved.find(s => s.id === cat.id);
-                        if (savedCat && savedCat.image) {
-                            cat.image = savedCat.image;
-                        }
-                    });
-                    console.log('⚡ Instantly loaded category images from localStorage');
-                }
-            } catch (e) {
-                console.warn('Failed instant load:', e);
-            }
-
-            // RENDER IMMEDIATELY with loaded images
+            // RENDER IMMEDIATELY for instant UI feedback
             render();
 
-            // Load saved images from Firestore (Parallel loading)
-            Promise.all([
-                loadCategoryImages(),
-                loadSiteImages()
-            ]).then(() => {
-                console.log('✅ All cloud images loaded');
-                render();
-            });
+            // Load saved images first
+            await loadSavedImages();
 
             // Load products from storage (Firestore or localStorage)
             await loadProducts();
-
 
             // NO AUTO-GENERATION - Products must be added manually through admin panel
             if (products.length === 0) {
@@ -1421,7 +1203,7 @@
         // REMOVED: Duplicate seedDatabase function
 
         function formatMoney(amount) {
-            return '$' + amount.toLocaleString('en-US');
+            return 'UGX ' + amount.toLocaleString('en-UG');
         }
 
         function saveState() {
@@ -1750,7 +1532,7 @@
                         <!-- Price Display (Empire Style) -->
                         <div class="flex items-center gap-2">
                             <span class="text-base font-bold text-black">${formatMoney(salePrice)}</span>
-                            <span class="text-xs text-red-500 line-through">${formatMoney(originalPrice)}</span>
+                            <span class="text-xs text-gray-400 line-through">${formatMoney(originalPrice)}</span>
                         </div>
                     </div>
                 </div>
@@ -1802,13 +1584,20 @@
             return `
                 <!-- Empire Style Header -->
                 <header class="sticky top-0 bg-white border-b border-gray-200 z-50">
-                    <div class="px-2 sm:px-3 py-2 flex items-center justify-between max-w-7xl mx-auto">
+                    <div class="px-2 sm:px-3 py-1.5 flex items-center justify-between max-w-7xl mx-auto">
                         <button onclick="state.showMenu = true; render();" class="p-2 hover:bg-gray-50 transition-colors -ml-2">
                             <i data-lucide="menu" class="w-5 h-5 text-gray-900"></i>
                         </button>
                         
-                        <div class="absolute left-1/2 transform -translate-x-1/2 cursor-pointer flex items-center justify-center overflow-hidden h-[45px] sm:h-[50px]" onclick="state.activeTab = 'home'; state.viewingCategoryPage = false; render();">
-                            <img src="logo.jpeg" alt="JB'S TAILORED" class="h-[65px] sm:h-[75px] w-auto max-w-none object-cover object-top -mt-1" style="filter: brightness(1.15) contrast(1.2) saturate(1.15);">
+                        <div class="absolute left-1/2 transform -translate-x-1/2 cursor-pointer" onclick="state.activeTab = 'home'; state.viewingCategoryPage = false; render();">
+                            <div class="text-center leading-none">
+                                <div class="text-3xl sm:text-4xl font-black italic tracking-tight" style="background: linear-gradient(135deg, #b45af2 0%, #e94b8a 40%, #f97316 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-family: 'Montserrat', sans-serif; letter-spacing: -0.08em; line-height: 0.9;">
+                                    jb's
+                                </div>
+                                <div class="text-[7px] sm:text-[8px] text-gray-500 uppercase tracking-widest mt-0.5 font-light" style="font-family: 'Lato', sans-serif; letter-spacing: 0.2em;">
+                                    the fashion kingdom
+                                </div>
+                            </div>
                         </div>
                         
                         
@@ -1840,17 +1629,29 @@
 
                 <div class="flex-1 overflow-y-auto bg-white pb-20 animate-fade-in">
                     <!-- Empire Animated Hero Carousel -->
-                    <!-- Empire Animated Hero Carousel -->
                     <div class="relative h-[450px] sm:h-[600px] w-full overflow-hidden">
                         <div class="flex w-[300%] h-full animate-slide">
                             <!-- Slide 1 -->
                             <div class="w-1/3 relative h-full">
                                 <img src="${siteImages.carousel.slide1}" class="absolute inset-0 w-full h-full object-cover">
-                                <div class="absolute inset-0 bg-black/40 flex items-end justify-start pb-12 pl-8 sm:pl-16">
-                                    <div class="text-left px-6 max-w-4xl">
-                                        <h1 class="brand-text text-lg sm:text-xl lg:text-2xl font-light text-white leading-relaxed tracking-wide animate-slide-in-left lowercase">
-                                            crafting bespoke suits and wedding attire tailored to perfection for the modern gentleman
+                                <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                    <div class="text-center px-6 max-w-3xl">
+                                        <h1 class="brand-text text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 text-white leading-tight">
+                                            THE EMPIRE
                                         </h1>
+                                        <h1 class="brand-text text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 text-white leading-tight">
+                                            STANDARD OF
+                                        </h1>
+                                        <h1 class="brand-text text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 text-white leading-tight">
+                                            EXCELLENCE
+                                        </h1>
+                                        <p class="text-white/90 text-base sm:text-lg mb-8 font-light max-w-2xl mx-auto">
+                                            premium men's suits, tuxedos & wedding suites tailored to perfection
+                                        </p>
+                                        <button onclick="document.getElementById('products-grid').scrollIntoView({behavior: 'smooth'})" 
+                                                class="bg-white text-black px-12 py-4 font-bold uppercase text-xs tracking-[0.2em] hover:bg-gray-100 transition-colors">
+                                            Shop Now
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -1858,11 +1659,20 @@
                             <!-- Slide 2 -->
                             <div class="w-1/3 relative h-full">
                                 <img src="${siteImages.carousel.slide2}" class="absolute inset-0 w-full h-full object-cover">
-                                <div class="absolute inset-0 bg-black/40 flex items-end justify-start pb-12 pl-8 sm:pl-16">
-                                    <div class="text-left px-6 max-w-4xl">
-                                        <h1 class="brand-text text-lg sm:text-xl lg:text-2xl font-light text-white leading-relaxed tracking-wide animate-slide-in-left lowercase">
-                                            delivering premium office wear and casual elegance with impeccable attention to detail
+                                <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                    <div class="text-center px-6 max-w-3xl">
+                                        <h1 class="brand-text text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 text-white leading-tight">
+                                            ELEVATE
                                         </h1>
+                                        <h1 class="brand-text text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 text-white leading-tight">
+                                            YOUR
+                                        </h1>
+                                        <h1 class="brand-text text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 text-white leading-tight">
+                                            CLASS
+                                        </h1>
+                                        <p class="text-white/90 text-base sm:text-lg mb-8 font-light max-w-2xl mx-auto">
+                                            where style meets sophistication
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -1870,11 +1680,18 @@
                             <!-- Slide 3 -->
                             <div class="w-1/3 relative h-full">
                                 <img src="${siteImages.carousel.slide3}" class="absolute inset-0 w-full h-full object-cover">
-                                <div class="absolute inset-0 bg-black/40 flex items-end justify-start pb-12 pl-8 sm:pl-16">
-                                    <div class="text-left px-6 max-w-4xl">
-                                        <h1 class="brand-text text-lg sm:text-xl lg:text-2xl font-light text-white leading-relaxed tracking-wide animate-slide-in-left lowercase">
-                                            creating timeless fashion experiences with exceptional craftsmanship and personalized service
+                                <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                    <div class="text-center px-6 max-w-3xl">
+                                        <h1 class="brand-text text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 text-white leading-tight">
+                                            NATIONWIDE<br>DELIVERY
                                         </h1>
+                                        <p class="text-white/90 text-base sm:text-lg mb-8 font-light max-w-2xl mx-auto">
+                                            We deliver to all parts of Uganda
+                                        </p>
+                                        <div class="flex items-center justify-center gap-3 text-white text-lg font-semibold">
+                                            <i data-lucide="truck" class="w-6 h-6"></i>
+                                            <span>Fast & Reliable Service</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -2110,7 +1927,7 @@
 
                     <!-- Empire Features Section -->
                     <div class="bg-white py-6 px-2 sm:px-3">
-                        <div class="max-w-7xl mx-auto grid grid-cols-1 gap-8 text-center">
+                        <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
                             <div class="flex flex-col items-center">
                                 <div class="w-16 h-16 bg-black rounded-full flex items-center justify-center mb-4">
                                     <i data-lucide="headphones" class="w-8 h-8 text-white"></i>
@@ -2118,96 +1935,21 @@
                                 <h3 class="text-base font-bold uppercase tracking-wider mb-2">SUPPORT 24/7</h3>
                                 <p class="text-sm text-gray-600">Contact us 24 hours a day, 7 days a week</p>
                             </div>
-                        </div>
-                    </div>
 
-                    <!-- Contact & Social Media Section -->
-                    <div class="bg-gray-900 text-white py-12 px-4 sm:px-6">
-                        <div class="max-w-7xl mx-auto">
-                            ${state.isAdmin ? `
-                                <div class="text-center mb-6">
-                                    <button onclick="state.showContactEditor = true; render();" 
-                                            class="bg-amber-600 text-white px-4 py-2 rounded text-xs uppercase tracking-wider hover:bg-amber-700 transition-colors">
-                                        ✏️ Edit Contact Info & Social Media
-                                    </button>
+                            <div class="flex flex-col items-center">
+                                <div class="w-16 h-16 bg-black rounded-full flex items-center justify-center mb-4">
+                                    <i data-lucide="refresh-cw" class="w-8 h-8 text-white"></i>
                                 </div>
-                            ` : ''}
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-                                <!-- Contact Info -->
-                                <div>
-                                    <h3 class="text-lg font-bold uppercase tracking-wider mb-4">Contact Us</h3>
-                                    <div class="space-y-3 text-sm">
-                                        <div class="flex items-start gap-3">
-                                            <i data-lucide="phone" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
-                                            <div>
-                                                <p class="text-gray-300">Phone</p>
-                                                <a href="tel:${getContactInfo().phone}" class="hover:text-amber-500 transition-colors">${getContactInfo().phone}</a>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-start gap-3">
-                                            <i data-lucide="mail" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
-                                            <div>
-                                                <p class="text-gray-300">Email</p>
-                                                <a href="mailto:${getContactInfo().email}" class="hover:text-amber-500 transition-colors">${getContactInfo().email}</a>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-start gap-3">
-                                            <i data-lucide="map-pin" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
-                                            <div>
-                                                <p class="text-gray-300">Location</p>
-                                                <p>${getContactInfo().location}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Quick Links -->
-                                <div>
-                                    <h3 class="text-lg font-bold uppercase tracking-wider mb-4">Quick Links</h3>
-                                    <div class="space-y-2 text-sm">
-                                        <button onclick="state.activeTab = 'home'; state.viewingCategoryPage = false; render();" class="block hover:text-amber-500 transition-colors">Home</button>
-                                        <button onclick="state.activeTab = 'categories'; render();" class="block hover:text-amber-500 transition-colors">Categories</button>
-                                        <button onclick="state.activeTab = 'search'; render();" class="block hover:text-amber-500 transition-colors">Search</button>
-                                        <button onclick="state.showCart = true; render();" class="block hover:text-amber-500 transition-colors">Cart</button>
-                                    </div>
-                                </div>
-
-                                <!-- Social Media -->
-                                <div>
-                                    <h3 class="text-lg font-bold uppercase tracking-wider mb-4">Follow Us</h3>
-                                    <div class="flex gap-4">
-                                        ${getContactInfo().facebook ? `
-                                            <a href="${getContactInfo().facebook}" target="_blank" rel="noopener noreferrer" 
-                                               class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-amber-600 transition-colors">
-                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                                            </a>
-                                        ` : ''}
-                                        ${getContactInfo().instagram ? `
-                                            <a href="${getContactInfo().instagram}" target="_blank" rel="noopener noreferrer" 
-                                               class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-amber-600 transition-colors">
-                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-                                            </a>
-                                        ` : ''}
-                                        ${getContactInfo().twitter ? `
-                                            <a href="${getContactInfo().twitter}" target="_blank" rel="noopener noreferrer" 
-                                               class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-amber-600 transition-colors">
-                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
-                                            </a>
-                                        ` : ''}
-                                        ${getContactInfo().tiktok ? `
-                                            <a href="${getContactInfo().tiktok}" target="_blank" rel="noopener noreferrer" 
-                                               class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-amber-600 transition-colors">
-                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z"/></svg>
-                                            </a>
-                                        ` : ''}
-                                    </div>
-                                </div>
+                                <h3 class="text-base font-bold uppercase tracking-wider mb-2">2 DAYS RETURN</h3>
+                                <p class="text-sm text-gray-600">Simply return it within 2 days for an exchange</p>
                             </div>
 
-                            <!-- Copyright -->
-                            <div class="border-t border-gray-700 pt-6 text-center text-sm text-gray-400">
-                                <p>&copy; ${new Date().getFullYear()} JB'S TAILORED. All rights reserved.</p>
+                            <div class="flex flex-col items-center">
+                                <div class="w-16 h-16 bg-black rounded-full flex items-center justify-center mb-4">
+                                    <i data-lucide="shield-check" class="w-8 h-8 text-white"></i>
+                                </div>
+                                <h3 class="text-base font-bold uppercase tracking-wider mb-2">100% PAYMENT SECURE</h3>
+                                <p class="text-sm text-gray-600">We ensure secure payment with PEV</p>
                             </div>
                         </div>
                     </div>
@@ -3321,21 +3063,19 @@
             }
         }
 
-        // Load saved site images (Carousel, Video, etc)
-        async function loadSiteImages() {
+        // Load saved images on startup
+        async function loadSavedImages() {
             try {
-                // First try localStorage for instant display
+                // First try localStorage
                 const savedImages = localStorage.getItem('jbs_site_images');
                 if (savedImages) {
                     const parsed = JSON.parse(savedImages);
                     Object.assign(siteImages.carousel, parsed.carousel || {});
                     Object.assign(siteImages.branches, parsed.branches || {});
                     Object.assign(siteImages.articles, parsed.articles || {});
-                    if (parsed.video) siteImages.video = parsed.video; // Load video
-                    render();
                 }
 
-                // Then try Firestore for latest version
+                // Then try Firebase for latest version
                 if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
                     const db = firebase.firestore();
                     const doc = await db.collection('settings').doc('siteImages').get();
@@ -3344,12 +3084,8 @@
                         Object.assign(siteImages.carousel, data.carousel || {});
                         Object.assign(siteImages.branches, data.branches || {});
                         Object.assign(siteImages.articles, data.articles || {});
-                        if (data.video) siteImages.video = data.video; // Sync video
-
                         // Update localStorage with Firebase data
                         localStorage.setItem('jbs_site_images', JSON.stringify(siteImages));
-                        console.log('✅ Site images synced from Firestore');
-                        render();
                     }
                 }
             } catch (error) {
@@ -3371,12 +3107,6 @@
         async function handleProductImageUpload(event) {
             if (!state.isAdmin) {
                 showToast('Admin access required');
-                return;
-            }
-
-            if (!navigator.onLine) {
-                alert('No internet connection. Cannot upload to cloud.');
-                event.target.value = '';
                 return;
             }
 
@@ -3442,12 +3172,6 @@
                 return;
             }
 
-            if (!navigator.onLine) {
-                alert('No internet connection. Cannot upload to cloud.');
-                event.target.value = '';
-                return;
-            }
-
             const file = event.target.files[0];
             if (!file) return;
 
@@ -3491,9 +3215,7 @@
 
             } catch (error) {
                 console.error('❌ Error uploading image:', error);
-
-                // FORCE FAIL - Do not fallback to local base64 to ensure sync consistency
-                alert('Cloudinary upload failed: ' + error.message + '\n\nPlease check your internet connection and try again. Image NOT saved.');
+                alert('Failed to upload image: ' + error.message);
                 event.target.value = '';
             }
         }
@@ -3511,7 +3233,94 @@
             }
         }
 
+        // Category Image Upload Functions
+        async function handleCategoryImageUpload(event, categoryId) {
+            if (!state.isAdmin) {
+                showToast('Admin access required');
+                return;
+            }
 
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file');
+                event.target.value = '';
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert('Image size must be less than 5MB');
+                event.target.value = '';
+                return;
+            }
+
+            try {
+                console.log(`🚀 Uploading category image to Cloudinary...`);
+                showToast('Uploading category image...');
+
+                // Upload to Cloudinary
+                const result = await uploadToCloudinary(file, {
+                    folder: 'jbs-tailored/categories',
+                    tags: ['category', categoryId]
+                });
+
+                console.log('✅ Category image uploaded!', result);
+
+                // Update category image
+                const category = categories.find(c => c.id === categoryId);
+                if (category) {
+                    category.image = result.url;
+                    showToast('✅ Image uploaded! Click "Save Changes" to apply.');
+                }
+
+                event.target.value = '';
+                render();
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+
+            } catch (error) {
+                console.error('❌ Error uploading category image:', error);
+                alert('Failed to upload image: ' + error.message);
+                event.target.value = '';
+            }
+        }
+
+        async function saveCategoryImages() {
+            if (!state.isAdmin) {
+                showToast('Admin access required');
+                return;
+            }
+
+            try {
+                showToast('Saving category images...');
+
+                // Save to localStorage
+                localStorage.setItem('jbs_categories', JSON.stringify(categories));
+
+                // Save to Firestore if available
+                if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+                    try {
+                        const db = firebase.firestore();
+                        await db.collection('settings').doc('categories').set({
+                            categories: categories,
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        console.log('☁️ Categories saved to Firestore');
+                    } catch (firestoreError) {
+                        console.warn('⚠️ Firestore save failed (localStorage saved):', firestoreError.message);
+                    }
+                }
+
+                showToast('✅ Category images saved successfully!');
+                state.showCategoryEditor = false;
+                render();
+            } catch (error) {
+                console.error('❌ Error saving categories:', error);
+                alert('Failed to save categories: ' + error.message);
+            }
+        }
 
         // Video Compression Function
         async function compressVideo(file) {
@@ -3586,12 +3395,6 @@
                 return;
             }
 
-            if (!navigator.onLine) {
-                alert('No internet connection. Cannot upload video to Cloud.');
-                if (event.target) event.target.value = '';
-                return;
-            }
-
             const file = event.target.files[0];
             if (!file) return;
 
@@ -3657,19 +3460,16 @@
 
                 // Save to Firestore if available
 
-                // Save to Firestore if available
                 if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
                     try {
-                        const user = firebase.auth().currentUser;
-                        if (user && user.email === ADMIN_EMAIL) {
-                            const db = firebase.firestore();
-                            // CORRECTED: Save siteImages directly, NOT wrapped in { images: ... }
-                            await db.collection('settings').doc('siteImages').set(siteImages);
-                            console.log('☁️ Video saved to Firestore');
-                        }
+                        const db = firebase.firestore();
+                        await db.collection('settings').doc('siteImages').set({
+                            images: siteImages,
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        console.log('☁️ Video saved to Firestore');
                     } catch (firestoreError) {
-                        console.error('❌ Firestore save failed:', firestoreError);
-                        alert('Video uploaded to Cloudinary but failed to save to Database. Users will NOT see this change. Check internet.');
+                        console.warn('⚠️ Firestore save failed (localStorage saved):', firestoreError.message);
                     }
                 }
 
@@ -3698,12 +3498,8 @@
         }
 
         async function saveAdminImages() {
-            // Strict Admin Check
-            const user = firebase.auth().currentUser;
-            const isRealAdmin = user && user.email === ADMIN_EMAIL;
-
-            if (!state.isAdmin || !isRealAdmin) {
-                showToast('Admin access required defined. Please login.');
+            if (!state.isAdmin) {
+                showToast('Admin access required');
                 return;
             }
 
@@ -3728,9 +3524,7 @@
 
             } catch (error) {
                 console.error('❌ Error saving images:', error);
-                // Fallback: Ensure localStorage is at least updated
-                localStorage.setItem('jbs_site_images', JSON.stringify(siteImages));
-                showToast('Saved locally only (Cloud error: ' + error.message + ')');
+                alert('Failed to save images: ' + error.message);
             }
         }
 
@@ -3798,8 +3592,7 @@
                         await db.collection('products').doc(String(productData.id)).set(productData);
                         console.log('☁️ Saved to Firestore');
                     } catch (firestoreError) {
-                        console.error('❌ Firestore save failed:', firestoreError);
-                        alert('Product saved locally but failed to send to Cloud. Others will NOT see it. Check internet.');
+                        console.warn('⚠️ Firestore save failed (localStorage saved):', firestoreError.message);
                     }
                 }
 
@@ -3995,27 +3788,6 @@
             }
             // Reload all data to ensure sync
             loadUserData();
-            render();
-        }
-
-        // Contact Info Management
-        function getContactInfo() {
-            const defaultContact = {
-                phone: '+256700742469',
-                email: 'info@jbstailored.com',
-                location: 'Ntinda, Kampala, Uganda',
-                facebook: 'https://facebook.com/jbstailored',
-                instagram: 'https://instagram.com/jbstailored',
-                twitter: 'https://twitter.com/jbstailored',
-                tiktok: 'https://tiktok.com/@jbstailored'
-            };
-
-            const saved = localStorage.getItem('jbs_contact_info');
-            return saved ? JSON.parse(saved) : defaultContact;
-        }
-
-        function saveContactInfo(contactData) {
-            localStorage.setItem('jbs_contact_info', JSON.stringify(contactData));
             render();
         }
     </script>
