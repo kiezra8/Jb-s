@@ -400,22 +400,6 @@
             }
         }
 
-        @keyframes slideInLeft {
-            from {
-                transform: translateX(-100%);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        .animate-slide-in-left {
-            animation: slideInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
         @keyframes slideInRight {
             from {
                 transform: translateX(100%);
@@ -474,8 +458,24 @@
             animation: slideInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-100px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
         .animate-fade-in {
             animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        .animate-slide-in-left {
+            animation: slideInLeft 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         .animate-pulse {
@@ -639,7 +639,7 @@
         // ========================================
         // IMAGE CONFIGURATION - Change URLs here
         // ========================================
-        const DEFAULT_IMAGES = {
+        const siteImages = JSON.parse(localStorage.getItem('jbs_site_images')) || {
             // Carousel Images
             carousel: {
                 slide1: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPOFiy02Gf6Xwbf1SaNg1OSC7dNru3YqHERA&s',
@@ -661,26 +661,6 @@
             }
         };
 
-        // Robust initialization: Merge stored images with defaults to prevent undefined properties
-        let storedImages = {};
-        try {
-            const storedStr = localStorage.getItem('jbs_site_images');
-            if (storedStr) storedImages = JSON.parse(storedStr);
-        } catch (e) {
-            console.warn('Resetting corrupt image settings:', e);
-            localStorage.removeItem('jbs_site_images');
-        }
-
-        const siteImages = {
-            ...DEFAULT_IMAGES,
-            ...storedImages,
-            // Deep merge critical sections to ensure sub-properties (like carousel.slide1) exist
-            branding: { ...DEFAULT_IMAGES.branding, ...(storedImages.branding || {}) },
-            carousel: { ...DEFAULT_IMAGES.carousel, ...(storedImages.carousel || {}) },
-            branches: { ...DEFAULT_IMAGES.branches, ...(storedImages.branches || {}) },
-            articles: { ...DEFAULT_IMAGES.articles, ...(storedImages.articles || {}) }
-        };
-
         const state = {
             activeTab: 'home',
             cart: JSON.parse(localStorage.getItem('jbs_cart') || '[]'),
@@ -696,7 +676,6 @@
             showContactOptions: false,
             showAdminImagePanel: false,
             showCategoryEditor: false,
-            showContactEditor: false,
             editingCategory: null,
             showProductManagement: false,
             editingProduct: null,
@@ -712,7 +691,7 @@
             unreadCount: 0
         };
 
-        const categories = [
+        const categories = JSON.parse(localStorage.getItem('jbs_categories')) || [
 
             { id: 'mensuits', name: 'Men Suits', image: 'https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTfn0EYu_BPrsbd5vCgxnzomOH-ELeDC_lPIWvFLTnAbLdNnGwCHdm-AjMmQ6lbS2-6GMI2NZfLPmperpruJ-LY0Vtub021cPIf4BmoNdAWTBTMvAjfQ2GFdg&usqp=CAc' },
             { id: 'officewear', name: 'Office Wear', image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZTMWnremjT94nu49B0Ts_28GCKKUlU5Fi9w&s' },
@@ -909,94 +888,13 @@
             products = [];
         }
 
-        // Load saved category images from Firestore (with localStorage fallback)
-        async function loadCategoryImages() {
-            console.log('📸 Loading category images...');
-
-            try {
-                // Try Firestore first
-                if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
-                    const db = firebase.firestore();
-                    const snapshot = await db.collection('categories').get();
-
-                    if (!snapshot.empty) {
-                        snapshot.docs.forEach(doc => {
-                            const data = doc.data();
-                            const category = categories.find(c => c.id === doc.id);
-                            if (category && data.image) {
-                                category.image = data.image;
-                            }
-                        });
-
-                        // Save to localStorage as backup
-                        localStorage.setItem('jbs_categories', JSON.stringify(categories));
-                        console.log('✅ Category images loaded from Firestore');
-                        return;
-                    }
-                }
-            } catch (error) {
-                console.warn('⚠️ Failed to load from Firestore:', error.message);
-            }
-
-            // Fallback to localStorage
-            try {
-                const savedCategories = localStorage.getItem('jbs_categories');
-                if (savedCategories) {
-                    const saved = JSON.parse(savedCategories);
-                    categories.forEach(cat => {
-                        const savedCat = saved.find(s => s.id === cat.id);
-                        if (savedCat && savedCat.image) {
-                            cat.image = savedCat.image;
-                        }
-                    });
-                    console.log('✅ Category images loaded from localStorage');
-                }
-            } catch (error) {
-                console.warn('⚠️ Failed to load category images:', error);
-            }
-        }
-
-        // Save category images to Firestore AND localStorage
-        // (Moved function definition to match reference, ensuring we use Collection-based saving)
-        async function saveCategoryImages() {
-            try {
-                // Save to Firestore (Collection-based as requested)
-                if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
-                    const db = firebase.firestore();
-                    const batch = db.batch();
-
-                    categories.forEach(cat => {
-                        const docRef = db.collection('categories').doc(cat.id);
-                        batch.set(docRef, {
-                            id: cat.id,
-                            name: cat.name,
-                            image: cat.image
-                        }, { merge: true });
-                    });
-
-                    await batch.commit();
-                    console.log('✅ Category images saved to Firestore');
-                }
-
-                // Also save to localStorage as backup
-                localStorage.setItem('jbs_categories', JSON.stringify(categories));
-                console.log('✅ Category images saved to localStorage');
-            } catch (error) {
-                console.error('⚠️ Failed to save category images:', error);
-                // At least try localStorage
-                try {
-                    localStorage.setItem('jbs_categories', JSON.stringify(categories));
-                } catch (e) {
-                    console.error('Failed to save to localStorage too:', e);
-                }
-            }
-        }
-
         async function initializeApp() {
             console.log('🚀 Initializing app...');
 
-            // Loading Data First to prevent flash of hardcoded content
-            await loadCategoryImages();
+            // RENDER IMMEDIATELY for instant UI feedback
+            render();
+
+            // Load saved images first
             await loadSavedImages();
 
             // Load products from storage (Firestore or localStorage)
@@ -1321,7 +1219,7 @@
         // REMOVED: Duplicate seedDatabase function
 
         function formatMoney(amount) {
-            return '$' + amount.toLocaleString('en-US');
+            return 'UGX ' + amount.toLocaleString('en-UG');
         }
 
         function saveState() {
@@ -1365,23 +1263,12 @@
                 message = `Hello! I would like to order:\n\n${product.name}\n\nCustomer: ${state.currentUser.displayName || state.currentUser.email}`;
             }
 
-            // Open WhatsApp with iOS-compatible URL
+            // Direct WhatsApp Link (wa.me)
             const phoneNumber = '256700742469';
-            const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 
-            // For iOS devices, use a different approach
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            if (isIOS) {
-                // Try to open WhatsApp app directly first
-                window.location.href = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
-                // Fallback to web version after a delay if app doesn't open
-                setTimeout(() => {
-                    window.open(whatsappUrl, '_blank');
-                }, 1000);
-            } else {
-                window.open(whatsappUrl, '_blank');
-            }
-
+            // Open directly
+            window.location.href = whatsappUrl;
 
             // Clear cart if this was a cart order
             if (product.context === 'order') {
@@ -1390,8 +1277,6 @@
             }
 
             state.showOrderOptions = false;
-            showToast('Opening WhatsApp...');
-            render();
         }
 
         async function placeOrderViaCall() {
@@ -1403,22 +1288,9 @@
             }
 
             const phoneNumber = '+256700742469';
-
-            // iOS-compatible call handling
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            if (isIOS) {
-                // For iOS, use tel: protocol directly
-                window.location.href = `tel:${phoneNumber}`;
-            } else {
-                // For other devices, try to open in new context
-                const telLink = document.createElement('a');
-                telLink.href = `tel:${phoneNumber}`;
-                telLink.click();
-            }
+            window.location.href = `tel:${phoneNumber}`;
 
             state.showOrderOptions = false;
-            showToast('Opening phone dialer...');
-            render();
         }
 
         function showContactOptions() {
@@ -1432,19 +1304,8 @@
                 ? `Hello! I need support.\n\nCustomer: ${state.currentUser.displayName || state.currentUser.email}`
                 : 'Hello! I need support.';
 
-            // Use official WhatsApp API URL
-            const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
-
-            // iOS-compatible WhatsApp handling
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            if (isIOS) {
-                window.location.href = `whatsapp://send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
-                setTimeout(() => {
-                    window.open(whatsappUrl, '_blank');
-                }, 1000);
-            } else {
-                window.open(whatsappUrl, '_blank');
-            }
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+            window.location.href = whatsappUrl;
 
             state.showContactOptions = false;
             render();
@@ -1452,16 +1313,7 @@
 
         function makeCall() {
             const phoneNumber = '+256700742469';
-
-            // iOS-compatible call handling
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            if (isIOS) {
-                window.location.href = `tel:${phoneNumber}`;
-            } else {
-                const telLink = document.createElement('a');
-                telLink.href = `tel:${phoneNumber}`;
-                telLink.click();
-            }
+            window.location.href = `tel:${phoneNumber}`;
 
             state.showContactOptions = false;
             render();
@@ -1630,9 +1482,14 @@
                              class="w-full h-full object-cover transition-all duration-700 group-hover:scale-110" 
                              onerror="this.onerror=null; this.src='https://via.placeholder.com/400x600/f8f8f8/333333?text=${encodeURIComponent(product.name)}'">
                         
-                        <!-- Quick Add Button -->
-                        <div class="quick-add-btn" onclick="event.stopPropagation(); selectProduct(${product.id})">
-                            <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                        <!-- Quick Add Button (Logo + WhatsApp/Call) -->
+                        <div class="quick-add-btn" 
+                             onclick="event.stopPropagation(); showOrderOptions(${JSON.stringify(product).replace(/'/g, "&#39;")}, 'buy')"
+                             style="${index === 0 ? 'width: auto; padding-right: 12px; border-radius: 22px;' : ''}">
+                             <div class="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                                <img src="logo.jpeg" class="w-full h-full object-cover">
+                             </div>
+                            ${index === 0 ? '<span class="text-[10px] font-bold lowercase ml-2 whitespace-nowrap">whatsapp or call</span>' : ''}
                         </div>
                         
                         <!-- Admin Toggle Hint -->
@@ -1650,7 +1507,7 @@
                         <!-- Price Display (Empire Style) -->
                         <div class="flex items-center gap-2">
                             <span class="text-base font-bold text-black">${formatMoney(salePrice)}</span>
-                            <span class="text-xs text-red-500 line-through">${formatMoney(originalPrice)}</span>
+                            <span class="text-xs text-gray-400 line-through">${formatMoney(originalPrice)}</span>
                         </div>
                     </div>
                 </div>
@@ -1702,13 +1559,13 @@
             return `
                 <!-- Empire Style Header -->
                 <header class="sticky top-0 bg-white border-b border-gray-200 z-50">
-                    <div class="px-2 sm:px-3 py-2 flex items-center justify-between max-w-7xl mx-auto">
+                    <div class="px-2 sm:px-3 py-1.5 flex items-center justify-between max-w-7xl mx-auto">
                         <button onclick="state.showMenu = true; render();" class="p-2 hover:bg-gray-50 transition-colors -ml-2">
                             <i data-lucide="menu" class="w-5 h-5 text-gray-900"></i>
                         </button>
                         
-                        <div class="absolute left-1/2 transform -translate-x-1/2 cursor-pointer flex items-center justify-center overflow-hidden h-[45px] sm:h-[50px]" onclick="state.activeTab = 'home'; state.viewingCategoryPage = false; render();">
-                            <img src="logo.jpeg" alt="JB'S TAILORED" class="h-[65px] sm:h-[75px] w-auto max-w-none object-cover object-top -mt-1" style="filter: brightness(1.15) contrast(1.2) saturate(1.15);">
+                        <div class="absolute left-1/2 transform -translate-x-1/2 cursor-pointer" onclick="state.activeTab = 'home'; state.viewingCategoryPage = false; render();">
+                            <img src="logo.jpeg" class="h-10 sm:h-14 w-auto object-contain" alt="JB'S TAILORED">
                         </div>
                         
                         
@@ -1740,17 +1597,25 @@
 
                 <div class="flex-1 overflow-y-auto bg-white pb-20 animate-fade-in">
                     <!-- Empire Animated Hero Carousel -->
-                    <!-- Empire Animated Hero Carousel -->
                     <div class="relative h-[450px] sm:h-[600px] w-full overflow-hidden">
                         <div class="flex w-[300%] h-full animate-slide">
                             <!-- Slide 1 -->
                             <div class="w-1/3 relative h-full">
                                 <img src="${siteImages.carousel.slide1}" class="absolute inset-0 w-full h-full object-cover">
-                                <div class="absolute inset-0 bg-black/40 flex items-end justify-start pb-12 pl-8 sm:pl-16">
-                                    <div class="text-left px-6 max-w-4xl">
-                                        <h1 class="brand-text text-lg sm:text-xl lg:text-2xl font-light text-white leading-relaxed tracking-wide animate-slide-in-left lowercase">
-                                            crafting bespoke suits and wedding attire tailored to perfection for the modern gentleman
+                                <div class="absolute inset-0 bg-black/40 flex items-center justify-start pl-8 sm:pl-20">
+                                    <div class="text-left max-w-3xl animate-slide-in-left">
+                                        <h1 class="brand-text text-4xl sm:text-6xl lg:text-7xl font-bold mb-4 text-white leading-tight">
+                                            The empire<br>
+                                            Standard of<br>
+                                            Excellence
                                         </h1>
+                                        <p class="text-white/90 text-base sm:text-lg mb-8 font-light max-w-xl">
+                                            Premium men's suits, tuxedos & wedding suites tailored to perfection
+                                        </p>
+                                        <button onclick="document.getElementById('products-grid').scrollIntoView({behavior: 'smooth'})" 
+                                                class="bg-white text-black px-12 py-4 font-bold uppercase text-xs tracking-[0.2em] hover:bg-gray-100 transition-colors">
+                                            Shop Now
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -1758,25 +1623,11 @@
                             <!-- Slide 2 -->
                             <div class="w-1/3 relative h-full">
                                 <img src="${siteImages.carousel.slide2}" class="absolute inset-0 w-full h-full object-cover">
-                                <div class="absolute inset-0 bg-black/40 flex items-end justify-start pb-12 pl-8 sm:pl-16">
-                                    <div class="text-left px-6 max-w-4xl">
-                                        <h1 class="brand-text text-lg sm:text-xl lg:text-2xl font-light text-white leading-relaxed tracking-wide animate-slide-in-left lowercase">
-                                            delivering premium office wear and casual elegance with impeccable attention to detail
-                                        </h1>
-                                    </div>
-                                </div>
                             </div>
 
                             <!-- Slide 3 -->
                             <div class="w-1/3 relative h-full">
                                 <img src="${siteImages.carousel.slide3}" class="absolute inset-0 w-full h-full object-cover">
-                                <div class="absolute inset-0 bg-black/40 flex items-end justify-start pb-12 pl-8 sm:pl-16">
-                                    <div class="text-left px-6 max-w-4xl">
-                                        <h1 class="brand-text text-lg sm:text-xl lg:text-2xl font-light text-white leading-relaxed tracking-wide animate-slide-in-left lowercase">
-                                            creating timeless fashion experiences with exceptional craftsmanship and personalized service
-                                        </h1>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -1869,19 +1720,30 @@
                         <div class="max-w-5xl mx-auto">
                             
                             <div class="relative aspect-video bg-black rounded-lg overflow-hidden">
-                                <video 
-                                    class="w-full h-full object-cover" 
-                                    autoplay 
-                                    muted 
-                                    loop 
-                                    playsinline
-                                    poster="${siteImages.branches.ntinda}">
-                                    <source src="${siteImages.video?.shopVideo || 'https://www.w3schools.com/html/mov_bbb.mp4'}" type="video/mp4">
-                                    <img src="${siteImages.branches.ntinda}" class="w-full h-full object-cover" alt="JB'S Shop">
-                                </video>
-                                <div class="absolute inset-0 bg-black/20 flex items-center justify-center">
-                                    <!-- Text Removed -->
-                                </div>
+                                ${siteImages.video?.shopVideo ? `
+                                    <video 
+                                        class="w-full h-full object-cover" 
+                                        autoplay 
+                                        muted 
+                                        loop 
+                                        playsinline
+                                        poster="${siteImages.branches.ntinda}">
+                                        <source src="${siteImages.video.shopVideo}" type="video/mp4">
+                                        <source src="${siteImages.video.shopVideo}" type="video/webm">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                ` : `
+                                    <div class="w-full h-full relative">
+                                        <img src="${siteImages.branches.ntinda}" class="w-full h-full object-cover" alt="JB'S Shop">
+                                        <div class="absolute inset-0 bg-black/20 flex items-center justify-center">
+                                            <div class="text-center text-white">
+                                                <i data-lucide="play-circle" class="w-16 h-16 opacity-80"></i>
+                                                <p class="mt-2 text-sm font-medium">Video Coming Soon</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `}
+
                             </div>
                             
                             ${state.isAdmin ? `
@@ -2007,7 +1869,7 @@
 
                     <!-- Empire Features Section -->
                     <div class="bg-white py-6 px-2 sm:px-3">
-                        <div class="max-w-7xl mx-auto grid grid-cols-1 gap-8 text-center">
+                        <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
                             <div class="flex flex-col items-center">
                                 <div class="w-16 h-16 bg-black rounded-full flex items-center justify-center mb-4">
                                     <i data-lucide="headphones" class="w-8 h-8 text-white"></i>
@@ -2015,96 +1877,21 @@
                                 <h3 class="text-base font-bold uppercase tracking-wider mb-2">SUPPORT 24/7</h3>
                                 <p class="text-sm text-gray-600">Contact us 24 hours a day, 7 days a week</p>
                             </div>
-                        </div>
-                    </div>
 
-                    <!-- Contact & Social Media Section -->
-                    <div class="bg-gray-900 text-white py-12 px-4 sm:px-6">
-                        <div class="max-w-7xl mx-auto">
-                            ${state.isAdmin ? `
-                                <div class="text-center mb-6">
-                                    <button onclick="state.showContactEditor = true; render();" 
-                                            class="bg-amber-600 text-white px-4 py-2 rounded text-xs uppercase tracking-wider hover:bg-amber-700 transition-colors">
-                                        ✏️ Edit Contact Info & Social Media
-                                    </button>
+                            <div class="flex flex-col items-center">
+                                <div class="w-16 h-16 bg-black rounded-full flex items-center justify-center mb-4">
+                                    <i data-lucide="refresh-cw" class="w-8 h-8 text-white"></i>
                                 </div>
-                            ` : ''}
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-                                <!-- Contact Info -->
-                                <div>
-                                    <h3 class="text-lg font-bold uppercase tracking-wider mb-4">Contact Us</h3>
-                                    <div class="space-y-3 text-sm">
-                                        <div class="flex items-start gap-3">
-                                            <i data-lucide="phone" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
-                                            <div>
-                                                <p class="text-gray-300">Phone</p>
-                                                <a href="tel:${getContactInfo().phone}" class="hover:text-amber-500 transition-colors">${getContactInfo().phone}</a>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-start gap-3">
-                                            <i data-lucide="mail" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
-                                            <div>
-                                                <p class="text-gray-300">Email</p>
-                                                <a href="mailto:${getContactInfo().email}" class="hover:text-amber-500 transition-colors">${getContactInfo().email}</a>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-start gap-3">
-                                            <i data-lucide="map-pin" class="w-5 h-5 flex-shrink-0 mt-0.5"></i>
-                                            <div>
-                                                <p class="text-gray-300">Location</p>
-                                                <p>${getContactInfo().location}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Quick Links -->
-                                <div>
-                                    <h3 class="text-lg font-bold uppercase tracking-wider mb-4">Quick Links</h3>
-                                    <div class="space-y-2 text-sm">
-                                        <button onclick="state.activeTab = 'home'; state.viewingCategoryPage = false; render();" class="block hover:text-amber-500 transition-colors">Home</button>
-                                        <button onclick="state.activeTab = 'categories'; render();" class="block hover:text-amber-500 transition-colors">Categories</button>
-                                        <button onclick="state.activeTab = 'search'; render();" class="block hover:text-amber-500 transition-colors">Search</button>
-                                        <button onclick="state.showCart = true; render();" class="block hover:text-amber-500 transition-colors">Cart</button>
-                                    </div>
-                                </div>
-
-                                <!-- Social Media -->
-                                <div>
-                                    <h3 class="text-lg font-bold uppercase tracking-wider mb-4">Follow Us</h3>
-                                    <div class="flex gap-4">
-                                        ${getContactInfo().facebook ? `
-                                            <a href="${getContactInfo().facebook}" target="_blank" rel="noopener noreferrer" 
-                                               class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-amber-600 transition-colors">
-                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                                            </a>
-                                        ` : ''}
-                                        ${getContactInfo().instagram ? `
-                                            <a href="${getContactInfo().instagram}" target="_blank" rel="noopener noreferrer" 
-                                               class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-amber-600 transition-colors">
-                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-                                            </a>
-                                        ` : ''}
-                                        ${getContactInfo().twitter ? `
-                                            <a href="${getContactInfo().twitter}" target="_blank" rel="noopener noreferrer" 
-                                               class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-amber-600 transition-colors">
-                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
-                                            </a>
-                                        ` : ''}
-                                        ${getContactInfo().tiktok ? `
-                                            <a href="${getContactInfo().tiktok}" target="_blank" rel="noopener noreferrer" 
-                                               class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-amber-600 transition-colors">
-                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z"/></svg>
-                                            </a>
-                                        ` : ''}
-                                    </div>
-                                </div>
+                                <h3 class="text-base font-bold uppercase tracking-wider mb-2">2 DAYS RETURN</h3>
+                                <p class="text-sm text-gray-600">Simply return it within 2 days for an exchange</p>
                             </div>
 
-                            <!-- Copyright -->
-                            <div class="border-t border-gray-700 pt-6 text-center text-sm text-gray-400">
-                                <p>&copy; ${new Date().getFullYear()} JB'S TAILORED. All rights reserved.</p>
+                            <div class="flex flex-col items-center">
+                                <div class="w-16 h-16 bg-black rounded-full flex items-center justify-center mb-4">
+                                    <i data-lucide="shield-check" class="w-8 h-8 text-white"></i>
+                                </div>
+                                <h3 class="text-base font-bold uppercase tracking-wider mb-2">100% PAYMENT SECURE</h3>
+                                <p class="text-sm text-gray-600">We ensure secure payment with PEV</p>
                             </div>
                         </div>
                     </div>
@@ -2355,11 +2142,13 @@
                                                     `).join('')}
                                                 </div>
                                             </div>
-                                            <button onclick="addToCartFromModal()" class="w-full bg-gray-900 text-white py-4 rounded-sm font-medium text-lg shadow-sm mb-3 hover:bg-gray-800 active:scale-95 transition-all uppercase tracking-wider">
-                                                Add to Cart
+                                            <button onclick='state.orderProduct = ${JSON.stringify(product).replace(/'/g, "&#39;")}; state.orderProduct.context = "buy"; placeOrderViaWhatsApp()' class="w-full bg-green-500 text-white py-4 rounded-sm font-medium text-lg shadow-sm mb-3 hover:bg-green-600 active:scale-95 transition-all uppercase tracking-wider flex items-center justify-center gap-2">
+                                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                                                WhatsApp
                                             </button>
-                                            <button onclick='showOrderOptions(${JSON.stringify(product).replace(/'/g, "&#39;")}, "buy")' class="w-full bg-white border-2 border-gray-900 text-gray-900 py-4 rounded-sm font-medium text-lg hover:bg-gray-50 active:scale-95 transition-all uppercase tracking-wider">
-                                                ORDER
+                                            <button onclick="placeOrderViaCall()" class="w-full bg-gray-900 text-white py-4 rounded-sm font-medium text-lg shadow-sm hover:bg-gray-800 active:scale-95 transition-all uppercase tracking-wider flex items-center justify-center gap-2">
+                                                <i data-lucide="phone" class="w-5 h-5"></i>
+                                                Call Now
                                             </button>
                                         </div>
                                     </div>
@@ -3218,7 +3007,7 @@
             }
         }
 
-        // Load saved images on startup (Site Images: Carousel, Branches, Articles, Video)
+        // Load saved images on startup
         async function loadSavedImages() {
             try {
                 // First try localStorage
@@ -3228,12 +3017,6 @@
                     Object.assign(siteImages.carousel, parsed.carousel || {});
                     Object.assign(siteImages.branches, parsed.branches || {});
                     Object.assign(siteImages.articles, parsed.articles || {});
-
-                    // Add video loading from localStorage
-                    if (parsed.video) {
-                        if (!siteImages.video) siteImages.video = {};
-                        Object.assign(siteImages.video, parsed.video);
-                    }
                 }
 
                 // Then try Firebase for latest version
@@ -3242,20 +3025,9 @@
                     const doc = await db.collection('settings').doc('siteImages').get();
                     if (doc.exists) {
                         const data = doc.data();
-
-                        // Handle both old nested 'images' structure and new direct structure
-                        const sourceData = data.images || data;
-
-                        Object.assign(siteImages.carousel, sourceData.carousel || {});
-                        Object.assign(siteImages.branches, sourceData.branches || {});
-                        Object.assign(siteImages.articles, sourceData.articles || {});
-
-                        // Add video loading from Firebase
-                        if (sourceData.video) {
-                            if (!siteImages.video) siteImages.video = {};
-                            Object.assign(siteImages.video, sourceData.video);
-                        }
-
+                        Object.assign(siteImages.carousel, data.carousel || {});
+                        Object.assign(siteImages.branches, data.branches || {});
+                        Object.assign(siteImages.articles, data.articles || {});
                         // Update localStorage with Firebase data
                         localStorage.setItem('jbs_site_images', JSON.stringify(siteImages));
                     }
@@ -3459,7 +3231,40 @@
             }
         }
 
-        // Duplicate saveCategoryImages removed - using Collection-based version defined earlier.
+        async function saveCategoryImages() {
+            if (!state.isAdmin) {
+                showToast('Admin access required');
+                return;
+            }
+
+            try {
+                showToast('Saving category images...');
+
+                // Save to localStorage
+                localStorage.setItem('jbs_categories', JSON.stringify(categories));
+
+                // Save to Firestore if available
+                if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+                    try {
+                        const db = firebase.firestore();
+                        await db.collection('settings').doc('categories').set({
+                            categories: categories,
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        console.log('☁️ Categories saved to Firestore');
+                    } catch (firestoreError) {
+                        console.warn('⚠️ Firestore save failed (localStorage saved):', firestoreError.message);
+                    }
+                }
+
+                showToast('✅ Category images saved successfully!');
+                state.showCategoryEditor = false;
+                render();
+            } catch (error) {
+                console.error('❌ Error saving categories:', error);
+                alert('Failed to save categories: ' + error.message);
+            }
+        }
 
         // Video Compression Function
         async function compressVideo(file) {
@@ -3588,30 +3393,35 @@
 
                 console.log('✅ Video uploaded!', result);
 
-                // Update video URL in siteImages
+                // Update video URL in siteImages or create new property
                 if (!siteImages.video) {
                     siteImages.video = {};
                 }
-                siteImages.video.shopVideo = result.url;
+                siteImages.video.shopVideo = result.secure_url || result.url;
 
                 // Save to localStorage
                 localStorage.setItem('jbs_site_images', JSON.stringify(siteImages));
 
                 // Save to Firestore if available
+
                 if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
                     try {
                         const db = firebase.firestore();
-                        // Save DIRECTLY to match saveAdminImages, not wrapped in 'images'
-                        await db.collection('settings').doc('siteImages').set(siteImages);
+                        await db.collection('settings').doc('siteImages').set({
+                            images: siteImages,
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
                         console.log('☁️ Video saved to Firestore');
                     } catch (firestoreError) {
                         console.warn('⚠️ Firestore save failed (localStorage saved):', firestoreError.message);
                     }
                 }
 
-                showToast('✅ Video uploaded successfully!');
+                showToast('✅ Video uploaded successfully! Reloading...');
                 event.target.value = '';
-                render();
+
+                // Force reload to ensure video plays
+                setTimeout(() => window.location.reload(), 1500);
 
             } catch (error) {
                 console.error('❌ Error uploading video:', error);
@@ -3924,27 +3734,6 @@
             }
             // Reload all data to ensure sync
             loadUserData();
-            render();
-        }
-
-        // Contact Info Management
-        function getContactInfo() {
-            const defaultContact = {
-                phone: '+256700742469',
-                email: 'info@jbstailored.com',
-                location: 'Ntinda, Kampala, Uganda',
-                facebook: 'https://facebook.com/jbstailored',
-                instagram: 'https://instagram.com/jbstailored',
-                twitter: 'https://twitter.com/jbstailored',
-                tiktok: 'https://tiktok.com/@jbstailored'
-            };
-
-            const saved = localStorage.getItem('jbs_contact_info');
-            return saved ? JSON.parse(saved) : defaultContact;
-        }
-
-        function saveContactInfo(contactData) {
-            localStorage.setItem('jbs_contact_info', JSON.stringify(contactData));
             render();
         }
     </script>
