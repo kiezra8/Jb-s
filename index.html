@@ -910,7 +910,7 @@
         }
 
         // Load saved category images from Firestore (with localStorage fallback)
-        async function loadSavedImages() {
+        async function loadCategoryImages() {
             console.log('📸 Loading category images...');
 
             try {
@@ -957,9 +957,10 @@
         }
 
         // Save category images to Firestore AND localStorage
+        // (Moved function definition to match reference, ensuring we use Collection-based saving)
         async function saveCategoryImages() {
             try {
-                // Save to Firestore
+                // Save to Firestore (Collection-based as requested)
                 if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
                     const db = firebase.firestore();
                     const batch = db.batch();
@@ -994,10 +995,8 @@
         async function initializeApp() {
             console.log('🚀 Initializing app...');
 
-            // RENDER IMMEDIATELY for instant UI feedback
-            render();
-
-            // Load saved images first
+            // Loading Data First to prevent flash of hardcoded content
+            await loadCategoryImages();
             await loadSavedImages();
 
             // Load products from storage (Firestore or localStorage)
@@ -1881,10 +1880,7 @@
                                     <img src="${siteImages.branches.ntinda}" class="w-full h-full object-cover" alt="JB'S Shop">
                                 </video>
                                 <div class="absolute inset-0 bg-black/20 flex items-center justify-center">
-                                    <div class="text-center text-white">
-                                        <p class="text-sm uppercase tracking-widest mb-2">Visit Us Today</p>
-                                        <h3 class="text-2xl font-bold uppercase">JB'S TAILORED</h3>
-                                    </div>
+                                    <!-- Text Removed -->
                                 </div>
                             </div>
                             
@@ -3222,7 +3218,7 @@
             }
         }
 
-        // Load saved images on startup
+        // Load saved images on startup (Site Images: Carousel, Branches, Articles, Video)
         async function loadSavedImages() {
             try {
                 // First try localStorage
@@ -3232,6 +3228,12 @@
                     Object.assign(siteImages.carousel, parsed.carousel || {});
                     Object.assign(siteImages.branches, parsed.branches || {});
                     Object.assign(siteImages.articles, parsed.articles || {});
+
+                    // Add video loading from localStorage
+                    if (parsed.video) {
+                        if (!siteImages.video) siteImages.video = {};
+                        Object.assign(siteImages.video, parsed.video);
+                    }
                 }
 
                 // Then try Firebase for latest version
@@ -3240,9 +3242,20 @@
                     const doc = await db.collection('settings').doc('siteImages').get();
                     if (doc.exists) {
                         const data = doc.data();
-                        Object.assign(siteImages.carousel, data.carousel || {});
-                        Object.assign(siteImages.branches, data.branches || {});
-                        Object.assign(siteImages.articles, data.articles || {});
+
+                        // Handle both old nested 'images' structure and new direct structure
+                        const sourceData = data.images || data;
+
+                        Object.assign(siteImages.carousel, sourceData.carousel || {});
+                        Object.assign(siteImages.branches, sourceData.branches || {});
+                        Object.assign(siteImages.articles, sourceData.articles || {});
+
+                        // Add video loading from Firebase
+                        if (sourceData.video) {
+                            if (!siteImages.video) siteImages.video = {};
+                            Object.assign(siteImages.video, sourceData.video);
+                        }
+
                         // Update localStorage with Firebase data
                         localStorage.setItem('jbs_site_images', JSON.stringify(siteImages));
                     }
@@ -3446,40 +3459,7 @@
             }
         }
 
-        async function saveCategoryImages() {
-            if (!state.isAdmin) {
-                showToast('Admin access required');
-                return;
-            }
-
-            try {
-                showToast('Saving category images...');
-
-                // Save to localStorage
-                localStorage.setItem('jbs_categories', JSON.stringify(categories));
-
-                // Save to Firestore if available
-                if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
-                    try {
-                        const db = firebase.firestore();
-                        await db.collection('settings').doc('categories').set({
-                            categories: categories,
-                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                        console.log('☁️ Categories saved to Firestore');
-                    } catch (firestoreError) {
-                        console.warn('⚠️ Firestore save failed (localStorage saved):', firestoreError.message);
-                    }
-                }
-
-                showToast('✅ Category images saved successfully!');
-                state.showCategoryEditor = false;
-                render();
-            } catch (error) {
-                console.error('❌ Error saving categories:', error);
-                alert('Failed to save categories: ' + error.message);
-            }
-        }
+        // Duplicate saveCategoryImages removed - using Collection-based version defined earlier.
 
         // Video Compression Function
         async function compressVideo(file) {
@@ -3608,7 +3588,7 @@
 
                 console.log('✅ Video uploaded!', result);
 
-                // Update video URL in siteImages or create new property
+                // Update video URL in siteImages
                 if (!siteImages.video) {
                     siteImages.video = {};
                 }
@@ -3618,14 +3598,11 @@
                 localStorage.setItem('jbs_site_images', JSON.stringify(siteImages));
 
                 // Save to Firestore if available
-
                 if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
                     try {
                         const db = firebase.firestore();
-                        await db.collection('settings').doc('siteImages').set({
-                            images: siteImages,
-                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                        });
+                        // Save DIRECTLY to match saveAdminImages, not wrapped in 'images'
+                        await db.collection('settings').doc('siteImages').set(siteImages);
                         console.log('☁️ Video saved to Firestore');
                     } catch (firestoreError) {
                         console.warn('⚠️ Firestore save failed (localStorage saved):', firestoreError.message);
