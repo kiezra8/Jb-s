@@ -1602,20 +1602,14 @@
                             <!-- Slide 1 -->
                             <div class="w-1/3 relative h-full">
                                 <img src="${siteImages.carousel.slide1}" class="absolute inset-0 w-full h-full object-cover">
-                                <div class="absolute inset-0 bg-black/40 flex items-center justify-start pl-8 sm:pl-20">
-                                    <div class="text-left max-w-3xl animate-slide-in-left">
-                                        <h1 class="brand-text text-4xl sm:text-6xl lg:text-7xl font-bold mb-4 text-white leading-tight">
-                                            The empire<br>
-                                            Standard of<br>
-                                            Excellence
+                                <div class="absolute inset-0 bg-black/40 flex items-end justify-start pl-6 sm:pl-10 pb-4">
+                                    <div class="text-left animate-slide-in-left">
+                                        <h1 class="text-xs sm:text-sm font-bold text-white lowercase tracking-[0.2em] mb-1">
+                                            At jb's we dress you like the moment matters
                                         </h1>
-                                        <p class="text-white/90 text-base sm:text-lg mb-8 font-light max-w-xl">
-                                            Premium men's suits, tuxedos & wedding suites tailored to perfection
+                                        <p class="text-white/80 text-[10px] font-light lowercase tracking-wider">
+                                            premium men's suits, tuxedos & wedding suites tailored to perfection
                                         </p>
-                                        <button onclick="document.getElementById('products-grid').scrollIntoView({behavior: 'smooth'})" 
-                                                class="bg-white text-black px-12 py-4 font-bold uppercase text-xs tracking-[0.2em] hover:bg-gray-100 transition-colors">
-                                            Shop Now
-                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -1720,29 +1714,15 @@
                         <div class="max-w-5xl mx-auto">
                             
                             <div class="relative aspect-video bg-black rounded-lg overflow-hidden">
-                                ${siteImages.video?.shopVideo ? `
                                     <video 
                                         class="w-full h-full object-cover" 
                                         autoplay 
                                         muted 
                                         loop 
-                                        playsinline
-                                        poster="${siteImages.branches.ntinda}">
-                                        <source src="${siteImages.video.shopVideo}" type="video/mp4">
-                                        <source src="${siteImages.video.shopVideo}" type="video/webm">
+                                        playsinline>
+                                        <source src="jb's.mp4" type="video/mp4">
                                         Your browser does not support the video tag.
                                     </video>
-                                ` : `
-                                    <div class="w-full h-full relative">
-                                        <img src="${siteImages.branches.ntinda}" class="w-full h-full object-cover" alt="JB'S Shop">
-                                        <div class="absolute inset-0 bg-black/20 flex items-center justify-center">
-                                            <div class="text-center text-white">
-                                                <i data-lucide="play-circle" class="w-16 h-16 opacity-80"></i>
-                                                <p class="mt-2 text-sm font-medium">Video Coming Soon</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `}
 
                             </div>
                             
