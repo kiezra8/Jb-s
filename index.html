@@ -687,7 +687,7 @@
             unreadCount: 0
         };
 
-        const categories = [
+        let categories = [
 
             { id: 'mensuits', name: 'Men Suits', image: 'https://www.pinterest.com/pin/604749056249870742/' },
             { id: 'officewear', name: 'Office Wear', image: 'https://www.pinterest.com/pin/1900024839638821/' },
@@ -886,6 +886,7 @@
 
         async function initializeApp() {
             console.log('🚀 Initializing app...');
+            render(); // Render immediately with defaults to prevent white page
 
             try {
                 // Remove immediate render to prevent flicker of default content
@@ -894,12 +895,14 @@
                 // Load saved images first
                 await loadSavedImages();
 
+                // Load categories (Admin updates)
+                await loadCategories();
+
                 // Load products from storage (Firestore or localStorage)
                 await loadProducts();
             } catch (err) {
                 console.error("Initialization error:", err);
             } finally {
-                // Ensure we ALWAYS render, even if something fails
                 productsLoaded = true;
                 console.log('✅ App ready to render');
                 render();
@@ -2694,6 +2697,59 @@
                         </div>
                     `;
                     })() : ''}
+
+                    <!--Category Editor Modal-->
+                ${state.showCategoryEditor ? `
+                        <div class="fixed inset-0 bg-black/70 backdrop-blur-md z-[70] flex items-center justify-center p-4 animate-fade-in overflow-y-auto" onclick="state.showCategoryEditor = false; render();">
+                            <div class="bg-white rounded-3xl p-6 max-w-4xl w-full shadow-2xl my-8 max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+                                <div class="flex items-center justify-between mb-6 sticky top-0 bg-white z-10 pb-4 border-b">
+                                    <div>
+                                        <h3 class="text-2xl font-bold text-gray-900">📝 Manage Categories</h3>
+                                        <p class="text-sm text-gray-500 mt-1">Update category images</p>
+                                    </div>
+                                    <button onclick="state.showCategoryEditor = false; render();" class="p-2 hover:bg-gray-100 rounded-full">
+                                        <i data-lucide="x" class="w-6 h-6"></i>
+                                    </button>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    ${categories.filter(c => c.id !== 'all').map(cat => `
+                                        <div class="bg-gray-50 rounded-xl p-4 border-2 border-transparent hover:border-amber-200 transition-colors">
+                                            <div class="flex items-center justify-between mb-3">
+                                                <h4 class="font-bold text-gray-800">${cat.name}</h4>
+                                                <span class="text-xs bg-gray-200 px-2 py-1 rounded text-gray-600">${cat.id}</span>
+                                            </div>
+                                            
+                                            <div class="aspect-[4/3] bg-gray-200 rounded-lg overflow-hidden mb-3 relative group">
+                                                <img src="${cat.image}" class="w-full h-full object-cover">
+                                                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                    <button onclick="document.getElementById('cat-upload-${cat.id}').click()" 
+                                                            class="bg-white text-gray-900 px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-gray-100">
+                                                        Change Image
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            
+                                            <input type="file" id="cat-upload-${cat.id}" accept="image/*" class="hidden" onchange="handleCategoryImageUpload(event, '${cat.id}')">
+                                            
+                                            <p class="text-[10px] text-gray-400 truncate">${cat.image.substring(0, 40)}...</p>
+                                        </div>
+                                    `).join('')}
+                                </div>
+
+                                <div class="mt-8 flex justify-end gap-3 sticky bottom-0 bg-white pt-4 border-t">
+                                    <button onclick="state.showCategoryEditor = false; render();" class="px-6 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-colors">
+                                        Cancel
+                                    </button>
+                                    <button onclick="saveCategoryImages()" class="px-8 py-3 bg-amber-600 text-white font-bold rounded-xl hover:bg-amber-700 shadow-lg hover:shadow-amber-500/30 transition-all active:scale-95 flex items-center gap-2">
+                                        <i data-lucide="save" class="w-5 h-5"></i>
+                                        Save Changes
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+
                 </div>
             `;
                 if (window.lucide) lucide.createIcons();
@@ -3223,6 +3279,38 @@
                 console.error('❌ Error uploading category image:', error);
                 alert('Failed to upload image: ' + error.message);
                 event.target.value = '';
+            }
+        }
+
+
+        async function loadCategories() {
+            console.log('📂 Loading categories...');
+            try {
+                if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+                    const db = firebase.firestore();
+                    const doc = await db.collection('settings').doc('categories').get();
+                    if (doc.exists) {
+                        const data = doc.data();
+                        if (data.categories && Array.isArray(data.categories)) {
+                            // Merge fetched categories with existing structure to preserve functionality if needed
+                            // For now, we trust the Admin's saved structure
+                            categories = data.categories;
+                            console.log('✅ Categories loaded from Firestore');
+
+                            // Save to localStorage as backup
+                            localStorage.setItem('jbs_categories', JSON.stringify(categories));
+                        }
+                    } else {
+                        // Fallback to localStorage if Firestore has no data yet
+                        const saved = localStorage.getItem('jbs_categories');
+                        if (saved) {
+                            categories = JSON.parse(saved);
+                            console.log('✅ Categories loaded from localStorage');
+                        }
+                    }
+                }
+            } catch (error) {
+                console.warn('⚠️ Failed to load categories:', error);
             }
         }
 
