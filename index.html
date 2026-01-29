@@ -617,6 +617,8 @@
 <body class="bg-white text-black antialiased selection:bg-gray-100 selection:text-black">
     <div id="app"></div>
 
+
+
     <script>
         const ADMIN_EMAIL = 'israelezrakisakye@gmail.com';
 
@@ -884,31 +886,58 @@
             products = [];
         }
 
+        // Load cached data immediately for instant display
+        function loadFromLocalStorage() {
+            try {
+                // 1. Categories
+                const savedCats = localStorage.getItem('jbs_categories');
+                if (savedCats) {
+                    categories = JSON.parse(savedCats);
+                }
+
+                // 2. Products
+                const savedProds = localStorage.getItem('jbs_products');
+                if (savedProds) {
+                    products = JSON.parse(savedProds);
+                }
+
+                // 3. Site Images
+                const savedImages = localStorage.getItem('jbs_site_images');
+                if (savedImages) {
+                    const parsed = JSON.parse(savedImages);
+                    Object.assign(siteImages.carousel, parsed.carousel || {});
+                    Object.assign(siteImages.branches, parsed.branches || {});
+                    Object.assign(siteImages.articles, parsed.articles || {});
+                    if (parsed.video) siteImages.video = parsed.video;
+                }
+            } catch (e) {
+                console.log('Error loading from local storage:', e);
+            }
+        }
+
         async function initializeApp() {
             console.log('🚀 Initializing app...');
-            render(); // Render immediately with defaults to prevent white page
+
+            // 1. Instant Load (Cache + Defaults)
+            loadFromLocalStorage();
+            render();
 
             try {
-                // Remove immediate render to prevent flicker of default content
-                // render(); 
-
-                // Load saved images first
-                await loadSavedImages();
-
-                // Load categories (Admin updates)
-                await loadCategories();
-
-                // Load products from storage (Firestore or localStorage)
-                await loadProducts();
+                // 2. Background Sync (Network)
+                await Promise.all([
+                    loadSavedImages(),
+                    loadCategories(),
+                    loadProducts()
+                ]);
             } catch (err) {
                 console.error("Initialization error:", err);
             } finally {
                 productsLoaded = true;
-                console.log('✅ App ready to render');
-                render();
+                console.log('✅ App synced and ready');
+                render(); // Update with fresh data
             }
 
-            // Auto-generate if no products found to prevent empty site
+            // Auto-generate if really no products found
             if (products.length === 0) {
                 console.log('📦 No products found. Generating defaults...');
                 generateProducts();
