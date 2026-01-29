@@ -657,15 +657,26 @@
                 professional: 'https://media.istockphoto.com/id/1076098272/photo/tailor-sketching.jpg?s=1024x1024&w=is&k=20&c=Jjzr5rSM0pgAdVTvpr6WrHYNoTfDL2wXKffykzzobm0=',
                 care: 'https://alfredoscleanerstailoring.com/wp-content/uploads/2025/03/tailoring_vs_alterations.webp?w=1024'
             },
-            // Premium Feature Images (Empire Style)
+            // Empire Style Features Default (Matches Reference Image)
             features: {
                 luxury: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=2071&auto=format&fit=crop',
                 business: 'https://images.unsplash.com/photo-1594938298603-c8148c47e357?q=80&w=2070&auto=format&fit=crop',
-                premium: 'https://images.unsplash.com/photo-1593030761757-71bd90dbe3e4?q=80&w=2071&auto=format&fit=crop',
+                casual: 'https://images.unsplash.com/photo-1593030761757-71bd90dbe3e4?q=80&w=2071&auto=format&fit=crop',
                 tuxedo: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop',
-                casual: 'https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?q=80&w=2295&auto=format&fit=crop'
+                accessories: 'https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?q=80&w=2295&auto=format&fit=crop'
             }
         };
+
+        // INTEGRITY CHECKS: Ensure features exist for returning users
+        if (!siteImages.features || !siteImages.features.accessories) {
+            siteImages.features = {
+                luxury: siteImages.features?.luxury || 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=2071&auto=format&fit=crop',
+                business: siteImages.features?.business || 'https://images.unsplash.com/photo-1594938298603-c8148c47e357?q=80&w=2070&auto=format&fit=crop',
+                casual: siteImages.features?.premium || 'https://images.unsplash.com/photo-1593030761757-71bd90dbe3e4?q=80&w=2071&auto=format&fit=crop',
+                tuxedo: siteImages.features?.tuxedo || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop',
+                accessories: siteImages.features?.casual || 'https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?q=80&w=2295&auto=format&fit=crop'
+            };
+        }
 
         const state = {
             activeTab: 'home',
@@ -919,6 +930,15 @@
                     if (parsed.features) {
                         if (!siteImages.features) siteImages.features = {};
                         Object.assign(siteImages.features, parsed.features || {});
+                    } else if (!siteImages.features) {
+                        // Restore defaults if missing in saved data (migration fix)
+                        siteImages.features = {
+                            luxury: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=2071&auto=format&fit=crop',
+                            business: 'https://images.unsplash.com/photo-1594938298603-c8148c47e357?q=80&w=2070&auto=format&fit=crop',
+                            casual: 'https://images.unsplash.com/photo-1593030761757-71bd90dbe3e4?q=80&w=2071&auto=format&fit=crop', // Was premium
+                            tuxedo: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop',
+                            accessories: 'https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?q=80&w=2295&auto=format&fit=crop' // Was casual
+                        };
                     }
                     if (parsed.video) siteImages.video = parsed.video;
                 }
@@ -1686,48 +1706,98 @@
                     </div>
 
                     <!-- Empire Category Section (All Categories - 2 Rows Horizontal Scroll) -->
-                    <div class="bg-white py-6 px-4 sm:px-6 border-b border-gray-100 relative group" id="category-section">
-                        <div class="max-w-7xl mx-auto">
-                            <div class="flex items-center justify-between mb-4">
-                                <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-gray-400">Shop by Category</h3>
-                                <div class="flex items-center gap-3">
-                                    ${state.isAdmin ? `
-                                        <button onclick="state.showCategoryEditor = true; render();" class="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition-colors">
-                                            📝 Edit Categories
-                                        </button>
-                                    ` : ''}
-                                    <div class="flex items-center gap-2 text-xs font-medium text-gray-400 animate-pulse">
-                                        <span>SCROLL</span>
-                                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    <!-- Premium Feature Grid (Empire Style) -->
+                    <!-- Premium Feature Grid (Refined Empire Style) -->
+                    <div class="bg-white py-2" id="premium-features">
+                        <div class="max-w-7xl mx-auto px-1 sm:px-2">
+                            
+                            <!-- 1. Top Hero: Tap into Luxury -->
+                            <div class="relative group h-[400px] sm:h-[500px] overflow-hidden cursor-pointer mb-1 w-full">
+                                <img src="${siteImages.features.luxury}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                                <div class="absolute bottom-8 left-0 right-0 flex justify-center">
+                                    <div class="bg-white px-8 py-3 shadow-xl">
+                                        <h3 class="text-sm sm:text-base font-bold text-black uppercase tracking-widest text-center">Tap into Luxury</h3>
                                     </div>
                                 </div>
+                                ${state.isAdmin ? `
+                                    <button onclick="document.getElementById('feat-upload-luxury').click()" class="absolute top-4 right-4 bg-white/90 text-black p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                                        <i data-lucide="camera" class="w-5 h-5"></i>
+                                    </button>
+                                    <input type="file" id="feat-upload-luxury" class="hidden" onchange="handleImageUpload(event, 'features', 'luxury')">
+                                ` : ''}
                             </div>
 
-
-                            <!-- Horizontal Scroll Container -->
-                            <div class="relative">
-                                <div class="overflow-x-auto scrollbar-hide -mx-4 px-4 pb-4">
-                                    <div class="grid grid-rows-2 grid-flow-col gap-x-4 gap-y-8 w-max">
-                                        ${categories.map(cat => `
-                                            <div class="w-32 sm:w-40 flex flex-col items-center gap-3 cursor-pointer group/item" onclick="selectCategory('${cat.id}')">
-                                                <div class="relative w-full aspect-[3/4] overflow-hidden rounded-sm bg-gray-100 shadow-sm transition-all duration-500 group-hover/item:shadow-lg">
-                                                    <img src="${cat.image}" 
-                                                         class="w-full h-full object-cover transition-transform duration-700 group-hover/item:scale-110"
-                                                         onerror="this.src='https://via.placeholder.com/400x600?text=${cat.name}'">
-                                                </div>
-                                                <h3 class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-center text-gray-900 group-hover/item:text-amber-700 transition-colors line-clamp-2 leading-tight">
-                                                    ${cat.name}
-                                                </h3>
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                </div>
+                            <!-- 2. Bottom Grid: 2x2 Layout -->
+                            <div class="grid grid-cols-2 gap-1 h-[600px] sm:h-[700px]">
                                 
-                                <!-- Blur overlay to signal more content -->
-                                <div class="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white to-transparent pointer-events-none sm:hidden"></div>
+                                <!-- Business Suits (Top Left) -->
+                                <div class="relative group h-full overflow-hidden cursor-pointer">
+                                    <img src="${siteImages.features.business}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                                    <div class="absolute bottom-6 left-0 right-0 flex justify-center">
+                                        <div class="bg-white px-6 py-3 shadow-lg">
+                                            <h3 class="text-xs sm:text-sm font-bold text-black uppercase tracking-widest text-center">Business Suits</h3>
+                                        </div>
+                                    </div>
+                                    ${state.isAdmin ? `
+                                        <button onclick="document.getElementById('feat-upload-business').click()" class="absolute top-4 right-4 bg-white/90 text-black p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                                            <i data-lucide="camera" class="w-4 h-4"></i>
+                                        </button>
+                                        <input type="file" id="feat-upload-business" class="hidden" onchange="handleImageUpload(event, 'features', 'business')">
+                                    ` : ''}
+                                </div>
+
+                                <!-- Premium Casual (Top Right) -->
+                                <div class="relative group h-full overflow-hidden cursor-pointer">
+                                    <img src="${siteImages.features.casual}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                                    <div class="absolute bottom-6 left-0 right-0 flex justify-center">
+                                        <div class="bg-white px-6 py-3 shadow-lg">
+                                            <h3 class="text-xs sm:text-sm font-bold text-black uppercase tracking-widest text-center">Premium Casual</h3>
+                                        </div>
+                                    </div>
+                                    ${state.isAdmin ? `
+                                        <button onclick="document.getElementById('feat-upload-casual').click()" class="absolute top-4 right-4 bg-white/90 text-black p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                                            <i data-lucide="camera" class="w-4 h-4"></i>
+                                        </button>
+                                        <input type="file" id="feat-upload-casual" class="hidden" onchange="handleImageUpload(event, 'features', 'casual')">
+                                    ` : ''}
+                                </div>
+
+                                <!-- Tuxedo (Bottom Left) -->
+                                <div class="relative group h-full overflow-hidden cursor-pointer">
+                                    <img src="${siteImages.features.tuxedo}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                                    <div class="absolute bottom-6 left-0 right-0 flex justify-center">
+                                        <div class="bg-white px-6 py-3 shadow-lg">
+                                            <h3 class="text-xs sm:text-sm font-bold text-black uppercase tracking-widest text-center">Tuxedo</h3>
+                                        </div>
+                                    </div>
+                                    ${state.isAdmin ? `
+                                        <button onclick="document.getElementById('feat-upload-tuxedo').click()" class="absolute top-4 right-4 bg-white/90 text-black p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                                            <i data-lucide="camera" class="w-4 h-4"></i>
+                                        </button>
+                                        <input type="file" id="feat-upload-tuxedo" class="hidden" onchange="handleImageUpload(event, 'features', 'tuxedo')">
+                                    ` : ''}
+                                </div>
+
+                                <!-- Accessories (Bottom Right) -->
+                                <div class="relative group h-full overflow-hidden cursor-pointer">
+                                    <img src="${siteImages.features.accessories}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                                    <div class="absolute bottom-6 left-0 right-0 flex justify-center">
+                                        <div class="bg-white px-6 py-3 shadow-lg">
+                                            <h3 class="text-xs sm:text-sm font-bold text-black uppercase tracking-widest text-center">Accessories</h3>
+                                        </div>
+                                    </div>
+                                    ${state.isAdmin ? `
+                                        <button onclick="document.getElementById('feat-upload-accessories').click()" class="absolute top-4 right-4 bg-white/90 text-black p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                                            <i data-lucide="camera" class="w-4 h-4"></i>
+                                        </button>
+                                        <input type="file" id="feat-upload-accessories" class="hidden" onchange="handleImageUpload(event, 'features', 'accessories')">
+                                    ` : ''}
+                                </div>
+
                             </div>
                         </div>
                     </div>
+
 
                     <!-- Trending Products (12 Products - Editable via Admin) -->
                     <div class="bg-white py-3 px-2 sm:px-3" id="products-grid">
@@ -3109,6 +3179,10 @@
                     Object.assign(siteImages.carousel, parsed.carousel || {});
                     Object.assign(siteImages.branches, parsed.branches || {});
                     Object.assign(siteImages.articles, parsed.articles || {});
+                    if (parsed.features) {
+                        if (!siteImages.features) siteImages.features = {};
+                        Object.assign(siteImages.features, parsed.features || {});
+                    }
                 }
 
                 // Then try Firebase for latest version
