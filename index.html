@@ -659,11 +659,11 @@
             },
             // Empire Style Features Default (Matches Reference Image)
             features: {
-                luxury: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=2071&auto=format&fit=crop',
-                business: 'https://images.unsplash.com/photo-1594938298603-c8148c47e357?q=80&w=2070&auto=format&fit=crop',
-                casual: 'https://images.unsplash.com/photo-1593030761757-71bd90dbe3e4?q=80&w=2071&auto=format&fit=crop',
-                tuxedo: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop',
-                accessories: 'https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?q=80&w=2295&auto=format&fit=crop'
+                luxury: 'https://i.pinimg.com/1200x/7a/79/79/7a7979b7387f8572b11644efc32a409e.jpg',
+                business: 'https://i.pinimg.com/736x/68/ba/9c/68ba9cc4f49e766149080641f8ae4a95.jpg',
+                casual: 'https://i.pinimg.com/1200x/2a/39/7f/2a397f4d41c44eb39770dd8b4bdf9f96.jpg',
+                tuxedo: 'https://i.pinimg.com/736x/af/23/55/af235562c2b572f4ada734af35e395b4.jpg',
+                accessories: 'https://i.pinimg.com/736x/7d/ff/9f/7dff9faabc7735e50c226479876c1472.jpg'
             }
         };
 
@@ -1614,14 +1614,14 @@
                 `;
             }
 
-            if (state.viewingCategoryPage && state.selectedCategory !== 'all') {
+            if (state.viewingCategoryPage) {
                 const filteredProducts = getFilteredProducts();
-                const category = categories.find(c => c.id === state.selectedCategory);
+                const categoryName = state.selectedCategory === 'all' ? 'All Shop' : (categories.find(c => c.id === state.selectedCategory)?.name || 'Collection');
                 return `
                     <div class="flex-1 overflow-y-auto bg-gray-50 pb-6 p-4 animate-fade-in">
                         <div class="flex items-center gap-2 mb-6 cursor-pointer hover:opacity-80 transition-opacity" onclick="backToHome()">
                             <i data-lucide="arrow-left" class="w-6 h-6 text-gray-600"></i>
-                            <h2 class="text-2xl font-bold text-gray-900">${category.name} Collection</h2>
+                            <h2 class="text-2xl font-bold text-gray-900">${categoryName}</h2>
                         </div>
                         
                         <div class="grid grid-cols-2 gap-4">
@@ -1715,85 +1715,55 @@
                             <div class="grid grid-cols-2 gap-1 mb-1 h-[400px] sm:h-[500px]">
                                 <!-- Luxury -->
                                 <div class="relative group h-full overflow-hidden cursor-pointer">
-                                    <img src="${siteImages.features.luxury}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                                    <img src="https://i.pinimg.com/1200x/7a/79/79/7a7979b7387f8572b11644efc32a409e.jpg" class="absolute inset-0 w-full h-full transition-transform duration-700 group-hover:scale-105">
                                     <div class="absolute bottom-6 left-0 right-0 flex justify-center">
                                         <div class="bg-white px-6 py-3 shadow-lg">
                                             <h3 class="text-xs sm:text-sm font-bold text-black uppercase tracking-widest text-center">Tap into Luxury</h3>
                                         </div>
                                     </div>
-                                    ${state.isAdmin ? `
-                                        <button onclick="document.getElementById('feat-upload-luxury').click()" class="absolute top-4 right-4 bg-white/90 text-black p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                                            <i data-lucide="camera" class="w-4 h-4"></i>
-                                        </button>
-                                        <input type="file" id="feat-upload-luxury" class="hidden" onchange="handleImageUpload(event, 'features', 'luxury')">
-                                    ` : ''}
                                 </div>
 
                                 <!-- Business -->
                                 <div class="relative group h-full overflow-hidden cursor-pointer">
-                                    <img src="${siteImages.features.business}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                                    <img src="https://i.pinimg.com/736x/68/ba/9c/68ba9cc4f49e766149080641f8ae4a95.jpg" class="absolute inset-0 w-full h-full transition-transform duration-700 group-hover:scale-105">
                                     <div class="absolute bottom-6 left-0 right-0 flex justify-center">
                                         <div class="bg-white px-6 py-3 shadow-lg">
                                             <h3 class="text-xs sm:text-sm font-bold text-black uppercase tracking-widest text-center">Business Suits</h3>
                                         </div>
                                     </div>
-                                    ${state.isAdmin ? `
-                                        <button onclick="document.getElementById('feat-upload-business').click()" class="absolute top-4 right-4 bg-white/90 text-black p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                                            <i data-lucide="camera" class="w-4 h-4"></i>
-                                        </button>
-                                        <input type="file" id="feat-upload-business" class="hidden" onchange="handleImageUpload(event, 'features', 'business')">
-                                    ` : ''}
                                 </div>
                             </div>
 
                             <!-- 2. Middle Row: 1 Big Image (Premium Casual) -->
                             <div class="relative group h-[400px] sm:h-[500px] overflow-hidden cursor-pointer mb-1 w-full">
-                                <img src="${siteImages.features.casual}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                                <img src="https://i.pinimg.com/1200x/2a/39/7f/2a397f4d41c44eb39770dd8b4bdf9f96.jpg" class="absolute inset-0 w-full h-full transition-transform duration-700 group-hover:scale-105">
                                 <div class="absolute bottom-8 left-0 right-0 flex justify-center">
                                     <div class="bg-white px-8 py-3 shadow-xl">
                                         <h3 class="text-sm sm:text-base font-bold text-black uppercase tracking-widest text-center">Premium Casual</h3>
                                     </div>
                                 </div>
-                                ${state.isAdmin ? `
-                                    <button onclick="document.getElementById('feat-upload-casual').click()" class="absolute top-4 right-4 bg-white/90 text-black p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                                        <i data-lucide="camera" class="w-5 h-5"></i>
-                                    </button>
-                                    <input type="file" id="feat-upload-casual" class="hidden" onchange="handleImageUpload(event, 'features', 'casual')">
-                                ` : ''}
                             </div>
 
                             <!-- 3. Bottom Row: 2 Images (Tuxedo, Accessories) -->
                             <div class="grid grid-cols-2 gap-1 h-[400px] sm:h-[500px]">
                                 <!-- Tuxedo -->
                                 <div class="relative group h-full overflow-hidden cursor-pointer">
-                                    <img src="${siteImages.features.tuxedo}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                                    <img src="https://i.pinimg.com/736x/af/23/55/af235562c2b572f4ada734af35e395b4.jpg" class="absolute inset-0 w-full h-full transition-transform duration-700 group-hover:scale-105">
                                     <div class="absolute bottom-6 left-0 right-0 flex justify-center">
                                         <div class="bg-white px-6 py-3 shadow-lg">
                                             <h3 class="text-xs sm:text-sm font-bold text-black uppercase tracking-widest text-center">Tuxedo</h3>
                                         </div>
                                     </div>
-                                    ${state.isAdmin ? `
-                                        <button onclick="document.getElementById('feat-upload-tuxedo').click()" class="absolute top-4 right-4 bg-white/90 text-black p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                                            <i data-lucide="camera" class="w-4 h-4"></i>
-                                        </button>
-                                        <input type="file" id="feat-upload-tuxedo" class="hidden" onchange="handleImageUpload(event, 'features', 'tuxedo')">
-                                    ` : ''}
                                 </div>
 
                                 <!-- Accessories -->
                                 <div class="relative group h-full overflow-hidden cursor-pointer">
-                                    <img src="${siteImages.features.accessories}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                                    <img src="https://i.pinimg.com/736x/7d/ff/9f/7dff9faabc7735e50c226479876c1472.jpg" class="absolute inset-0 w-full h-full transition-transform duration-700 group-hover:scale-105">
                                     <div class="absolute bottom-6 left-0 right-0 flex justify-center">
                                         <div class="bg-white px-6 py-3 shadow-lg">
                                             <h3 class="text-xs sm:text-sm font-bold text-black uppercase tracking-widest text-center">Accessories</h3>
                                         </div>
                                     </div>
-                                    ${state.isAdmin ? `
-                                        <button onclick="document.getElementById('feat-upload-accessories').click()" class="absolute top-4 right-4 bg-white/90 text-black p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                                            <i data-lucide="camera" class="w-4 h-4"></i>
-                                        </button>
-                                        <input type="file" id="feat-upload-accessories" class="hidden" onchange="handleImageUpload(event, 'features', 'accessories')">
-                                    ` : ''}
                                 </div>
                             </div>
                         </div>
@@ -1826,53 +1796,31 @@
 
                     return displayProducts.map((p, i) => renderProductCard(p, i)).join('');
                 })()}
-                            </div>
-
-                            ${products.length > 12 ? `
-                                <div class="text-center mt-12">
-                                    <button onclick="selectCategory('all')" 
-                                            class="bg-black text-white px-16 py-4 font-bold uppercase text-xs tracking-[0.2em] hover:bg-gray-800 transition-colors">
-                                        View All Shop
-                                    </button>
-                                </div>
-                            ` : ''}
                         </div>
                     </div>
+                </div>
 
-                    <!-- JB'S Shop Video (10 seconds - Editable via Admin) -->
-                    <div class="bg-gray-50 py-3 px-2 sm:px-3">
-                        <div class="max-w-5xl mx-auto">
-                            
-                            <div class="relative aspect-video bg-black rounded-lg overflow-hidden">
-                                    <video 
-                                        class="w-full h-full object-cover" 
-                                        autoplay 
-                                        muted 
-                                        loop 
-                                        playsinline>
-                                        <source src="jb's.mp4" type="video/mp4">
-                                        Your browser does not support the video tag.
-                                    </video>
-
+                    <!-- JB'S Shop Video Section -->
+                    <div class="bg-white py-4 px-2 sm:px-3">
+                        <div class="max-w-7xl mx-auto">
+                            <div class="relative h-[400px] sm:h-[500px] bg-black rounded-lg overflow-hidden shadow-sm">
+                                <video 
+                                    class="w-full h-full object-cover" 
+                                    autoplay 
+                                    muted 
+                                    loop 
+                                    playsinline>
+                                    <source src="jb's.mp4" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
                             </div>
-                            
-                            ${state.isAdmin ? `
-                                <div class="text-center mt-4">
-                                    <input type="file" id="video-upload" accept="video/*" class="hidden" onchange="handleVideoUpload(event)">
-                                    <button onclick="document.getElementById('video-upload').click()" 
-                                            class="text-xs bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition-colors uppercase tracking-wider flex items-center gap-2 mx-auto">
-                                        📹 Upload Video from Gallery
-                                    </button>
-                                </div>
-                            ` : ''}
                         </div>
                     </div>
-
 
                     <!-- Home of Quality Products Section -->
-                    <div class="bg-white py-3 px-2 sm:px-3">
+                    <div class="bg-white pb-6 px-2 sm:px-3">
                         <div class="max-w-7xl mx-auto">
-                            <div class="text-center mb-8">
+                            <div class="text-center mb-6">
                                 <h2 class="text-2xl sm:text-3xl font-bold uppercase tracking-wider mb-2">HOME OF QUALITY</h2>
                                 <p class="text-sm text-gray-600 tracking-widest">crafted to perfection</p>
                                 ${state.isAdmin ? `
@@ -1882,33 +1830,26 @@
                             
                             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
                                 ${(() => {
-                    // Filter for specific categories: Men's Suits, Kaftans, Casual Wear (12 each), Accessories & Shoes (3 each)
+                    // Filter for specific categories
                     const targetCategories = ['mensuits', 'kaftans', 'casualwear', 'accessories', 'shoes'];
                     let displayProducts = [];
 
-                    // Get 6 products from Men's Suits only
+                    // Get products
                     const mensSuits = products.filter(p => p.category === 'mensuits').slice(0, 6);
-                    displayProducts = [...displayProducts, ...mensSuits];
-
-                    // Get 2 products from Kaftans
                     const kaftans = products.filter(p => p.category === 'kaftans').slice(0, 2);
-                    displayProducts = [...displayProducts, ...kaftans];
-
-                    // Get 2 products from Casual Wear
                     const casualWear = products.filter(p => p.category === 'casualwear').slice(0, 2);
-                    displayProducts = [...displayProducts, ...casualWear];
-
-                    // Get 2 products from Accessories
                     const accessories = products.filter(p => p.category === 'accessories').slice(0, 2);
-                    displayProducts = [...displayProducts, ...accessories];
 
-                    // Shuffle to mix categories (Total: 12 products)
+                    displayProducts = [...mensSuits, ...kaftans, ...casualWear, ...accessories];
+
+                    // Shuffle
                     displayProducts = displayProducts.sort(() => Math.random() - 0.5);
 
+                    // Ensure we show something
                     if (displayProducts.length === 0) {
                         return `
                                             <div class="col-span-full text-center py-6">
-                                                <p class="text-gray-500">No quality products yet. ${state.isAdmin ? 'Mark products as quality!' : ''}</p>
+                                                <p class="text-gray-500">No quality products yet.</p>
                                             </div>
                                         `;
                     }
@@ -1919,89 +1860,61 @@
                         </div>
                     </div>
 
-                    <!-- Location Images (Editable via Admin) -->
-                    <div class="bg-gray-50 py-3 px-2 sm:px-3">
-                        <div class="max-w-7xl mx-auto">
-                            <div class="text-center mb-8">
-                                <h2 class="text-2xl sm:text-3xl font-bold uppercase tracking-wider mb-2">OUR LOCATIONS</h2>
-                                <p class="text-sm text-gray-600 uppercase tracking-widest">Visit Us Today</p>
-                            </div>
-                            
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                <!-- Ntinda Branch -->
-                                <div class="relative group">
-                                    <div class="aspect-[4/3] overflow-hidden rounded-lg">
-                                        <img src="${siteImages.branches.ntinda}" 
-                                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-                                             alt="Ntinda Branch">
-                                    </div>
-                                    <div class="mt-4 text-center">
-                                        <h3 class="text-lg font-bold uppercase tracking-wider mb-2 flex items-center justify-center gap-2">
-                                            <i data-lucide="map-pin" class="w-5 h-5"></i>
-                                            Ntinda Branch
-                                        </h3>
-                                        <p class="text-sm text-gray-600">Emessa Complex Level 2 S-11</p>
-                                        <p class="text-sm text-gray-600">Near Rubis Petro Station</p>
-                                    </div>
-                                    ${state.isAdmin ? `
-                                        <button onclick="state.showAdminImagePanel = true; render();" 
-                                                class="absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded text-xs uppercase tracking-wider hover:bg-black">
-                                            📷 Update
-                                        </button>
-                                    ` : ''}
-                                </div>
 
-                                <!-- Mbarara Branch -->
-                                <div class="relative group">
-                                    <div class="aspect-[4/3] overflow-hidden rounded-lg">
-                                        <img src="${siteImages.branches.mbarara}" 
-                                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-                                             alt="Mbarara Branch">
-                                    </div>
-                                    <div class="mt-4 text-center">
-                                        <h3 class="text-lg font-bold uppercase tracking-wider mb-2 flex items-center justify-center gap-2">
-                                            <i data-lucide="map-pin" class="w-5 h-5"></i>
-                                            Mbarara Branch
-                                        </h3>
-                                        <p class="text-sm text-gray-600">Amazon Building L3 Rm6</p>
-                                        <p class="text-sm text-gray-600">Mbarara City</p>
-                                    </div>
-                                    ${state.isAdmin ? `
-                                        <button onclick="state.showAdminImagePanel = true; render();" 
-                                                class="absolute top-2 right-2 bg-black/70 text-white px-3 py-1 rounded text-xs uppercase tracking-wider hover:bg-black">
-                                            📷 Update
-                                        </button>
-                                    ` : ''}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
                     <!-- Empire Features Section -->
+                    <!-- Empire Features & Socials Section -->
                     <div class="bg-white py-6 px-2 sm:px-3">
-                        <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
-                            <div class="flex flex-col items-center">
-                                <div class="w-16 h-16 bg-black rounded-full flex items-center justify-center mb-4">
+                        <div class="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-8 text-center">
+                            <!-- Support Section -->
+                            <div class="flex flex-col items-center justify-center border-b sm:border-b-0 sm:border-r border-gray-100 pb-6 sm:pb-0 sm:pr-6">
+                                <div class="w-16 h-16 bg-black rounded-full flex items-center justify-center mb-4 shadow-lg">
                                     <i data-lucide="headphones" class="w-8 h-8 text-white"></i>
                                 </div>
                                 <h3 class="text-base font-bold uppercase tracking-wider mb-2">SUPPORT 24/7</h3>
                                 <p class="text-sm text-gray-600">Contact us 24 hours a day, 7 days a week</p>
                             </div>
 
-                            <div class="flex flex-col items-center">
-                                <div class="w-16 h-16 bg-black rounded-full flex items-center justify-center mb-4">
-                                    <i data-lucide="refresh-cw" class="w-8 h-8 text-white"></i>
+                            <!-- Social Media Section -->
+                            <div class="flex flex-col items-center justify-center pt-2 sm:pt-0 sm:pl-6">
+                                <h3 class="text-base font-bold uppercase tracking-wider mb-4">FOLLOW US @Jb'stailored</h3>
+                                <div class="flex items-center gap-4">
+                                    <a href="#" class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center hover:bg-[#1877F2] hover:text-white transition-all transform hover:scale-110 shadow-sm" title="Facebook">
+                                        <i data-lucide="facebook" class="w-5 h-5"></i>
+                                    </a>
+                                    <a href="#" class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center hover:bg-black hover:text-white transition-all transform hover:scale-110 shadow-sm" title="Twitter/X">
+                                        <i data-lucide="twitter" class="w-5 h-5"></i>
+                                    </a>
+                                    <a href="#" class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center hover:bg-[#E4405F] hover:text-white transition-all transform hover:scale-110 shadow-sm" title="Instagram">
+                                        <i data-lucide="instagram" class="w-5 h-5"></i>
+                                    </a>
+                                    <a href="#" class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center hover:bg-black hover:text-white transition-all transform hover:scale-110 shadow-sm" title="TikTok">
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>
+                                    </a>
                                 </div>
-                                <h3 class="text-base font-bold uppercase tracking-wider mb-2">2 DAYS RETURN</h3>
-                                <p class="text-sm text-gray-600">Simply return it within 2 days for an exchange</p>
-                            </div>
-
-                            <div class="flex flex-col items-center">
-                                <div class="w-16 h-16 bg-black rounded-full flex items-center justify-center mb-4">
-                                    <i data-lucide="shield-check" class="w-8 h-8 text-white"></i>
+                                <p class="text-xs text-gray-500 mt-3 font-medium tracking-wide">Facebook • Twitter • Instagram • TikTok</p>
+                                
+                                <div class="mt-8 pt-6 border-t border-gray-200 w-full animate-fade-in-up">
+                                    <h4 class="text-sm font-bold uppercase tracking-wider mb-4">Our Locations</h4>
+                                    <div class="space-y-4 text-xs text-gray-600">
+                                        <div class="flex flex-col items-center">
+                                            <div class="flex items-center gap-2 mb-1">
+                                                <i data-lucide="map-pin" class="w-4 h-4 text-gray-800"></i>
+                                                <span class="font-bold text-gray-900 uppercase">Ntinda Branch</span>
+                                            </div>
+                                            <p>Emessa Complex Level 2 S-11</p>
+                                            <p>Near Rubis Petro Station</p>
+                                        </div>
+                                        <div class="flex flex-col items-center">
+                                            <div class="flex items-center gap-2 mb-1">
+                                                <i data-lucide="map-pin" class="w-4 h-4 text-gray-800"></i>
+                                                <span class="font-bold text-gray-900 uppercase">Mbarara Branch</span>
+                                            </div>
+                                            <p>Amazon Building L3 Rm6</p>
+                                            <p>Mbarara City</p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <h3 class="text-base font-bold uppercase tracking-wider mb-2">100% PAYMENT SECURE</h3>
-                                <p class="text-sm text-gray-600">We ensure secure payment with PEV</p>
                             </div>
                         </div>
                     </div>
@@ -2012,7 +1925,7 @@
 
         function renderCategories() {
             return `
-                <div class="flex-1 overflow-y-auto bg-gray-50 p-4 pb-6 animate-fade-in">
+                <div class="flex-1 overflow-y-auto bg-gray-50 p-4 pb-24 animate-fade-in">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6 px-1 animate-fade-in-up">Explore Collections</h2>
                     <div class="space-y-6">
                         ${categories.filter(cat => cat.id !== 'all').map((category, i) => `
@@ -2039,7 +1952,7 @@
         function renderMessages() {
             if (!state.currentUser) {
                 return `
-                    <div class="flex-1 overflow-y-auto bg-gray-50 p-4 pb-6 animate-fade-in flex items-center justify-center">
+                    <div class="flex-1 overflow-y-auto bg-gray-50 p-4 pb-24 animate-fade-in flex items-center justify-center">
                         <div class="text-center">
                             <i data-lucide="message-circle" class="w-16 h-16 text-gray-300 mx-auto mb-4"></i>
                             <p class="text-gray-500 mb-4">Please login to view messages</p>
@@ -2052,7 +1965,7 @@
             }
 
             return `
-                <div class="flex-1 overflow-y-auto bg-gray-50 p-4 pb-6 animate-fade-in">
+                <div class="flex-1 overflow-y-auto bg-gray-50 p-4 pb-24 animate-fade-in">
                     <h2 class="text-xl font-bold text-gray-800 mb-4 animate-fade-in-up">
                         ${state.isAdmin ? '📦 All Orders' : '💬 My Orders & Messages'}
                     </h2>
@@ -2063,7 +1976,6 @@
                             <button onclick="startSupportChat()" class="bg-gray-900 text-white px-6 py-2 rounded-sm font-medium shadow-sm hover:bg-gray-800 transition-colors uppercase tracking-wider">
                                 Start Support Chat
                             </button>
-                        </div>
                         </div>
                     ` : `
                         <div class="space-y-3">
@@ -2099,7 +2011,7 @@
 
         function renderProfile() {
             return `
-                <div class="flex-1 overflow-y-auto bg-gray-50 pb-6 animate-fade-in">
+                <div class="flex-1 overflow-y-auto bg-gray-50 pb-24 animate-fade-in">
                     <div class="bg-gray-900 text-white p-8 text-center rounded-b-sm shadow-sm relative overflow-hidden">
                         <div class="w-24 h-24 bg-white rounded-full mx-auto mb-4 flex items-center justify-center shadow-sm border-2 border-gray-200 relative z-10 animate-fade-in-up">
                             <i data-lucide="user" class="w-12 h-12 text-gray-900"></i>
@@ -2166,6 +2078,27 @@
                     ${state.activeTab === 'profile' ? renderProfile() : ''}
 
 
+
+
+                    <!-- Bottom Navigation Bar -->
+                    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 px-6 shadow-lg z-50 flex justify-between items-center text-xs pb-safe">
+                        <button onclick="switchTab('categories')" class="flex flex-col items-center gap-1 ${state.activeTab === 'categories' ? 'text-black' : 'text-gray-400'}">
+                            <i data-lucide="layout-grid" class="w-6 h-6"></i>
+                            <span class="font-medium">Categories</span>
+                        </button>
+                        <button onclick="selectCategory('all')" class="flex flex-col items-center gap-1 ${state.selectedCategory === 'all' && state.viewingCategoryPage ? 'text-black' : 'text-gray-400'}">
+                            <i data-lucide="shirt" class="w-6 h-6"></i>
+                            <span class="font-medium">All Products</span>
+                        </button>
+                        <button onclick="state.showContactOptions = true; render();" class="flex flex-col items-center gap-1 text-gray-400 hover:text-green-600 transition-colors">
+                            <i data-lucide="message-circle" class="w-6 h-6"></i>
+                            <span class="font-medium">Chat</span>
+                        </button>
+                        <button onclick="switchTab('profile')" class="flex flex-col items-center gap-1 ${state.activeTab === 'profile' ? 'text-black' : 'text-gray-400'}">
+                            <i data-lucide="user" class="w-6 h-6"></i>
+                            <span class="font-medium">Account</span>
+                        </button>
+                    </div>
 
                     <!--Menu Drawer-->
                 ${state.showMenu ? `
@@ -2428,16 +2361,7 @@
                     ` : ''
                     }
 
-                    <!-- Empire Gold Floating Chat Button -->
-                    <button onclick="state.showContactOptions = true; render();" 
-                            class="empire-chat-btn animate-pulse">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
-                        </svg>
-                        <span>CHAT</span>
-                    </button>
 
-                    <!--Category Editor Modal-->
                 ${state.showCategoryEditor ? `
                         <div class="fixed inset-0 bg-black/70 backdrop-blur-md z-[70] flex items-center justify-center p-4 animate-fade-in overflow-y-auto" onclick="state.showCategoryEditor = false; render();">
                             <div class="bg-white rounded-3xl p-6 max-w-4xl w-full shadow-2xl transform scale-100 transition-all animate-fade-in-up my-8 max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
@@ -2958,8 +2882,9 @@
 
         function switchTab(tab) { state.activeTab = tab; state.viewingCategoryPage = false; render(); }
         function selectCategory(categoryId) {
-            if (categoryId === 'all') { state.selectedCategory = 'all'; state.viewingCategoryPage = false; }
-            else { state.selectedCategory = categoryId; state.activeTab = 'home'; state.viewingCategoryPage = true; }
+            state.selectedCategory = categoryId;
+            state.activeTab = 'home';
+            state.viewingCategoryPage = true;
             render();
         }
         function backToHome() { state.viewingCategoryPage = false; state.selectedCategory = 'all'; render(); }
