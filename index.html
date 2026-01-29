@@ -615,11 +615,7 @@
 </head>
 
 <body class="bg-white text-black antialiased selection:bg-gray-100 selection:text-black">
-    <div id="app">
-        <div class="fixed inset-0 bg-white flex items-center justify-center">
-            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
-        </div>
-    </div>
+    <div id="app"></div>
 
     <script>
         const ADMIN_EMAIL = 'israelezrakisakye@gmail.com';
@@ -691,7 +687,7 @@
             unreadCount: 0
         };
 
-        const categories = JSON.parse(localStorage.getItem('jbs_categories')) || [
+        const categories = [
 
             { id: 'mensuits', name: 'Men Suits', image: 'https://www.pinterest.com/pin/604749056249870742/' },
             { id: 'officewear', name: 'Office Wear', image: 'https://www.pinterest.com/pin/1900024839638821/' },
