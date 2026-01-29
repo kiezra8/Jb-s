@@ -905,16 +905,19 @@
                 render();
             }
 
-            // NO AUTO-GENERATION - Products must be added manually through admin panel
+            // Auto-generate if no products found to prevent empty site
             if (products.length === 0) {
-                console.log('📦 No products found. Add products through Admin Panel.');
+                console.log('📦 No products found. Generating defaults...');
+                generateProducts();
+                render();
             }
         }
 
         function generateProducts() {
-            // DISABLED - App is read-only
-            console.warn('generateProducts is disabled. Manage products in Firebase Console.');
-            return;
+            // Check if generation is needed
+            if (products.length > 0) return;
+
+            console.log('🔄 Generating default products...');
             let idCounter = 1;
 
             const productDescriptions = {
