@@ -656,6 +656,14 @@
                 wedding: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsATRMnoCpbrMPE50gb-WZydUHU0HKy-yOJg&s',
                 professional: 'https://media.istockphoto.com/id/1076098272/photo/tailor-sketching.jpg?s=1024x1024&w=is&k=20&c=Jjzr5rSM0pgAdVTvpr6WrHYNoTfDL2wXKffykzzobm0=',
                 care: 'https://alfredoscleanerstailoring.com/wp-content/uploads/2025/03/tailoring_vs_alterations.webp?w=1024'
+            },
+            // Premium Feature Images (Empire Style)
+            features: {
+                luxury: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=2071&auto=format&fit=crop',
+                business: 'https://images.unsplash.com/photo-1594938298603-c8148c47e357?q=80&w=2070&auto=format&fit=crop',
+                premium: 'https://images.unsplash.com/photo-1593030761757-71bd90dbe3e4?q=80&w=2071&auto=format&fit=crop',
+                tuxedo: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop',
+                casual: 'https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?q=80&w=2295&auto=format&fit=crop'
             }
         };
 
@@ -908,6 +916,10 @@
                     Object.assign(siteImages.carousel, parsed.carousel || {});
                     Object.assign(siteImages.branches, parsed.branches || {});
                     Object.assign(siteImages.articles, parsed.articles || {});
+                    if (parsed.features) {
+                        if (!siteImages.features) siteImages.features = {};
+                        Object.assign(siteImages.features, parsed.features || {});
+                    }
                     if (parsed.video) siteImages.video = parsed.video;
                 }
             } catch (e) {
@@ -3108,6 +3120,11 @@
                         Object.assign(siteImages.carousel, data.carousel || {});
                         Object.assign(siteImages.branches, data.branches || {});
                         Object.assign(siteImages.articles, data.articles || {});
+                        // Ensure features object exists
+                        if (data.features) {
+                            if (!siteImages.features) siteImages.features = {};
+                            Object.assign(siteImages.features, data.features || {});
+                        }
                         // Update localStorage with Firebase data
                         localStorage.setItem('jbs_site_images', JSON.stringify(siteImages));
                     }
