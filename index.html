@@ -2081,7 +2081,11 @@
 
 
                     <!-- Bottom Navigation Bar -->
-                    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 px-6 shadow-lg z-50 flex justify-between items-center text-xs pb-safe">
+                    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 px-4 shadow-lg z-50 flex justify-between items-center text-xs pb-safe">
+                        <button onclick="switchTab('home'); state.viewingCategoryPage = false; state.searchQuery = ''; render();" class="flex flex-col items-center gap-1 ${state.activeTab === 'home' && !state.viewingCategoryPage ? 'text-black' : 'text-gray-400'}">
+                            <i data-lucide="home" class="w-6 h-6"></i>
+                            <span class="font-medium">Home</span>
+                        </button>
                         <button onclick="switchTab('categories')" class="flex flex-col items-center gap-1 ${state.activeTab === 'categories' ? 'text-black' : 'text-gray-400'}">
                             <i data-lucide="layout-grid" class="w-6 h-6"></i>
                             <span class="font-medium">Categories</span>
