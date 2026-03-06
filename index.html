@@ -640,7 +640,7 @@
         // ========================================
         // IMAGE CONFIGURATION - Change URLs here
         // ========================================
-        const siteImages = JSON.parse(localStorage.getItem('jbs_site_images')) || {
+        const siteImages = JSON.parse(localStorage.getItem('jbs_site_images') || 'null') || {
             // Carousel Images
             carousel: {
                 slide1: 'frontannimation.jpeg', // Man in suit default
