@@ -639,10 +639,16 @@
             return false;
         };
 
+        // Safe JSON Parse helper
+        function safeParse(str, fallback) {
+            if (!str || str === 'undefined') return fallback;
+            try { return JSON.parse(str); } catch (e) { return fallback; }
+        }
+
         // ========================================
         // IMAGE CONFIGURATION - Change URLs here
         // ========================================
-        const siteImages = JSON.parse(localStorage.getItem('jbs_site_images') || 'null') || {
+        const siteImages = safeParse(localStorage.getItem('jbs_site_images'), null) || {
             // Carousel Images
             carousel: {
                 slide1: 'frontannimation.jpeg', // Man in suit default
@@ -685,7 +691,7 @@
 
         const state = {
             activeTab: 'home',
-            cart: JSON.parse(localStorage.getItem('jbs_cart') || '[]'),
+            cart: safeParse(localStorage.getItem('jbs_cart'), []),
             showCart: false,
             showMenu: false,
             selectedCategory: 'all',
@@ -896,7 +902,7 @@
             // Fallback to localStorage
             try {
                 const savedProducts = localStorage.getItem('jbs_products');
-                if (savedProducts) {
+                if (savedProducts && savedProducts !== 'undefined') {
                     products = JSON.parse(savedProducts);
                     console.log(`✅ Loaded ${products.length} products from localStorage`);
                     return;
@@ -915,19 +921,19 @@
             try {
                 // 1. Categories
                 const savedCats = localStorage.getItem('jbs_categories');
-                if (savedCats) {
+                if (savedCats && savedCats !== 'undefined') {
                     categories = JSON.parse(savedCats);
                 }
 
                 // 2. Products
                 const savedProds = localStorage.getItem('jbs_products');
-                if (savedProds) {
+                if (savedProds && savedProds !== 'undefined') {
                     products = JSON.parse(savedProds);
                 }
 
                 // 3. Site Images
                 const savedImages = localStorage.getItem('jbs_site_images');
-                if (savedImages) {
+                if (savedImages && savedImages !== 'undefined') {
                     const parsed = JSON.parse(savedImages);
                     Object.assign(siteImages.carousel, parsed.carousel || {});
                     Object.assign(siteImages.branches, parsed.branches || {});
@@ -3109,7 +3115,7 @@
             try {
                 // First try localStorage
                 const savedImages = localStorage.getItem('jbs_site_images');
-                if (savedImages) {
+                if (savedImages && savedImages !== 'undefined') {
                     const parsed = JSON.parse(savedImages);
                     Object.assign(siteImages.carousel, parsed.carousel || {});
                     Object.assign(siteImages.branches, parsed.branches || {});
@@ -3358,7 +3364,7 @@
                     } else {
                         // Fallback to localStorage if Firestore has no data yet
                         const saved = localStorage.getItem('jbs_categories');
-                        if (saved) {
+                        if (saved && saved !== 'undefined') {
                             categories = JSON.parse(saved);
                             console.log('✅ Categories loaded from localStorage');
                         }
@@ -3787,7 +3793,7 @@
         async function loadProducts() {
             try {
                 const savedProducts = localStorage.getItem('jbs_products');
-                if (savedProducts) {
+                if (savedProducts && savedProducts !== 'undefined') {
                     const parsed = JSON.parse(savedProducts);
                     if (parsed.length > 0) {
                         products = parsed;
