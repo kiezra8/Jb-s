@@ -645,6 +645,14 @@
             try { return JSON.parse(str); } catch (e) { return fallback; }
         }
 
+        // XSS Sanitizer — strips HTML tags from any string before rendering
+        function sanitize(str) {
+            if (str === null || str === undefined) return '';
+            const div = document.createElement('div');
+            div.appendChild(document.createTextNode(String(str)));
+            return div.innerHTML;
+        }
+
         // ========================================
         // IMAGE CONFIGURATION - Change URLs here
         // ========================================
@@ -2813,7 +2821,7 @@
             } catch (error) {
                 console.error('❌ Render error:', error);
                 alert('Render error: ' + error.message);
-                document.getElementById('app').innerHTML = `<div style="padding: 20px; color: red;">Error: ${error.message}</div>`;
+                document.getElementById('app').innerHTML = `<div style="padding: 20px; color: red;">Error: ${sanitize(error.message)}</div>`;
             }
         }
 
