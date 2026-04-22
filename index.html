@@ -1341,10 +1341,10 @@
                 // Cart order
                 message = `Hello! I would like to place an order:%0A%0A`;
                 state.cart.forEach((item, index) => {
-                    message += `${index + 1}. ${item.name}%0A   Size: ${item.selectedSize}%0A   Quantity: ${item.quantity}%0A   Price: ${formatMoney(item.price * item.quantity)}%0A%0A`;
+                    message += `${index + 1}. ${item.name}%0A   Size: ${item.selectedSize}%0A   Quantity: ${item.quantity}%0A%0A`;
                 });
-                message += `Total: ${formatMoney(getTotalPrice())}%0A%0A`;
-                message += `Customer: ${customerInfo}`;
+                message += `Customer: ${customerInfo}\n\n`;
+
             } else if (product.context === 'support') {
                 // Support chat
                 message = `Hello! I need support.%0A%0ACustomer: ${customerInfo}`;
@@ -1362,10 +1362,10 @@
             if (product.context === 'order') {
                 message = `Hello! I would like to place an order:\n\n`;
                 state.cart.forEach((item, index) => {
-                    message += `${index + 1}. ${item.name}\n   Size: ${item.selectedSize}\n   Quantity: ${item.quantity}\n   Price: ${formatMoney(item.price * item.quantity)}\n\n`;
+                    message += `${index + 1}. ${item.name}\n   Size: ${item.selectedSize}\n   Quantity: ${item.quantity}\n\n`;
                 });
-                message += `Total: ${formatMoney(getTotalPrice())}\n\n`;
                 message += `Customer: ${customerInfo}`;
+
             } else if (product.context === 'support') {
                 message = `Hello! I need support.\n\nCustomer: ${customerInfo}`;
             } else {
@@ -1602,12 +1602,8 @@
                     <div class="p-2 bg-white">
                         <h3 class="text-xs font-medium mb-2 line-clamp-2 text-gray-800 leading-relaxed tracking-wide">${product.name.toLowerCase()}</h3>
                         
-                        <!-- Price Display (Empire Style) -->
-                        <div class="flex items-center gap-2">
-                            <span class="text-base font-bold text-black">${formatMoney(salePrice)}</span>
-                            <span class="text-xs text-red-600 line-through">${formatMoney(originalPrice)}</span>
-                        </div>
                     </div>
+
                 </div>
             `;
         }
@@ -2011,7 +2007,8 @@
                             'bg-blue-100 text-blue-700'
                 }">${order.status}</span>
                                             </div>
-                                            <p class="text-xs text-gray-500 mb-2">${state.isAdmin ? order.userName : formatMoney(order.total)}</p>
+                                            <p class="text-xs text-gray-500 mb-2">${state.isAdmin ? order.userName : ''}</p>
+
                                             <div class="flex items-center justify-between">
                                                 <span class="text-xs text-gray-400">${order.createdAt ? new Date(order.createdAt.seconds * 1000).toLocaleDateString() : 'Just now'}</span>
                                                 ${(state.isAdmin && order.unreadByAdmin) || (!state.isAdmin && order.unreadByCustomer) ?
@@ -2247,7 +2244,8 @@
                                                         <h3 class="font-semibold mb-1 line-clamp-1">${item.name}</h3>
                                                         <p class="text-sm text-gray-500 mb-2">Size: ${item.selectedSize}</p>
                                                         <div class="flex items-center justify-between">
-                                                            <span class="font-bold text-amber-700">${formatMoney(item.price)}</span>
+                                                            <span></span>
+
                                                             <div class="flex items-center gap-2">
                                                                 <button onclick="updateQuantity(${item.id}, '${item.selectedSize}', -1)" class="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm border hover:bg-gray-50 active:scale-90 transition-transform">
                                                                     <i data-lucide="minus" class="w-4 h-4"></i>
@@ -2266,11 +2264,9 @@
                                             `).join('')}
                                         </div>
                                         <div class="border-t pt-4 mb-4">
-                                            <div class="flex items-center justify-between mb-4">
-                                                <span class="text-lg font-bold">Total:</span>
-                                                <span class="text-2xl font-bold text-amber-700">${formatMoney(getTotalPrice())}</span>
-                                            </div>
-                                            <button onclick='showOrderOptions({name: "Cart Items", price: ${getTotalPrice()}}, "order")' class="w-full bg-gray-900 text-white py-4 rounded-sm font-medium text-lg shadow-sm hover:bg-gray-800 active:scale-95 transition-all uppercase tracking-wider">
+
+                                            <button onclick='showOrderOptions({name: "Cart Items"}, "order")' class="w-full bg-gray-900 text-white py-4 rounded-sm font-medium text-lg shadow-sm hover:bg-gray-800 active:scale-95 transition-all uppercase tracking-wider">
+
                                                 ORDER NOW
                                             </button>
                                         </div>
